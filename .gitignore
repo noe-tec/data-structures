@@ -1,0 +1,15 @@
+# Placeholders. They keep the folders visible on this machine, but git
+# ignores them, so an empty folder never reaches the remote. A folder shows
+# up on GitHub only once it holds something real.
+.gitkeep
+
+# Build artifacts never belong in this repository.
+bin/
+*.o
+*.out
+*.exe
+
+# Editor and OS noise
+.vscode/
+.DS_Store
+Thumbs.db
