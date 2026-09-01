@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why stability matters</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: #24303c;
+         background: #fff; padding: 4vh 6vw 8vh 6vw; max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.9rem; color: #16324f; margin-bottom: .3rem; }
+  .sub { font-size: 1rem; color: #6b7885; margin-bottom: 3rem; }
+  h2 { font-size: 1.25rem; color: #16324f; border-bottom: 2px solid #1a63a9;
+       padding-bottom: .4rem; margin: 3rem 0 .6rem 0; }
+  p.lead { font-size: 1rem; color: #43505c; line-height: 1.6; margin-bottom: 1.6rem; max-width: 760px; }
+
+  .tag { display: inline-block; font-size: .65em; vertical-align: super;
+         font-weight: 700; margin-left: 1px; }
+  .tagA { color: #1a63a9; }
+  .tagB { color: #c0392b; }
+
+  .sidebyside { display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .algo { flex: 1; min-width: 280px; }
+  .algo h3 { font-size: 1rem; color: #16324f; margin-bottom: .5rem; }
+  .verdict { display: inline-block; font-size: .78rem; font-weight: 700; padding: .2rem .6rem;
+             border-radius: 20px; margin-left: .5rem; vertical-align: middle; }
+  .verdict.ok { background: #d5e8d4; color: #3d6b2e; }
+  .verdict.bad { background: #fdecea; color: #c0392b; }
+
+  table.trace { border-collapse: collapse; width: 100%; margin-bottom: .8rem; }
+  table.trace th { font-size: .7rem; color: #6b7885; font-weight: 600; padding: .2rem .3rem;
+                   text-align: center; }
+  table.trace td { text-align: center; padding: 0; }
+  table.trace td:first-child { white-space: nowrap; width: 1%; }
+  .cell { display: inline-flex; align-items: center; justify-content: center;
+          width: 2.6rem; height: 2.6rem; border: 2px solid #d5dde4; border-radius: 6px;
+          font-size: 1.15rem; font-weight: 700; background: #fff; margin: 2px; }
+  .cell.ask   { border-color: #e8a33d; background: #fdf3e3; }
+  .cell.moved { border-color: #c0392b; background: #fdecea; color: #c0392b; }
+  .cell.same  { border-color: #9aa7b4; background: #f2f4f6; }
+  .cell.min   { border-color: #1a63a9; background: #e3eefb; color: #1a63a9; }
+  .cell.locked{ border-color: #82b366; background: #d5e8d4; color: #3d6b2e; }
+  .rowtext { font-size: .8rem; color: #6b7885; text-align: left; padding-left: .6rem; }
+
+  .totals { font-size: .82rem; color: #43505c; margin-bottom: .6rem; }
+
+  .legend { font-size: .78rem; color: #6b7885; margin: 1rem 0 2rem 0; line-height: 1.7; }
+  .legend b { font-weight: 600; }
+  .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 2px;
+            margin-right: 3px; vertical-align: middle; }
+
+  table.log { border-collapse: collapse; width: 100%; font-size: .85rem; }
+  table.log th { text-align: left; font-size: .7rem; color: #6b7885; font-weight: 600;
+                 text-transform: uppercase; letter-spacing: .05em; padding: .35rem .6rem;
+                 border-bottom: 2px solid #cfd8e0; }
+  table.log td { padding: .35rem .6rem; border-bottom: 1px solid #eef1f4; }
+  .logwrap { display: flex; gap: 1.6rem; flex-wrap: wrap; margin-bottom: .6rem; }
+  .logbox { flex: 1; min-width: 220px; }
+  .logbox h3 { font-size: .92rem; color: #16324f; margin-bottom: .5rem; }
+  .grp0 { background: #fff; }
+  .grp1 { background: #f4f8fb; }
+  .grp2 { background: #fbf7ef; }
+  tr.broken td { border-left: 3px solid #c0392b; }
+  tr.fine td { border-left: 3px solid #82b366; }
+  .note { font-size: .78rem; color: #6b7885; margin-top: .5rem; }
+  .note.bad { color: #c0392b; font-weight: 600; }
+  .note.ok { color: #3d6b2e; font-weight: 600; }
+
+  .takeaway { background: #f4f6f8; border-left: 5px solid #1a63a9; padding: 1rem 1.2rem;
+              margin-top: 2.5rem; font-size: .92rem; line-height: 1.6; color: #24303c; }
+  .takeaway b { color: #16324f; }
+</style>
+</head>
+<body>
+
+<h1>Why stability matters</h1>
+<p class="sub">TC1031 &middot; What happens to equal elements when you sort</p>
+
+<p class="lead">
+A sorting algorithm is <b>stable</b> when two elements that compare as equal keep their
+original relative order after sorting. It sounds like a technicality until you see the two
+cases below side by side.
+</p>
+
+<h2>1 &middot; Three cards, two of them tied</h2>
+<p class="lead">
+Same array, two algorithms: <span class="cell" style="width:1.6rem;height:1.6rem;font-size:.85rem;display:inline-flex;vertical-align:middle;">4<span class="tag tagA">A</span></span>
+<span class="cell" style="width:1.6rem;height:1.6rem;font-size:.85rem;display:inline-flex;vertical-align:middle;">4<span class="tag tagB">B</span></span>
+<span class="cell" style="width:1.6rem;height:1.6rem;font-size:.85rem;display:inline-flex;vertical-align:middle;">1</span>
+&mdash; card A started to the left of card B. Watch where they end up.
+</p>
+
+<div class="sidebyside">
+  <div class="algo">
+    <h3>Bubble sort <span class="verdict ok">stable</span></h3>
+    <table class="trace">
+      <tr>
+        <td><div class="cell same">4<span class="tag tagA">A</span></div><div class="cell same">4<span class="tag tagB">B</span></div><div class="cell">1</div></td>
+        <td class="rowtext">Is 4<span class="tag tagA">A</span> &gt; 4<span class="tag tagB">B</span>? No, they're equal. No swap.</td>
+      </tr>
+      <tr>
+        <td><div class="cell">4<span class="tag tagA">A</span></div><div class="cell moved">4<span class="tag tagB">B</span></div><div class="cell moved">1</div></td>
+        <td class="rowtext">Is 4<span class="tag tagB">B</span> &gt; 1? Yes. Swap.</td>
+      </tr>
+      <tr>
+        <td><div class="cell moved">4<span class="tag tagA">A</span></div><div class="cell moved">1</div><div class="cell">4<span class="tag tagB">B</span></div></td>
+        <td class="rowtext">Is 4<span class="tag tagA">A</span> &gt; 1? Yes. Swap.</td>
+      </tr>
+      <tr>
+        <td><div class="cell locked">1</div><div class="cell locked">4<span class="tag tagA">A</span></div><div class="cell locked">4<span class="tag tagB">B</span></div></td>
+        <td class="rowtext">Sorted. 3 comparisons, 2 swaps.</td>
+      </tr>
+    </table>
+    <div class="totals">Result: 1, 4<span class="tag tagA">A</span>, 4<span class="tag tagB">B</span> &mdash; A is still before B, exactly like the start.</div>
+  </div>
+
+  <div class="algo">
+    <h3>Selection sort <span class="verdict bad">not stable</span></h3>
+    <table class="trace">
+      <tr>
+        <td><div class="cell min">4<span class="tag tagA">A</span></div><div class="cell ask">4<span class="tag tagB">B</span></div><div class="cell">1</div></td>
+        <td class="rowtext">Is 4<span class="tag tagB">B</span> smaller than 4<span class="tag tagA">A</span>? No, equal. Smallest stays 4<span class="tag tagA">A</span>.</td>
+      </tr>
+      <tr>
+        <td><div class="cell moved">1</div><div class="cell">4<span class="tag tagB">B</span></div><div class="cell moved">4<span class="tag tagA">A</span></div></td>
+        <td class="rowtext">Is 1 smaller than 4<span class="tag tagA">A</span>? Yes, new smallest. End of pass: swap position 0 with it directly.</td>
+      </tr>
+      <tr>
+        <td><div class="cell locked">1</div><div class="cell min">4<span class="tag tagB">B</span></div><div class="cell ask">4<span class="tag tagA">A</span></div></td>
+        <td class="rowtext">Is 4<span class="tag tagA">A</span> smaller than 4<span class="tag tagB">B</span>? No, equal. 4<span class="tag tagB">B</span> was already in place, no swap.</td>
+      </tr>
+      <tr>
+        <td><div class="cell locked">1</div><div class="cell locked">4<span class="tag tagB">B</span></div><div class="cell locked">4<span class="tag tagA">A</span></div></td>
+        <td class="rowtext">Sorted. 3 comparisons, 1 swap.</td>
+      </tr>
+    </table>
+    <div class="totals">Result: 1, 4<span class="tag tagB">B</span>, 4<span class="tag tagA">A</span> &mdash; B jumped ahead of A. The direct swap in step 2 flipped their order.</div>
+  </div>
+</div>
+
+<p class="legend">
+<span class="swatch" style="background:#fdf3e3;border:1.5px solid #e8a33d"></span><b>being compared</b> &nbsp;
+<span class="swatch" style="background:#fdecea;border:1.5px solid #c0392b"></span><b>just moved</b> &nbsp;
+<span class="swatch" style="background:#f2f4f6;border:1.5px solid #9aa7b4"></span><b>compared, left alone</b> &nbsp;
+<span class="swatch" style="background:#e3eefb;border:1.5px solid #1a63a9"></span><b>smallest so far</b> &nbsp;
+<span class="swatch" style="background:#d5e8d4;border:1.5px solid #82b366"></span><b>final position</b>
+</p>
+
+<h2>2 &middot; The same idea with real data: book ratings</h2>
+<p class="lead">
+Eight books, already listed alphabetically by title. Now sort the same list by star rating,
+highest first. If the sort is stable, every book that ties on rating should stay in
+alphabetical order automatically &mdash; you get a two-field sort for the price of one. Watch
+what an unstable sort does instead.
+</p>
+
+<div class="logbox" style="max-width:320px; margin-bottom:1.4rem;">
+  <h3>Original, alphabetical by title</h3>
+  <table class="log">
+    <tr><th>Title</th><th>Rating</th></tr>
+    <tr><td>Autumn Bridge</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+    <tr><td>Blue Harbor</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+    <tr><td>Coral Garden</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+    <tr><td>Desert Bloom</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td></tr>
+    <tr><td>Echo Canyon</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+    <tr><td>Falcon's Rest</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td></tr>
+    <tr><td>Golden Hollow</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+    <tr><td>Hidden River</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+  </table>
+</div>
+
+<div class="logwrap">
+  <div class="logbox">
+    <h3>Sorted by rating &mdash; stable algorithm <span class="verdict ok">bubble sort</span></h3>
+    <table class="log">
+      <tr><th>Title</th><th>Rating</th></tr>
+      <tr class="fine grp0"><td>Desert Bloom</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td></tr>
+      <tr class="fine grp0"><td>Falcon's Rest</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td></tr>
+      <tr class="fine grp1"><td>Blue Harbor</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+      <tr class="fine grp1"><td>Echo Canyon</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+      <tr class="fine grp1"><td>Hidden River</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+      <tr class="fine grp2"><td>Autumn Bridge</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+      <tr class="fine grp2"><td>Coral Garden</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+      <tr class="fine grp2"><td>Golden Hollow</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+    </table>
+    <p class="note ok">Every rating group is still in alphabetical order. Sorting by rating cost nothing extra.</p>
+  </div>
+
+  <div class="logbox">
+    <h3>Sorted by rating &mdash; unstable algorithm <span class="verdict bad">selection sort</span></h3>
+    <table class="log">
+      <tr><th>Title</th><th>Rating</th></tr>
+      <tr class="fine grp0"><td>Desert Bloom</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td></tr>
+      <tr class="fine grp0"><td>Falcon's Rest</td><td>&#9733;&#9733;&#9733;&#9733;&#9733;</td></tr>
+      <tr class="broken grp1"><td>Echo Canyon</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+      <tr class="broken grp1"><td>Blue Harbor</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+      <tr class="broken grp1"><td>Hidden River</td><td>&#9733;&#9733;&#9733;&#9733;&#9734;</td></tr>
+      <tr class="broken grp2"><td>Autumn Bridge</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+      <tr class="broken grp2"><td>Golden Hollow</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+      <tr class="broken grp2"><td>Coral Garden</td><td>&#9733;&#9733;&#9733;&#9734;&#9734;</td></tr>
+    </table>
+    <p class="note bad">The 4-star and 3-star groups came out of alphabetical order. The books
+    are still grouped correctly by rating &mdash; sorting still "worked" &mdash; but the
+    alphabetical order you already had got shuffled as a side effect, for free, without any
+    warning.</p>
+  </div>
+</div>
+
+<div class="takeaway">
+  <b>The point isn't the tied values themselves</b> &mdash; it's everything else those records
+  carry that you are <i>not</i> currently sorting by. Stability is what lets you sort by one
+  field, then by another, and trust that the first ordering survives inside every group of the
+  second. Lose stability and you lose that guarantee silently: the output still looks "sorted,"
+  the bug just shows up later, when someone assumes the titles inside a rating group are still
+  alphabetical and they are not.
+</div>
+
+</body>
+</html>
