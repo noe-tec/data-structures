@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merge Sort · Recursion Tree Walkthrough</title>
+<style>
+  :root{
+    --navy:#16324f; --blue:#1a63a9; --red:#c0392b; --green:#82b366;
+    --amber:#e8a33d; --muted:#9aa7b4; --line:#b9c6d2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    background:#fff; color:var(--navy);
+    height:100vh; width:100vw; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  header{ padding:1.4vh 2vw .6vh; flex:0 0 auto; }
+  h1{ margin:0; font-size:1.65vw; color:var(--navy); }
+  .subtitle{ margin:.4vh 0 0; font-size:.92vw; color:#3d5872; }
+  .reminder{
+    margin:.8vh 0 0; font-size:.85vw; background:#eef4fa; border-left:4px solid var(--blue);
+    padding:.6vh 1vw; color:var(--navy); border-radius:0 4px 4px 0;
+  }
+  .reminder strong{ color:var(--blue); }
+
+  .legend{
+    display:flex; flex-wrap:wrap; gap:1.6vw; padding:.7vh 2vw;
+    font-size:.72vw; color:#455b70; border-bottom:1px solid var(--line);
+    flex:0 0 auto; align-items:center;
+  }
+  .legend .item{ display:flex; align-items:center; gap:.35vw; }
+  .swatch{ width:.85vw; height:.85vw; border-radius:3px; display:inline-block; flex:0 0 auto; }
+  .sw-pending{ background:#fff; border:1.5px dashed var(--muted); }
+  .sw-stack{ background:#fff; border:2px solid var(--blue); }
+  .sw-enter{ background:var(--blue); border:2px solid var(--blue); }
+  .sw-merge{ background:var(--amber); border:2px solid var(--amber); }
+  .sw-done{ background:#e9f3ea; border:2px solid var(--green); }
+
+  .arraystrip{ flex:0 0 auto; padding:1vh 2vw .4vh; }
+  .arr-row{ display:flex; justify-content:center; gap:.5vw; }
+  .arr-cell{
+    width:4.6vw; height:4.6vw; border:2px solid var(--line); border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.3vw; font-weight:600; color:var(--navy); background:#fbfcfd;
+    position:relative; transition:background .25s,border-color .25s,color .25s;
+  }
+  .arr-cell .idx{
+    position:absolute; top:-2.1vh; left:50%; transform:translateX(-50%);
+    font-size:.62vw; color:var(--muted); font-weight:400;
+  }
+  .arr-cell.inrange{ border-color:var(--blue); background:#eaf2fa; }
+  .arr-cell.merging{ border-color:var(--amber); background:#fdf3e2; }
+  .arr-cell.settled{ border-color:var(--green); background:#eef6ef; color:#2f6b3a; }
+
+  main{ flex:1; display:flex; min-height:0; padding:.4vh 2vw 0; gap:1vw; }
+
+  .depth-axis{
+    flex:0 0 4.6vw; display:flex; flex-direction:column; position:relative;
+  }
+  .depth-label{
+    position:absolute; left:0; right:0; transform:translateY(-50%);
+    font-size:.68vw; color:var(--muted); font-weight:600; text-align:right; padding-right:.5vw;
+    border-right:2px dotted var(--line);
+  }
+
+  .tree-wrap{ flex:1 1 auto; position:relative; min-width:0; }
+  .tree-svg{ position:absolute; inset:0; width:100%; height:100%; }
+  .tree-svg line{ stroke:var(--line); stroke-width:1.6; }
+  .tree-svg line.active-path{ stroke:var(--blue); stroke-width:2.4; }
+
+  .node{
+    position:absolute; transform:translate(-50%,-50%);
+    border:2px dashed var(--muted); border-radius:6px; background:#fff;
+    text-align:center; padding:.35vh .3vw; overflow:hidden;
+    transition:background .25s,border-color .25s,box-shadow .25s,opacity .25s;
+    opacity:.55;
+  }
+  .node .range{ font-size:.78vw; font-weight:700; color:var(--navy); white-space:nowrap; }
+  .node .mid{ font-size:.6vw; color:#5c7189; white-space:nowrap; }
+  .node .chips{ display:flex; justify-content:center; gap:.22vw; margin-top:.25vh; flex-wrap:nowrap; }
+  .node .chip{
+    background:#eef2f5; border-radius:3px; padding:.05vh .28vw; font-size:.62vw;
+    font-weight:600; color:#455b70; white-space:nowrap;
+  }
+
+  .node.pending{ opacity:.4; }
+  .node.stack-waiting{ opacity:1; border:2px solid var(--blue); border-style:solid; box-shadow:0 0 0 0 transparent; }
+  .node.stack-waiting .range{ color:var(--blue); }
+  .node.active-enter{ opacity:1; border-color:var(--blue); background:#eaf2fa; box-shadow:0 0 0 3px rgba(26,99,169,.22); }
+  .node.active-enter .range{ color:var(--blue); }
+  .node.active-leaf{ opacity:1; border-color:var(--blue); background:#eaf2fa; box-shadow:0 0 0 3px rgba(26,99,169,.22); }
+  .node.active-leaf .range{ color:var(--blue); }
+  .node.active-merge{ opacity:1; border-color:var(--amber); background:#fdf3e2; box-shadow:0 0 0 3px rgba(232,163,61,.28); }
+  .node.active-merge .range{ color:#8a5a12; }
+  .node.active-merge .chip{ background:#f7e2b8; color:#7a4e10; }
+  .node.done{ opacity:1; border-color:var(--green); border-style:solid; background:#f3faf3; }
+  .node.done .range{ color:#2f6b3a; }
+  .node.done .chip{ background:#dcefdd; color:#2f6b3a; }
+
+  .stackpanel{
+    flex:0 0 15.5vw; border-left:1px solid var(--line); padding-left:1vw;
+    display:flex; flex-direction:column; min-height:0;
+  }
+  .stackpanel h3{ margin:0 0 .5vh; font-size:.85vw; color:var(--navy); }
+  .stacklist{ overflow-y:auto; flex:1 1 auto; display:flex; flex-direction:column-reverse; gap:.4vh; padding-right:.2vw; }
+  .stack-item{
+    border:1.5px solid var(--line); border-radius:5px; padding:.4vh .6vw; font-size:.72vw; color:#3d5872;
+    background:#fbfcfd;
+  }
+  .stack-item .head{ font-weight:700; color:var(--navy); }
+  .stack-item.top{ border-color:var(--blue); background:#eaf2fa; }
+  .stack-item.top .head{ color:var(--blue); }
+  .stack-item.merging{ border-color:var(--amber); background:#fdf3e2; }
+  .stack-item.merging .head{ color:#8a5a12; }
+  .stack-item .note{ display:block; font-size:.66vw; color:var(--muted); margin-top:.1vh; }
+  .stackpanel .empty-note{ font-size:.72vw; color:var(--muted); font-style:italic; }
+
+  footer{ flex:0 0 auto; padding:1vh 2vw 1.3vh; border-top:1px solid var(--line); }
+  .desc{
+    font-size:.98vw; color:var(--navy); min-height:5.2vh; line-height:1.45; margin-bottom:.8vh;
+  }
+  .desc .tag{
+    display:inline-block; font-size:.65vw; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+    padding:.1vh .5vw; border-radius:3px; margin-right:.6vw; vertical-align:1px;
+  }
+  .tag-enter{ background:#eaf2fa; color:var(--blue); }
+  .tag-leaf{ background:#eaf2fa; color:var(--blue); }
+  .tag-merge{ background:#fdf3e2; color:#8a5a12; }
+  .tag-start{ background:#f0f0f0; color:#666; }
+
+  .controls{ display:flex; align-items:center; gap:1vw; }
+  button{
+    font-family:inherit; font-size:.85vw; padding:.7vh 1.2vw; border-radius:5px; cursor:pointer;
+    border:1.5px solid var(--blue); background:#fff; color:var(--blue); font-weight:600;
+  }
+  button:hover:not(:disabled){ background:#eaf2fa; }
+  button:disabled{ opacity:.35; cursor:default; }
+  button.primary{ background:var(--blue); color:#fff; }
+  button.primary:hover:not(:disabled){ background:#154f87; }
+  #playBtn.playing{ background:var(--amber); border-color:var(--amber); color:#fff; }
+  .stepcount{ font-size:.85vw; color:#3d5872; min-width:6.5vw; text-align:center; }
+  .progress{ flex:1; height:.6vh; background:#eef1f3; border-radius:3px; overflow:hidden; }
+  .progress-bar{ height:100%; background:var(--blue); width:0%; transition:width .25s; }
+  .hint{ font-size:.68vw; color:var(--muted); margin-left:.5vw; }
+  .backlink { margin-bottom: 1vh; }
+  .backlink a { color: #1a63a9; text-decoration: none; font-size: .95rem; font-weight: 600; }
+  .backlink a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="backlink"><a href="advanced-sorting-walkthrough.html">&larr; Back to Step by step: Merge sort &amp; Quicksort</a></p>
+  <h1>Merge Sort &middot; Recursion Tree, Step by Step</h1>
+  <p class="subtitle">Array: [42, 17, 5, 30, 8, 29, 3, 15] &nbsp;&middot;&nbsp; mergeSort(a, lo, hi) &mdash; lo and hi are both valid indices; hi is the <em>last</em> element of the range, not one past it.</p>
+  <p class="reminder"><strong>Watch the call order:</strong> the recursion dives all the way down the
+  <strong>left</strong> branch first &mdash; and fully finishes it, merges included &mdash; before it ever
+  makes the first call into the <strong>right</strong> branch. This is a stack, not a checklist by level.</p>
+</header>
+
+<div class="legend">
+  <div class="item"><span class="swatch sw-pending"></span> not called yet</div>
+  <div class="item"><span class="swatch sw-stack"></span> on the call stack (waiting on a child)</div>
+  <div class="item"><span class="swatch sw-enter"></span> active call right now</div>
+  <div class="item"><span class="swatch sw-merge"></span> merging right now</div>
+  <div class="item"><span class="swatch sw-done"></span> returned / sorted</div>
+</div>
+
+<div class="arraystrip">
+  <div class="arr-row" id="arrRow"></div>
+</div>
+
+<main>
+  <div class="depth-axis" id="depthAxis"></div>
+  <div class="tree-wrap">
+    <svg class="tree-svg" id="treeSvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+    <div id="treeNodes"></div>
+  </div>
+  <div class="stackpanel">
+    <h3>Call stack right now</h3>
+    <div class="stacklist" id="stackList"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="desc" id="descBox"></div>
+  <div class="controls">
+    <button id="homeBtn" title="Jump to start">&#8676; Start</button>
+    <button id="prevBtn">&larr; Prev</button>
+    <button id="playBtn" class="primary">&#9654; Play</button>
+    <button id="nextBtn" class="primary">Next &rarr;</button>
+    <button id="endBtn" title="Jump to end">End &#8677;</button>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="stepcount" id="stepCount">Step 0 / 22</div>
+    <div class="hint">arrow keys also work</div>
+  </div>
+</footer>
+
+<script>
+const INITIAL = [42,17,5,30,8,29,3,15];
+
+// ---- node metadata ----
+// y rows by depth, x/width in 0-100 coords matching container %, both axes.
+const rowY = [10, 34, 58, 82];
+const nodes = {
+  A:{lo:0,hi:7,depth:0,parent:null,  isLeaf:false,mid:3},
+  B:{lo:0,hi:3,depth:1,parent:'A',   isLeaf:false,mid:1},
+  I:{lo:4,hi:7,depth:1,parent:'A',   isLeaf:false,mid:5},
+  C:{lo:0,hi:1,depth:2,parent:'B',   isLeaf:false,mid:0},
+  F:{lo:2,hi:3,depth:2,parent:'B',   isLeaf:false,mid:2},
+  J:{lo:4,hi:5,depth:2,parent:'I',   isLeaf:false,mid:4},
+  M:{lo:6,hi:7,depth:2,parent:'I',   isLeaf:false,mid:6},
+  D:{lo:0,hi:0,depth:3,parent:'C',   isLeaf:true},
+  E:{lo:1,hi:1,depth:3,parent:'C',   isLeaf:true},
+  G:{lo:2,hi:2,depth:3,parent:'F',   isLeaf:true},
+  H:{lo:3,hi:3,depth:3,parent:'F',   isLeaf:true},
+  K:{lo:4,hi:4,depth:3,parent:'J',   isLeaf:true},
+  L:{lo:5,hi:5,depth:3,parent:'J',   isLeaf:true},
+  N:{lo:6,hi:6,depth:3,parent:'M',   isLeaf:true},
+  O:{lo:7,hi:7,depth:3,parent:'M',   isLeaf:true},
+};
+for (const id in nodes){
+  const n = nodes[id];
+  n.id = id;
+  n.x = (n.lo+n.hi+1)/16*100;
+  n.y = rowY[n.depth];
+  n.width = (n.hi-n.lo+1)/8*100*0.8;
+}
+
+// enter/done steps per node (computed from the DFS call order of the real algorithm)
+const enterDone = {
+  A:[1,22], B:[2,11], C:[3,6], D:[4,4], E:[5,5],
+  F:[7,10], G:[8,8], H:[9,9],
+  I:[12,21], J:[13,16], K:[14,14], L:[15,15],
+  M:[17,20], N:[18,18], O:[19,19],
+};
+for (const id in enterDone){ nodes[id].enter = enterDone[id][0]; nodes[id].done = enterDone[id][1]; }
+
+// ---- step script: node id, kind, narration ----
+const steps = [
+  {node:'A', kind:'enter',  text:'Call <code>mergeSort(0, 7)</code> &mdash; the whole array, a[0..7]. Not a base case (lo &lt; hi), so split: mid = (0+7)/2 = 3. Two calls follow, <code>mergeSort(0, 3)</code> and <code>mergeSort(4, 7)</code>, but the LEFT one always happens first.'},
+  {node:'B', kind:'enter',  text:'Call <code>mergeSort(0, 3)</code>, the left half of the root call. mid = (0+3)/2 = 1. Again, the left call happens first.'},
+  {node:'C', kind:'enter',  text:'Call <code>mergeSort(0, 1)</code>, left half of (0,3). mid = (0+1)/2 = 0.'},
+  {node:'D', kind:'leaf',   text:'Call <code>mergeSort(0, 0)</code> &mdash; a single index. Base case: lo == hi, so return immediately. a[0] = 42 counts as &ldquo;sorted&rdquo; by itself.'},
+  {node:'E', kind:'leaf',   text:'Call <code>mergeSort(1, 1)</code> &mdash; single index. Base case, return. a[1] = 17.'},
+  {node:'C', kind:'merge',  text:'Back inside <code>mergeSort(0, 1)</code>: both recursive calls returned. Now <code>merge(0, 0, 1)</code> combines a[0..0]=[42] and a[1..1]=[17] &rarr; [17, 42]. Indices 0&ndash;1 are overwritten in place.'},
+  {node:'F', kind:'enter',  text:'Only now &mdash; after (0,1) is fully sorted and merged &mdash; does the right half of (0,3) get called: <code>mergeSort(2, 3)</code>. mid = (2+3)/2 = 2.'},
+  {node:'G', kind:'leaf',   text:'Call <code>mergeSort(2, 2)</code>. Base case, return. a[2] = 5.'},
+  {node:'H', kind:'leaf',   text:'Call <code>mergeSort(3, 3)</code>. Base case, return. a[3] = 30.'},
+  {node:'F', kind:'merge',  text:'Back inside <code>mergeSort(2, 3)</code>: <code>merge(2, 2, 3)</code> combines [5] and [30] &rarr; [5, 30]. Already in order, so nothing actually moves.'},
+  {node:'B', kind:'merge',  text:'Back inside <code>mergeSort(0, 3)</code>: both halves are ready &mdash; (0,1) = [17,42] and (2,3) = [5,30]. <code>merge(0, 1, 3)</code> interleaves them &rarr; [5, 17, 30, 42]. The entire left branch of the root is now finished.'},
+  {node:'I', kind:'enter',  text:'Only now does the root\'s right half get called: <code>mergeSort(4, 7)</code>. mid = (4+7)/2 = 5.'},
+  {node:'J', kind:'enter',  text:'Call <code>mergeSort(4, 5)</code>, left half of (4,7). mid = (4+5)/2 = 4.'},
+  {node:'K', kind:'leaf',   text:'Call <code>mergeSort(4, 4)</code>. Base case, return. a[4] = 8.'},
+  {node:'L', kind:'leaf',   text:'Call <code>mergeSort(5, 5)</code>. Base case, return. a[5] = 29.'},
+  {node:'J', kind:'merge',  text:'Back inside <code>mergeSort(4, 5)</code>: <code>merge(4, 4, 5)</code> combines [8] and [29] &rarr; [8, 29]. Already in order.'},
+  {node:'M', kind:'enter',  text:'Right half of (4,7): <code>mergeSort(6, 7)</code>. mid = (6+7)/2 = 6.'},
+  {node:'N', kind:'leaf',   text:'Call <code>mergeSort(6, 6)</code>. Base case, return. a[6] = 3.'},
+  {node:'O', kind:'leaf',   text:'Call <code>mergeSort(7, 7)</code>. Base case, return. a[7] = 15.'},
+  {node:'M', kind:'merge',  text:'Back inside <code>mergeSort(6, 7)</code>: <code>merge(6, 6, 7)</code> combines [3] and [15] &rarr; [3, 15]. Already in order.'},
+  {node:'I', kind:'merge',  text:'Back inside <code>mergeSort(4, 7)</code>: <code>merge(4, 5, 7)</code> combines [8,29] and [3,15] &rarr; [3, 8, 15, 29].'},
+  {node:'A', kind:'merge',  text:'Back inside the original call, <code>mergeSort(0, 7)</code>: <code>merge(0, 3, 7)</code> combines [5,17,30,42] and [3,8,15,29] &rarr; [3, 5, 8, 15, 17, 29, 30, 42]. Whole array sorted &mdash; done.'},
+];
+
+// ---- array snapshots after each step (0 = initial) ----
+const snapshots = [INITIAL.slice()];
+function applyMerge(prev, lo, mid, hi){
+  const left = prev.slice(lo, mid+1), right = prev.slice(mid+1, hi+1);
+  const out = []; let i=0, j=0;
+  while (i<left.length && j<right.length) out.push(left[i] <= right[j] ? left[i++] : right[j++]);
+  while (i<left.length) out.push(left[i++]);
+  while (j<right.length) out.push(right[j++]);
+  const next = prev.slice();
+  for (let k=0;k<out.length;k++) next[lo+k] = out[k];
+  return next;
+}
+for (let s=1; s<=steps.length; s++){
+  const st = steps[s-1];
+  const prev = snapshots[s-1];
+  if (st.kind === 'merge'){
+    const n = nodes[st.node];
+    snapshots.push(applyMerge(prev, n.lo, n.mid, n.hi));
+  } else {
+    snapshots.push(prev.slice());
+  }
+}
+
+// ---- build static DOM: depth axis, svg lines, node boxes, array cells ----
+const depthAxis = document.getElementById('depthAxis');
+rowY.forEach((y,d)=>{
+  const el = document.createElement('div');
+  el.className = 'depth-label';
+  el.style.top = y + '%';
+  el.textContent = 'depth ' + d;
+  depthAxis.appendChild(el);
+});
+
+const svg = document.getElementById('treeSvg');
+const nodeIds = Object.keys(nodes);
+nodeIds.forEach(id=>{
+  const n = nodes[id];
+  if (!n.parent) return;
+  const p = nodes[n.parent];
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1', p.x); line.setAttribute('y1', p.y+7);
+  line.setAttribute('x2', n.x); line.setAttribute('y2', n.y-7);
+  line.dataset.child = id; line.dataset.parent = n.parent;
+  svg.appendChild(line);
+});
+
+const treeNodes = document.getElementById('treeNodes');
+nodeIds.forEach(id=>{
+  const n = nodes[id];
+  const div = document.createElement('div');
+  div.className = 'node';
+  div.id = 'node-' + id;
+  div.style.left = n.x + '%';
+  div.style.top = n.y + '%';
+  div.style.width = n.width + '%';
+  const rangeText = '[' + n.lo + ', ' + n.hi + ']';
+  const midText = n.isLeaf ? '' : ('<div class="mid">mid = ' + n.mid + '</div>');
+  div.innerHTML = '<div class="range">' + rangeText + '</div>' + midText + '<div class="chips" id="chips-' + id + '"></div>';
+  treeNodes.appendChild(div);
+});
+
+const arrRow = document.getElementById('arrRow');
+INITIAL.forEach((v,i)=>{
+  const cell = document.createElement('div');
+  cell.className = 'arr-cell';
+  cell.id = 'cell-' + i;
+  cell.innerHTML = '<span class="idx">' + i + '</span><span class="val">' + v + '</span>';
+  arrRow.appendChild(cell);
+});
+
+// ---- rendering ----
+let current = 0;
+const total = steps.length;
+
+function nodeStatus(n, s){
+  if (s < n.enter) return 'pending';
+  if (n.isLeaf) return s === n.enter ? 'active-leaf' : 'done';
+  if (s === n.enter) return 'active-enter';
+  if (s === n.done) return 'active-merge';
+  if (s > n.done) return 'done';
+  return 'stack-waiting';
+}
+
+function render(s){
+  s = Math.max(0, Math.min(total, s));
+  current = s;
+  const snap = snapshots[s];
+  const activeId = s>0 ? steps[s-1].node : null;
+  const activeNode = activeId ? nodes[activeId] : null;
+
+  // array cells
+  for (let i=0;i<snap.length;i++){
+    const cell = document.getElementById('cell-'+i);
+    cell.querySelector('.val').textContent = snap[i];
+    cell.classList.remove('inrange','merging','settled');
+    if (activeNode && i>=activeNode.lo && i<=activeNode.hi){
+      cell.classList.add(steps[s-1].kind === 'merge' ? 'merging' : 'inrange');
+    }
+  }
+  // mark fully settled cells: indices whose owning node is root A and step===22
+  if (s === total){
+    for (let i=0;i<snap.length;i++) document.getElementById('cell-'+i).classList.add('settled');
+  }
+
+  // nodes
+  const stackEntries = [];
+  nodeIds.forEach(id=>{
+    const n = nodes[id];
+    const st = nodeStatus(n, s);
+    const div = document.getElementById('node-'+id);
+    div.className = 'node ' + st;
+    const slice = snap.slice(n.lo, n.hi+1);
+    document.getElementById('chips-'+id).innerHTML = slice.map(v=>'<span class="chip">'+v+'</span>').join('');
+    if (st==='stack-waiting' || st==='active-enter' || st==='active-merge' || st==='active-leaf'){
+      stackEntries.push({n, st});
+    }
+  });
+  stackEntries.sort((a,b)=>a.n.depth-b.n.depth);
+
+  // svg active path highlight
+  document.querySelectorAll('#treeSvg line').forEach(line=>{
+    const childId = line.dataset.child;
+    const onPath = stackEntries.some(e=>e.n.id===childId);
+    line.classList.toggle('active-path', onPath);
+  });
+
+  // stack panel
+  const stackList = document.getElementById('stackList');
+  if (stackEntries.length === 0){
+    stackList.innerHTML = '<div class="empty-note">Call stack is empty. ' + (s===0 ? 'Click Next to begin.' : 'mergeSort has returned &mdash; the array is fully sorted.') + '</div>';
+  } else {
+    stackList.innerHTML = stackEntries.map((e,idx)=>{
+      const n = e.n;
+      const isTop = idx === stackEntries.length-1;
+      let note = '';
+      if (!isTop){
+        const child = stackEntries[idx+1].n;
+        const branch = child.lo <= n.mid ? 'left' : 'right';
+        note = '<span class="note">waiting on ' + branch + ' half to return</span>';
+      } else if (e.st === 'active-merge'){
+        note = '<span class="note">both halves ready &mdash; merging now</span>';
+      } else if (e.st === 'active-leaf'){
+        note = '<span class="note">base case &mdash; returning now</span>';
+      } else if (e.st === 'active-enter'){
+        note = '<span class="note">just called &mdash; about to split</span>';
+      }
+      const cls = 'stack-item' + (isTop ? (e.st==='active-merge' ? ' merging' : ' top') : '');
+      return '<div class="'+cls+'"><span class="head">depth ' + n.depth + ' &middot; mergeSort(' + n.lo + ', ' + n.hi + ')</span>' + note + '</div>';
+    }).join('');
+  }
+
+  // description
+  const descBox = document.getElementById('descBox');
+  if (s === 0){
+    descBox.innerHTML = '<span class="tag tag-start">Ready</span> The array has not been touched yet. Press <strong>Next</strong> to make the first call, <code>mergeSort(0, 7)</code>.';
+  } else {
+    const st = steps[s-1];
+    const tagClass = st.kind === 'merge' ? 'tag-merge' : (st.kind === 'leaf' ? 'tag-leaf' : 'tag-enter');
+    const tagText = st.kind === 'merge' ? 'Merge' : (st.kind === 'leaf' ? 'Base case' : 'Call');
+    descBox.innerHTML = '<span class="tag ' + tagClass + '">' + tagText + '</span>' + st.text;
+  }
+
+  document.getElementById('stepCount').textContent = 'Step ' + s + ' / ' + total;
+  document.getElementById('progressBar').style.width = (s/total*100) + '%';
+  document.getElementById('prevBtn').disabled = s===0;
+  document.getElementById('nextBtn').disabled = s===total;
+  document.getElementById('homeBtn').disabled = s===0;
+  document.getElementById('endBtn').disabled = s===total;
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{ stopPlay(); render(current-1); });
+document.getElementById('nextBtn').addEventListener('click', ()=>{ stopPlay(); render(current+1); });
+document.getElementById('homeBtn').addEventListener('click', ()=>{ stopPlay(); render(0); });
+document.getElementById('endBtn').addEventListener('click', ()=>{ stopPlay(); render(total); });
+
+let playTimer = null;
+function stopPlay(){
+  if (playTimer){ clearInterval(playTimer); playTimer=null; }
+  document.getElementById('playBtn').classList.remove('playing');
+  document.getElementById('playBtn').innerHTML = '&#9654; Play';
+}
+document.getElementById('playBtn').addEventListener('click', ()=>{
+  if (playTimer){ stopPlay(); return; }
+  if (current === total) render(0);
+  document.getElementById('playBtn').classList.add('playing');
+  document.getElementById('playBtn').innerHTML = '&#10074;&#10074; Pause';
+  playTimer = setInterval(()=>{
+    if (current >= total){ stopPlay(); return; }
+    render(current+1);
+  }, 1900);
+});
+
+document.addEventListener('keydown', (e)=>{
+  if (e.key === 'ArrowRight' || e.key === ' '){ stopPlay(); render(current+1); e.preventDefault(); }
+  else if (e.key === 'ArrowLeft'){ stopPlay(); render(current-1); e.preventDefault(); }
+  else if (e.key === 'Home'){ stopPlay(); render(0); e.preventDefault(); }
+  else if (e.key === 'End'){ stopPlay(); render(total); e.preventDefault(); }
+});
+
+render(0);
+</script>
+</body>
+</html>

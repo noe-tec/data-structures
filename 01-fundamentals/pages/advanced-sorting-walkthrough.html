@@ -16,6 +16,7 @@
                  border: 2px solid #1a63a9; background: #fff; color: #1a63a9;
                  border-radius: 6px; cursor: pointer; font-weight: 600; }
   .tabs button.active { background: #1a63a9; color: #fff; }
+  .tabs button.link { border-style: dashed; }
 
   .rangewrap { display: inline-flex; border-bottom: 3px solid #1a63a9; padding-bottom: .6vh; }
   .arrayrow { display: flex; gap: .8vw; margin: 2vh 0; justify-content: center; }
@@ -109,6 +110,7 @@
 <div class="tabs">
   <button id="tabMerge" class="active">Merge sort</button>
   <button id="tabQuick">Quicksort</button>
+  <button id="tabTree" class="link">Recursion tree &#8599;</button>
 </div>
 
 <div class="phase" id="phase"></div>
@@ -481,6 +483,7 @@ document.getElementById('btnPass').onclick = finishStep;
 document.getElementById('btnReset').onclick = function () { go(0); };
 document.getElementById('tabMerge').onclick = function () { setMode('merge'); };
 document.getElementById('tabQuick').onclick = function () { setMode('quick'); };
+document.getElementById('tabTree').onclick = function () { window.location.href = 'merge-sort-recursion-tree.html'; };
 
 var elInput = document.getElementById('arrayInput');
 var elError = document.getElementById('error');

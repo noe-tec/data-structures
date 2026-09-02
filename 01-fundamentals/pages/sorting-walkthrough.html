@@ -276,14 +276,14 @@ function insertionSteps(source) {
   var a = source.slice();
   var n = a.length;
   var steps = [];
-  var comparisons = 0, moves = 0;
+  var comparisons = 0, shifts = 0;
 
   for (var i = 1; i < n; i++) {
     var key = a[i];
 
     steps.push(step({
       array: a.slice(), min: i, sortedTo: i,
-      pass: i, comparisons: comparisons, swaps: moves,
+      pass: i, comparisons: comparisons, swaps: shifts,
       kind: 'mark', mark: true, phase: 'Pass ' + i + ' — taking ' + key,
       text: 'Hold ' + key + ' aside. The first ' + i +
             ' values are already sorted among themselves. Where does ' +
@@ -299,17 +299,17 @@ function insertionSteps(source) {
 
       steps.push(step({
         array: a.slice(), ask: [j], sortedTo: i,
-        pass: i, comparisons: comparisons, swaps: moves,
+        pass: i, comparisons: comparisons, swaps: shifts,
         kind: 'ask', phase: 'Comparing',
         text: 'Is ' + here + ' greater than ' + key + '?'
       }, {}));
 
       if (here > key) {
         a[j + 1] = a[j];
-        moves++;
+        shifts++;
         steps.push(step({
           array: a.slice(), moved: [j + 1], sortedTo: i,
-          pass: i, comparisons: comparisons, swaps: moves,
+          pass: i, comparisons: comparisons, swaps: shifts,
           kind: 'moved', phase: 'Shift right',
           text: 'Yes. ' + here + ' slides one place to the right to make room.'
         }, {}));
@@ -317,7 +317,7 @@ function insertionSteps(source) {
       } else {
         steps.push(step({
           array: a.slice(), same: [j], sortedTo: i,
-          pass: i, comparisons: comparisons, swaps: moves,
+          pass: i, comparisons: comparisons, swaps: shifts,
           kind: 'same', phase: 'Stop',
           text: 'No. ' + here + ' ≤ ' + key + ', so ' + key +
                 ' belongs right after it. Stop sliding.'
@@ -330,19 +330,18 @@ function insertionSteps(source) {
     if (!stopped) {
       steps.push(step({
         array: a.slice(), sortedTo: i,
-        pass: i, comparisons: comparisons, swaps: moves,
+        pass: i, comparisons: comparisons, swaps: shifts,
         kind: 'same', phase: 'Left end',
         text: 'Reached the left end. ' + key +
               ' is smaller than everything sorted so far.'
       }, {}));
     }
 
-    if (j + 1 !== i) { moves++; }
     a[j + 1] = key;
 
     steps.push(step({
       array: a.slice(), moved: [j + 1], sortedTo: i + 1,
-      pass: i, comparisons: comparisons, swaps: moves,
+      pass: i, comparisons: comparisons, swaps: shifts,
       kind: 'moved', mark: true, phase: 'Placed',
       text: key + ' drops into position ' + (j + 1) + '. The first ' +
             (i + 1) + ' values are sorted among themselves — but any of them ' +
@@ -352,16 +351,16 @@ function insertionSteps(source) {
 
   steps.push(step({
     array: a.slice(), lockedTo: n,
-    pass: n - 1, comparisons: comparisons, swaps: moves,
+    pass: n - 1, comparisons: comparisons, swaps: shifts,
     kind: 'done', done: true, phase: 'Done',
-    text: 'Sorted. ' + comparisons + ' comparisons, ' + moves + ' moves.'
+    text: 'Sorted. ' + comparisons + ' comparisons, ' + shifts + ' shifts.'
   }, {}));
   return steps;
 }
 
 var DEFAULT_TEXT = '42, 17, 5, 30, 8, 29, 3, 15';
 var sets = {};
-var labels = { bubble: 'Swaps', selection: 'Swaps', insertion: 'Moves' };
+var labels = { bubble: 'Swaps', selection: 'Swaps', insertion: 'Shifts' };
 var mode = 'bubble';
 var at = 0;
 
