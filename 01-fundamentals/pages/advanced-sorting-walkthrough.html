@@ -266,53 +266,53 @@ function quickSteps(source) {
   function partition(lo, hi) {
     callCount++;
     var thisCall = callCount;
-    var pivot = a[hi];
+    var pivot = a[lo];
     frame({
-      lo: lo, hi: hi, pivot: hi, teal: lo - 1, gray0: -1, gray1: -1,
+      lo: lo, hi: hi, pivot: lo, teal: lo, gray0: -1, gray1: -1,
       call: thisCall, kind: 'mark', mark: true,
       phase: 'Partition a[' + lo + '..' + hi + ']',
-      text: 'Pivot is ' + pivot + ', the last element of this range.'
+      text: 'Pivot is ' + pivot + ', the first element of this range.'
     });
-    var i = lo - 1;
-    for (var j = lo; j < hi; j++) {
+    var i = lo + 1;
+    for (var j = lo + 1; j <= hi; j++) {
       frame({
-        lo: lo, hi: hi, pivot: hi, ask: j, teal: i, gray0: i + 1, gray1: j - 1,
+        lo: lo, hi: hi, pivot: lo, ask: j, teal: i - 1, gray0: i, gray1: j - 1,
         call: thisCall, kind: 'ask', phase: 'Comparing',
-        text: 'Is ' + a[j] + ' less than or equal to the pivot ' + pivot + '?'
+        text: 'Is ' + a[j] + ' less than the pivot ' + pivot + '?'
       });
       comparisons++;
-      var le = a[j] <= pivot;
-      if (le) {
-        i++;
+      var lt = a[j] < pivot;
+      if (lt) {
         if (i !== j) {
           var t = a[i]; a[i] = a[j]; a[j] = t;
           swaps++;
           frame({
-            lo: lo, hi: hi, pivot: hi, teal: i - 1, gray0: -1, gray1: -1,
+            lo: lo, hi: hi, pivot: lo, teal: i - 1, gray0: -1, gray1: -1,
             swapPair: [i, j], call: thisCall, kind: 'moved', phase: 'Swap',
             text: 'Yes. ' + a[i] + ' moves to the low side, ' + a[j] + ' takes its place.'
           });
         } else {
           frame({
-            lo: lo, hi: hi, pivot: hi, teal: i, gray0: -1, gray1: -1,
+            lo: lo, hi: hi, pivot: lo, teal: i, gray0: -1, gray1: -1,
             call: thisCall, kind: 'same', phase: 'Already there',
             text: 'Yes. ' + a[j] + ' was already on the low side.'
           });
         }
+        i++;
       } else {
         frame({
-          lo: lo, hi: hi, pivot: hi, teal: i, gray0: i + 1, gray1: j,
+          lo: lo, hi: hi, pivot: lo, teal: i - 1, gray0: i, gray1: j,
           call: thisCall, kind: 'same', phase: 'Stays',
-          text: 'No. ' + a[j] + ' is greater than the pivot. It stays on the high side for now.'
+          text: 'No. ' + a[j] + ' is not less than the pivot. It stays on the high side for now.'
         });
       }
     }
-    var pivotIndex = i + 1;
+    var pivotIndex = i - 1;
     var finalPair = null;
-    if (pivotIndex !== hi) {
-      var t2 = a[pivotIndex]; a[pivotIndex] = a[hi]; a[hi] = t2;
+    if (pivotIndex !== lo) {
+      var t2 = a[lo]; a[lo] = a[pivotIndex]; a[pivotIndex] = t2;
       swaps++;
-      finalPair = [pivotIndex, hi];
+      finalPair = [lo, pivotIndex];
     }
     placed.push(pivotIndex);
     frame({

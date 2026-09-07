@@ -157,11 +157,11 @@
 
 <header>
   <p class="backlink"><a href="advanced-sorting-walkthrough.html">&larr; Back to Step by step: Merge sort &amp; Quicksort</a></p>
-  <p class="seealso">Mismo algoritmo, arreglo del libro (Figura 5.6): <a href="quicksort-recursion-tree-lomuto-book.html">quicksort-recursion-tree-lomuto-book.html &rarr;</a></p>
+  <p class="seealso">Mismo algoritmo, arreglo del libro: <a href="quicksort-recursion-tree-lomuto-book.html">quicksort-recursion-tree-lomuto-book.html &rarr;</a></p>
   <h1>Quicksort (Lomuto-style, first-element pivot) &middot; Full Partition Detail</h1>
   <p class="subtitle">Array: [42, 17, 5, 30, 8, 29, 3, 15] &mdash; the array used throughout this course &nbsp;&middot;&nbsp; pivot = a[lo], one pass with indices i (boundary of the &ldquo;&lt; pivot&rdquo; zone) and j (the scanner).</p>
   <p class="reminder"><strong>This version shows the partition itself, comparison by comparison</strong> &mdash; the four
-  zones from Figura 5.5 of your reading: the <strong>pivot</strong>, the confirmed <strong>&lt; pivot</strong> zone, the confirmed
+  zones of the partition invariant: the <strong>pivot</strong>, the confirmed <strong>&lt; pivot</strong> zone, the confirmed
   <strong>&ge; pivot</strong> zone, and the still-<strong>unclassified</strong> tail. Watch j sweep right one cell at a time;
   i only follows when an element needs to join the &ldquo;less than&rdquo; zone. Compare and swap are always separate steps.</p>
 </header>
