@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quicksort (First-Element Pivot, Full Partition Detail) · Recursion Tree Walkthrough</title>
+<style>
+  :root{
+    --navy:#16324f; --blue:#1a63a9; --red:#c0392b; --green:#82b366;
+    --amber:#e8a33d; --muted:#9aa7b4; --line:#b9c6d2; --teal:#7cb0a8; --tealbg:#e8f4f2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    background:#fff; color:var(--navy);
+    height:100vh; width:100vw; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  header{ padding:1.2vh 2vw .5vh; flex:0 0 auto; }
+  h1{ margin:0; font-size:1.5vw; color:var(--navy); }
+  .subtitle{ margin:.35vh 0 0; font-size:.86vw; color:#3d5872; }
+  .reminder{
+    margin:.7vh 0 0; font-size:.8vw; background:#eef4fa; border-left:4px solid var(--blue);
+    padding:.55vh 1vw; color:var(--navy); border-radius:0 4px 4px 0;
+  }
+  .reminder strong{ color:var(--blue); }
+
+  .legend{
+    display:flex; flex-wrap:wrap; gap:1.3vw; padding:.6vh 2vw;
+    font-size:.68vw; color:#455b70; border-bottom:1px solid var(--line);
+    flex:0 0 auto; align-items:center;
+  }
+  .legend .item{ display:flex; align-items:center; gap:.32vw; }
+  .swatch{ width:.8vw; height:.8vw; border-radius:3px; display:inline-block; flex:0 0 auto; }
+  .sw-pending{ background:#fff; border:1.5px dashed var(--muted); }
+  .sw-piv{ background:var(--navy); border:2px solid var(--navy); }
+  .sw-less{ background:var(--tealbg); border:2px solid var(--teal); }
+  .sw-more{ background:#f2f4f6; border:2px solid var(--muted); }
+  .sw-cmp{ background:#fdf3e3; border:2px solid var(--amber); }
+  .sw-swap{ background:#fdecea; border:2px solid var(--red); }
+  .sw-done{ background:#e9f3ea; border:2px solid var(--green); }
+
+  .arraystrip{ flex:0 0 auto; padding:1.8vh 2vw .8vh; }
+  .arr-row{ display:flex; justify-content:center; gap:.5vw; }
+  .arr-cell{
+    width:4.4vw; height:4.4vw; border:2px solid var(--line); border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.22vw; font-weight:600; color:var(--navy); background:#fbfcfd;
+    position:relative; transition:background .2s,border-color .2s,color .2s;
+  }
+  .arr-cell .idx{
+    position:absolute; top:-2vh; left:50%; transform:translateX(-50%);
+    font-size:.6vw; color:var(--muted); font-weight:400;
+  }
+  .arr-cell .ptrtag{
+    position:absolute; bottom:-2.15vh; left:50%; transform:translateX(-50%);
+    font-size:.62vw; font-weight:700; white-space:nowrap; color:var(--navy);
+  }
+  .arr-cell.zone-piv{ border-color:var(--navy); background:var(--navy); color:#fff; }
+  .arr-cell.zone-less{ border-color:var(--teal); background:var(--tealbg); color:#3d6b2e; }
+  .arr-cell.zone-more{ border-color:var(--muted); background:#f2f4f6; }
+  .arr-cell.zone-cmp{ border-color:var(--amber); background:#fdf3e3; color:#b9770e; }
+  .arr-cell.settled{ border-color:var(--green); background:#eef6ef; color:#2f6b3a; }
+  .arr-cell.swap-flash{ border-color:var(--red); background:#fdecea; color:#c0392b; }
+
+  main{ flex:1; display:flex; min-height:0; padding:.3vh 2vw 0; gap:1vw; }
+
+  .depth-axis{ flex:0 0 4.6vw; display:flex; flex-direction:column; position:relative; }
+  .depth-label{
+    position:absolute; left:0; right:0; transform:translateY(-50%);
+    font-size:.66vw; color:var(--muted); font-weight:600; text-align:right; padding-right:.5vw;
+    border-right:2px dotted var(--line);
+  }
+
+  .tree-wrap{ flex:1 1 auto; position:relative; min-width:0; }
+  .tree-svg{ position:absolute; inset:0; width:100%; height:100%; }
+  .tree-svg line{ stroke:var(--line); stroke-width:1.6; }
+  .tree-svg line.active-path{ stroke:var(--blue); stroke-width:2.4; }
+
+  .node{
+    position:absolute; transform:translate(-50%,-50%);
+    border:2px dashed var(--muted); border-radius:6px; background:#fff;
+    text-align:center; padding:.32vh .3vw; overflow:hidden;
+    transition:background .25s,border-color .25s,box-shadow .25s,opacity .25s;
+    opacity:.55;
+  }
+  .node .range{ font-size:.74vw; font-weight:700; color:var(--navy); white-space:nowrap; }
+  .node .mid{ font-size:.58vw; color:#5c7189; white-space:nowrap; }
+  .node .chips{ display:flex; justify-content:center; gap:.2vw; margin-top:.22vh; flex-wrap:nowrap; }
+  .node .chip{
+    background:#eef2f5; border-radius:3px; padding:.05vh .26vw; font-size:.58vw;
+    font-weight:600; color:#455b70; white-space:nowrap;
+  }
+
+  .node.pending{ opacity:.4; }
+  .node.stack-waiting{ opacity:1; border:2px solid var(--blue); border-style:solid; }
+  .node.stack-waiting .range{ color:var(--blue); }
+  .node.active-enter{ opacity:1; border-color:var(--blue); background:#eaf2fa; box-shadow:0 0 0 3px rgba(26,99,169,.22); }
+  .node.active-enter .range{ color:var(--blue); }
+  .node.active-leaf{ opacity:1; border-color:var(--blue); background:#eaf2fa; box-shadow:0 0 0 3px rgba(26,99,169,.22); }
+  .node.active-leaf .range{ color:var(--blue); }
+  .node.active-merge{ opacity:1; border-color:var(--amber); background:#fdf3e2; box-shadow:0 0 0 3px rgba(232,163,61,.28); }
+  .node.active-merge .range{ color:#8a5a12; }
+  .node.active-merge .chip{ background:#f7e2b8; color:#7a4e10; }
+  .node.done{ opacity:1; border-color:var(--green); border-style:solid; background:#f3faf3; }
+  .node.done .range{ color:#2f6b3a; }
+  .node.done .chip{ background:#dcefdd; color:#2f6b3a; }
+
+  .stackpanel{ flex:0 0 15vw; border-left:1px solid var(--line); padding-left:1vw; display:flex; flex-direction:column; min-height:0; }
+  .stackpanel h3{ margin:0 0 .5vh; font-size:.82vw; color:var(--navy); }
+  .stacklist{ overflow-y:auto; flex:1 1 auto; display:flex; flex-direction:column-reverse; gap:.4vh; padding-right:.2vw; }
+  .stack-item{ border:1.5px solid var(--line); border-radius:5px; padding:.4vh .6vw; font-size:.7vw; color:#3d5872; background:#fbfcfd; }
+  .stack-item .head{ font-weight:700; color:var(--navy); }
+  .stack-item.top{ border-color:var(--blue); background:#eaf2fa; }
+  .stack-item.top .head{ color:var(--blue); }
+  .stack-item.merging{ border-color:var(--amber); background:#fdf3e2; }
+  .stack-item.merging .head{ color:#8a5a12; }
+  .stack-item .note{ display:block; font-size:.64vw; color:var(--muted); margin-top:.1vh; }
+  .stackpanel .empty-note{ font-size:.7vw; color:var(--muted); font-style:italic; }
+
+  footer{ flex:0 0 auto; padding:.8vh 2vw 1.1vh; border-top:1px solid var(--line); }
+  .desc{ font-size:.92vw; color:var(--navy); min-height:5vh; line-height:1.4; margin-bottom:.7vh; }
+  .desc .tag{
+    display:inline-block; font-size:.62vw; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+    padding:.1vh .5vw; border-radius:3px; margin-right:.6vw; vertical-align:1px;
+  }
+  .tag-enter{ background:#eaf2fa; color:var(--blue); }
+  .tag-leaf{ background:#eaf2fa; color:var(--blue); }
+  .tag-cmp{ background:#fdf3e3; color:#b9770e; }
+  .tag-place{ background:#fdecea; color:#c0392b; }
+  .tag-start{ background:#f0f0f0; color:#666; }
+
+  .controls{ display:flex; align-items:center; gap:1vw; }
+  button{
+    font-family:inherit; font-size:.8vw; padding:.65vh 1.1vw; border-radius:5px; cursor:pointer;
+    border:1.5px solid var(--blue); background:#fff; color:var(--blue); font-weight:600;
+  }
+  button:hover:not(:disabled){ background:#eaf2fa; }
+  button:disabled{ opacity:.35; cursor:default; }
+  button.primary{ background:var(--blue); color:#fff; }
+  button.primary:hover:not(:disabled){ background:#154f87; }
+  #playBtn.playing{ background:var(--amber); border-color:var(--amber); color:#fff; }
+  .stepcount{ font-size:.8vw; color:#3d5872; min-width:6.5vw; text-align:center; }
+  .progress{ flex:1; height:.6vh; background:#eef1f3; border-radius:3px; overflow:hidden; }
+  .progress-bar{ height:100%; background:var(--blue); width:0%; transition:width .2s; }
+  .hint{ font-size:.64vw; color:var(--muted); margin-left:.5vw; }
+  .backlink { margin-bottom: .2vh; }
+  .backlink a { color: #1a63a9; text-decoration: none; font-size: .95rem; font-weight: 600; }
+  .backlink a:hover { text-decoration: underline; }
+  .seealso { margin: 0 0 1vh; font-size: .8rem; }
+  .seealso a { color: #1a63a9; text-decoration: none; font-weight: 600; margin-right: 1.2vw; }
+  .seealso a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="backlink"><a href="advanced-sorting-walkthrough.html">&larr; Back to Step by step: Merge sort &amp; Quicksort</a></p>
+  <p class="seealso">Mismo algoritmo, arreglo del libro (Figura 5.6): <a href="quicksort-recursion-tree-lomuto-book.html">quicksort-recursion-tree-lomuto-book.html &rarr;</a></p>
+  <h1>Quicksort (Lomuto-style, first-element pivot) &middot; Full Partition Detail</h1>
+  <p class="subtitle">Array: [42, 17, 5, 30, 8, 29, 3, 15] &mdash; the array used throughout this course &nbsp;&middot;&nbsp; pivot = a[lo], one pass with indices i (boundary of the &ldquo;&lt; pivot&rdquo; zone) and j (the scanner).</p>
+  <p class="reminder"><strong>This version shows the partition itself, comparison by comparison</strong> &mdash; the four
+  zones from Figura 5.5 of your reading: the <strong>pivot</strong>, the confirmed <strong>&lt; pivot</strong> zone, the confirmed
+  <strong>&ge; pivot</strong> zone, and the still-<strong>unclassified</strong> tail. Watch j sweep right one cell at a time;
+  i only follows when an element needs to join the &ldquo;less than&rdquo; zone. Compare and swap are always separate steps.</p>
+</header>
+
+<div class="legend">
+  <div class="item"><span class="swatch sw-pending"></span> not called yet</div>
+  <div class="item"><span class="swatch sw-piv"></span> pivot</div>
+  <div class="item"><span class="swatch sw-less"></span> confirmed &lt; pivot</div>
+  <div class="item"><span class="swatch sw-more"></span> confirmed &ge; pivot</div>
+  <div class="item"><span class="swatch sw-cmp"></span> comparing now (j)</div>
+  <div class="item"><span class="swatch sw-swap"></span> just swapped</div>
+  <div class="item"><span class="swatch sw-done"></span> settled / sorted</div>
+</div>
+
+<div class="arraystrip">
+  <div class="arr-row" id="arrRow"></div>
+</div>
+
+<main>
+  <div class="depth-axis" id="depthAxis"></div>
+  <div class="tree-wrap">
+    <svg class="tree-svg" id="treeSvg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+    <div id="treeNodes"></div>
+  </div>
+  <div class="stackpanel">
+    <h3>Call stack right now</h3>
+    <div class="stacklist" id="stackList"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="desc" id="descBox"></div>
+  <div class="controls">
+    <button id="homeBtn" title="Jump to start">&#8676; Start</button>
+    <button id="prevBtn">&larr; Prev</button>
+    <button id="playBtn" class="primary">&#9654; Play</button>
+    <button id="nextBtn" class="primary">Next &rarr;</button>
+    <button id="endBtn" title="Jump to end">End &#8677;</button>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="stepcount" id="stepCount">Step 0 / 0</div>
+    <div class="hint">arrow keys also work</div>
+  </div>
+</footer>
+
+<script>
+const INITIAL = [42,17,5,30,8,29,3,15];
+
+// ---- node metadata (Lomuto-style, first-element pivot; same array used throughout this course) ----
+const rowY = [10, 30, 50, 70, 90];
+const nodes = {
+  A:{lo:0,hi:7,depth:0,parent:null, isLeaf:false},
+  B:{lo:0,hi:6,depth:1,parent:'A',  isLeaf:false},
+  P7:{lo:7,hi:7,depth:1,parent:'A', isLeaf:true, tag:'pivot'},
+  C:{lo:0,hi:2,depth:2,parent:'B',  isLeaf:false},
+  P3:{lo:3,hi:3,depth:2,parent:'B', isLeaf:true, tag:'pivot'},
+  I:{lo:4,hi:6,depth:2,parent:'B',  isLeaf:false},
+  P0:{lo:0,hi:0,depth:3,parent:'C', isLeaf:true, tag:'pivot'},
+  D:{lo:1,hi:2,depth:3,parent:'C',  isLeaf:false},
+  P4:{lo:4,hi:4,depth:3,parent:'I', isLeaf:true, tag:'pivot'},
+  J:{lo:5,hi:6,depth:3,parent:'I',  isLeaf:false},
+  P1:{lo:1,hi:1,depth:4,parent:'D', isLeaf:true, tag:'pivot'},
+  S2:{lo:2,hi:2,depth:4,parent:'D', isLeaf:true, tag:'base'},
+  P5:{lo:5,hi:5,depth:4,parent:'J', isLeaf:true, tag:'pivot'},
+  S6:{lo:6,hi:6,depth:4,parent:'J', isLeaf:true, tag:'base'},
+};
+for (const id in nodes){
+  const n = nodes[id];
+  n.id = id;
+  n.x = (n.lo+n.hi+1)/16*100;
+  n.y = rowY[n.depth];
+  n.width = (n.hi-n.lo+1)/8*100*0.8;
+}
+
+// pivot leaf id produced by each call's own partition
+const pivotLeafOf = { A:'P7', B:'P3', C:'P0', D:'P1', I:'P4', J:'P5' };
+
+// ---- a REAL partition implementation that also records every micro-step ----
+function partitionVerbose(prev, lo, hi){
+  const arr = prev.slice();
+  const pivotVal = arr[lo];
+  let i = lo + 1;
+  const micro = [];
+  for (let j = lo+1; j <= hi; j++){
+    const value = arr[j];
+    const less = value < pivotVal;
+    // Step 1 of this iteration: just compare — nothing moves yet.
+    micro.push({ kind:'compare', i, j, value, pivotVal, less, snapshot: arr.slice() });
+    if (less){
+      const real = (i !== j);
+      if (real){ const t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+      // Step 2 (only when the comparison says "less"): the swap and the i advance,
+      // shown as its own step so no single click ever both compares AND mutates.
+      micro.push({ kind:'swap', i, j, value, pivotVal, real, iAfter: i+1, snapshot: arr.slice() });
+      i++;
+    }
+  }
+  const pivotIndex = i - 1;
+  const placeReal = (lo !== pivotIndex);
+  if (placeReal){ const t = arr[lo]; arr[lo] = arr[pivotIndex]; arr[pivotIndex] = t; }
+  micro.push({ kind:'place', pivotIndex, real: placeReal, pivotVal, snapshot: arr.slice() });
+  return { pivotIndex, micro };
+}
+
+function range(a,b){ const out=[]; for(let k=a;k<=b;k++) out.push(k); return out; }
+
+function microText(n, m){
+  if (m.kind === 'compare'){
+    if (m.less){
+      return 'Compare a[' + m.j + '] = ' + m.value + ' against the pivot (' + m.pivotVal + '): ' + m.value + ' &lt; ' + m.pivotVal +
+             ', so it belongs in the &ldquo;less than&rdquo; zone.';
+    }
+    return 'Compare a[' + m.j + '] = ' + m.value + ' against the pivot (' + m.pivotVal + '): ' + m.value + ' &ge; ' + m.pivotVal +
+           ', so it stays exactly where it is &mdash; only j moves on. i stays at ' + m.i + '.';
+  }
+  if (m.kind === 'swap'){
+    const how = m.real
+      ? ('swap a[' + m.i + '] and a[' + m.j + ']')
+      : ('a[' + m.i + '] and a[' + m.j + '] are the same position &mdash; nothing actually moves');
+    return how + ', then advance i to ' + m.iAfter + '.';
+  }
+  const how = m.real
+    ? ('swap a[lo] with a[' + m.pivotIndex + ']')
+    : ('the pivot is already sitting at index ' + m.pivotIndex + ' &mdash; nothing actually moves');
+  return 'Scan finished &mdash; every element has been classified. Place the pivot: ' + how + '. Pivot ' + m.pivotVal +
+         ' is now permanently at index ' + m.pivotIndex + '.';
+}
+
+// ---- build the full step sequence by actually running the algorithm ----
+const sequence = [
+  {type:'call', node:'A'},
+  {type:'call', node:'B'},
+  {type:'call', node:'C'},
+  {type:'call', node:'D'},
+  {type:'leaf', node:'S2'},
+  {type:'call', node:'I'},
+  {type:'call', node:'J'},
+  {type:'leaf', node:'S6'},
+];
+
+const steps = [];          // {node, kind:'enter'|'compare'|'swap'|'place'|'leaf', ...micro fields, text}
+const snapshots = [INITIAL.slice()];
+
+sequence.forEach(entry=>{
+  if (entry.type === 'leaf'){
+    steps.push({ node: entry.node, kind:'leaf', text:
+      'Call <code>quickSort(' + nodes[entry.node].lo + ', ' + nodes[entry.node].hi + ')</code> &mdash; a single index. Base case, return. a[' +
+      nodes[entry.node].lo + '] = ' + snapshots[snapshots.length-1][nodes[entry.node].lo] + '.' });
+    snapshots.push(snapshots[snapshots.length-1].slice());
+    return;
+  }
+  const n = nodes[entry.node];
+  const pivotVal0 = snapshots[snapshots.length-1][n.lo];
+  steps.push({ node: entry.node, kind:'enter', text:
+    'Call <code>quickSort(' + n.lo + ', ' + n.hi + ')</code>. pivot = a[lo] = a[' + n.lo + '] = ' + pivotVal0 +
+    '. Indices i and j both start right after the pivot, at ' + (n.lo+1) + ' &mdash; nothing is classified yet.' });
+  snapshots.push(snapshots[snapshots.length-1].slice());
+
+  const { pivotIndex, micro } = partitionVerbose(snapshots[snapshots.length-1], n.lo, n.hi);
+  micro.forEach(m=>{
+    steps.push({ node: entry.node, kind: m.kind, i:m.i, j:m.j, value:m.value, pivotVal:m.pivotVal,
+                 less:m.less, real:m.real, iAfter:m.iAfter, pivotIndex:m.pivotIndex,
+                 text: microText(n, m) });
+    snapshots.push(m.snapshot.slice());
+  });
+  n.pivotIndex = pivotIndex;
+});
+
+const total = steps.length;
+document.getElementById('stepCount').textContent = 'Step 0 / ' + total;
+
+// enter/pivotStep/done per node, derived from the generated step list
+Object.keys(nodes).forEach(id=>{ nodes[id].enter = null; nodes[id].pivotStep = null; nodes[id].done = null; });
+steps.forEach((st, idx)=>{
+  const s = idx + 1;
+  const n = nodes[st.node];
+  if (st.kind === 'enter'){ n.enter = s; }
+  if (st.kind === 'place'){ n.pivotStep = s; const leaf = nodes[pivotLeafOf[st.node]]; leaf.enter = s; leaf.done = s; }
+  if (st.kind === 'leaf'){ n.enter = s; n.done = s; }
+});
+// propagate "done" up the tree: a call's done = the last step among its own place-step and all its children's done
+function computeDone(id){
+  const n = nodes[id];
+  if (n.done != null) return n.done; // leaf already resolved
+  const childIds = Object.keys(nodes).filter(k => nodes[k].parent === id);
+  let d = n.pivotStep;
+  childIds.forEach(c => { d = Math.max(d, computeDone(c)); });
+  n.done = d;
+  return d;
+}
+computeDone('A');
+
+// ---- build static DOM: depth axis, svg lines, node boxes, array cells ----
+const depthAxis = document.getElementById('depthAxis');
+rowY.forEach((y,d)=>{
+  const el = document.createElement('div');
+  el.className = 'depth-label';
+  el.style.top = y + '%';
+  el.textContent = 'depth ' + d;
+  depthAxis.appendChild(el);
+});
+
+const svg = document.getElementById('treeSvg');
+const nodeIds = Object.keys(nodes);
+nodeIds.forEach(id=>{
+  const n = nodes[id];
+  if (!n.parent) return;
+  const p = nodes[n.parent];
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1', p.x); line.setAttribute('y1', p.y+7);
+  line.setAttribute('x2', n.x); line.setAttribute('y2', n.y-7);
+  line.dataset.child = id; line.dataset.parent = n.parent;
+  svg.appendChild(line);
+});
+
+const treeNodes = document.getElementById('treeNodes');
+nodeIds.forEach(id=>{
+  const n = nodes[id];
+  const div = document.createElement('div');
+  div.className = 'node';
+  div.id = 'node-' + id;
+  div.style.left = n.x + '%';
+  div.style.top = n.y + '%';
+  div.style.width = n.width + '%';
+  const rangeText = n.lo === n.hi ? ('[' + n.lo + ']') : ('[' + n.lo + ', ' + n.hi + ']');
+  let subText;
+  if (!n.isLeaf){
+    subText = '<div class="mid">pivot = a[' + n.lo + ']</div>';
+  } else if (n.tag === 'pivot'){
+    subText = '<div class="mid">pivot placed here</div>';
+  } else {
+    subText = '<div class="mid">base case</div>';
+  }
+  div.innerHTML = '<div class="range">' + rangeText + '</div>' + subText + '<div class="chips" id="chips-' + id + '"></div>';
+  treeNodes.appendChild(div);
+});
+
+const arrRow = document.getElementById('arrRow');
+INITIAL.forEach((v,i)=>{
+  const cell = document.createElement('div');
+  cell.className = 'arr-cell';
+  cell.id = 'cell-' + i;
+  cell.innerHTML = '<span class="idx">' + i + '</span><span class="val">' + v + '</span><span class="ptrtag" id="ptr-' + i + '"></span>';
+  arrRow.appendChild(cell);
+});
+
+// ---- rendering ----
+let current = 0;
+
+function nodeStatus(n, s){
+  if (s < n.enter) return 'pending';
+  if (n.isLeaf) return s === n.enter ? 'active-leaf' : 'done';
+  if (s === n.enter) return 'active-enter';
+  if (s > n.enter && s <= n.pivotStep) return 'active-merge';
+  if (s > n.pivotStep && s < n.done) return 'stack-waiting';
+  return 'done';
+}
+
+function settledIndices(s){
+  const set = new Set();
+  nodeIds.forEach(id=>{
+    const n = nodes[id];
+    if (n.isLeaf && n.enter != null && s >= n.enter) set.add(n.lo);
+  });
+  return set;
+}
+
+function render(s){
+  s = Math.max(0, Math.min(total, s));
+  current = s;
+  const snap = snapshots[s];
+  const st = s>0 ? steps[s-1] : null;
+  const activeNode = st ? nodes[st.node] : null;
+  const settled = settledIndices(s);
+
+  // clear pointer tags
+  for (let i=0;i<snap.length;i++){ document.getElementById('ptr-'+i).textContent = ''; }
+
+  // array cells
+  for (let i=0;i<snap.length;i++){
+    const cell = document.getElementById('cell-'+i);
+    cell.querySelector('.val').textContent = snap[i];
+    cell.classList.remove('zone-piv','zone-less','zone-more','zone-cmp','settled','swap-flash');
+  }
+
+  if (st && st.kind === 'leaf'){
+    document.getElementById('cell-'+activeNode.lo).classList.add('zone-cmp');
+  } else if (st){
+    const n = activeNode;
+    let zones;
+    if (st.kind === 'enter'){
+      zones = { piv:[n.lo], less:[], more:[], cmp:[], flash:[] };
+    } else if (st.kind === 'compare'){
+      zones = { piv:[n.lo], less: range(n.lo+1, st.i-1), more: range(st.i, st.j-1), cmp:[st.j], flash:[] };
+    } else if (st.kind === 'swap'){
+      zones = { piv:[n.lo], less: range(n.lo+1, st.iAfter-1), more: range(st.iAfter, st.j), cmp:[],
+                flash: st.real ? [st.i, st.j] : [] };
+    } else { // place
+      zones = { piv:[st.pivotIndex], less: range(n.lo, st.pivotIndex-1), more: range(st.pivotIndex+1, n.hi), cmp:[],
+                flash: st.real ? [n.lo, st.pivotIndex] : [] };
+    }
+    zones.piv.forEach(i => document.getElementById('cell-'+i).classList.add('zone-piv'));
+    zones.less.forEach(i => document.getElementById('cell-'+i).classList.add('zone-less'));
+    zones.more.forEach(i => document.getElementById('cell-'+i).classList.add('zone-more'));
+    zones.cmp.forEach(i => document.getElementById('cell-'+i).classList.add('zone-cmp'));
+    zones.flash.forEach(i => document.getElementById('cell-'+i).classList.add('swap-flash'));
+
+    // pointer tags
+    if (st.kind === 'enter'){
+      document.getElementById('ptr-'+n.lo).textContent = 'piv';
+      document.getElementById('ptr-'+(n.lo+1)).textContent = (n.lo+1 <= n.hi) ? 'i,j' : '';
+    } else if (st.kind === 'compare'){
+      const tags = {};
+      (tags[n.lo] = tags[n.lo] || []).push('piv');
+      (tags[st.i] = tags[st.i] || []).push('i');
+      (tags[st.j] = tags[st.j] || []).push('j');
+      Object.keys(tags).forEach(k => { const el = document.getElementById('ptr-'+k); if (el) el.textContent = tags[k].join(','); });
+    } else if (st.kind === 'swap'){
+      const tags = {};
+      (tags[n.lo] = tags[n.lo] || []).push('piv');
+      // iAfter can land one past the last valid index when every remaining element
+      // turned out to be "less than" the pivot (i advances every single step) — there is
+      // no array cell there to tag, so this is skipped rather than pointing at nothing.
+      (tags[st.iAfter] = tags[st.iAfter] || []).push('i');
+      (tags[st.j] = tags[st.j] || []).push('j');
+      Object.keys(tags).forEach(k => { const el = document.getElementById('ptr-'+k); if (el) el.textContent = tags[k].join(','); });
+    } else if (st.kind === 'place'){
+      document.getElementById('ptr-'+st.pivotIndex).textContent = 'piv';
+    }
+  }
+
+  // settled (green) cells outside whatever is currently highlighted
+  for (let i=0;i<snap.length;i++){
+    const cell = document.getElementById('cell-'+i);
+    const hasZone = cell.classList.contains('zone-piv') || cell.classList.contains('zone-less') ||
+                    cell.classList.contains('zone-more') || cell.classList.contains('zone-cmp');
+    if (!hasZone && settled.has(i)) cell.classList.add('settled');
+  }
+  if (s === total){
+    for (let i=0;i<snap.length;i++) document.getElementById('cell-'+i).classList.add('settled');
+  }
+
+  // nodes
+  const stackEntries = [];
+  nodeIds.forEach(id=>{
+    const n = nodes[id];
+    const nst = nodeStatus(n, s);
+    const div = document.getElementById('node-'+id);
+    div.className = 'node ' + nst;
+    const slice = snap.slice(n.lo, n.hi+1);
+    document.getElementById('chips-'+id).innerHTML = slice.map(v=>'<span class="chip">'+v+'</span>').join('');
+    if (nst==='stack-waiting' || nst==='active-enter' || nst==='active-merge' || nst==='active-leaf'){
+      stackEntries.push({n, st:nst});
+    }
+  });
+  stackEntries.sort((a,b)=>a.n.depth-b.n.depth);
+
+  document.querySelectorAll('#treeSvg line').forEach(line=>{
+    const childId = line.dataset.child;
+    const onPath = stackEntries.some(e=>e.n.id===childId);
+    line.classList.toggle('active-path', onPath);
+  });
+
+  const stackList = document.getElementById('stackList');
+  if (stackEntries.length === 0){
+    stackList.innerHTML = '<div class="empty-note">Call stack is empty. ' + (s===0 ? 'Click Next to begin.' : 'quickSort has returned &mdash; the array is fully sorted.') + '</div>';
+  } else {
+    stackList.innerHTML = stackEntries.map((e,idx)=>{
+      const n = e.n;
+      const isTop = idx === stackEntries.length-1;
+      let note = '';
+      if (!isTop){
+        const child = stackEntries[idx+1].n;
+        const branch = (n.pivotIndex != null && child.lo > n.pivotIndex) ? 'right' : 'left';
+        note = '<span class="note">waiting on the ' + branch + ' side of the pivot to return</span>';
+      } else if (e.st === 'active-merge'){
+        note = '<span class="note">partitioning now</span>';
+      } else if (e.st === 'active-leaf'){
+        note = n.tag === 'pivot'
+          ? '<span class="note">pivot just placed &mdash; returning now</span>'
+          : '<span class="note">base case &mdash; already sorted, returning now</span>';
+      } else if (e.st === 'active-enter'){
+        note = '<span class="note">just called &mdash; about to partition</span>';
+      }
+      const cls = 'stack-item' + (isTop ? (e.st==='active-merge' ? ' merging' : ' top') : '');
+      return '<div class="'+cls+'"><span class="head">depth ' + n.depth + ' &middot; quickSort(' + n.lo + ', ' + n.hi + ')</span>' + note + '</div>';
+    }).join('');
+  }
+
+  const descBox = document.getElementById('descBox');
+  if (s === 0){
+    descBox.innerHTML = '<span class="tag tag-start">Ready</span> The array has not been touched yet. Press <strong>Next</strong> to make the first call, <code>quickSort(0, 7)</code>.';
+  } else {
+    const tagMap = { place:['tag-place','Place pivot'], swap:['tag-place','Swap'], compare:['tag-cmp','Compare'], leaf:['tag-leaf','Base case'], enter:['tag-enter','Call'] };
+    const [tagClass, tagText] = tagMap[st.kind];
+    descBox.innerHTML = '<span class="tag ' + tagClass + '">' + tagText + '</span>' + st.text;
+  }
+
+  document.getElementById('stepCount').textContent = 'Step ' + s + ' / ' + total;
+  document.getElementById('progressBar').style.width = (s/total*100) + '%';
+  document.getElementById('prevBtn').disabled = s===0;
+  document.getElementById('nextBtn').disabled = s===total;
+  document.getElementById('homeBtn').disabled = s===0;
+  document.getElementById('endBtn').disabled = s===total;
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{ stopPlay(); render(current-1); });
+document.getElementById('nextBtn').addEventListener('click', ()=>{ stopPlay(); render(current+1); });
+document.getElementById('homeBtn').addEventListener('click', ()=>{ stopPlay(); render(0); });
+document.getElementById('endBtn').addEventListener('click', ()=>{ stopPlay(); render(total); });
+
+let playTimer = null;
+function stopPlay(){
+  if (playTimer){ clearInterval(playTimer); playTimer=null; }
+  document.getElementById('playBtn').classList.remove('playing');
+  document.getElementById('playBtn').innerHTML = '&#9654; Play';
+}
+document.getElementById('playBtn').addEventListener('click', ()=>{
+  if (playTimer){ stopPlay(); return; }
+  if (current === total) render(0);
+  document.getElementById('playBtn').classList.add('playing');
+  document.getElementById('playBtn').innerHTML = '&#10074;&#10074; Pause';
+  playTimer = setInterval(()=>{
+    if (current >= total){ stopPlay(); return; }
+    render(current+1);
+  }, 1500);
+});
+
+document.addEventListener('keydown', (e)=>{
+  if (e.key === 'ArrowRight' || e.key === ' '){ stopPlay(); render(current+1); e.preventDefault(); }
+  else if (e.key === 'ArrowLeft'){ stopPlay(); render(current-1); e.preventDefault(); }
+  else if (e.key === 'Home'){ stopPlay(); render(0); e.preventDefault(); }
+  else if (e.key === 'End'){ stopPlay(); render(total); e.preventDefault(); }
+});
+
+render(0);
+</script>
+</body>
+</html>

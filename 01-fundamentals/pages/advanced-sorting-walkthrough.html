@@ -483,7 +483,9 @@ document.getElementById('btnPass').onclick = finishStep;
 document.getElementById('btnReset').onclick = function () { go(0); };
 document.getElementById('tabMerge').onclick = function () { setMode('merge'); };
 document.getElementById('tabQuick').onclick = function () { setMode('quick'); };
-document.getElementById('tabTree').onclick = function () { window.location.href = 'merge-sort-recursion-tree.html'; };
+document.getElementById('tabTree').onclick = function () {
+  window.location.href = mode === 'quick' ? 'quicksort-recursion-tree-lomuto-firstpivot-full.html' : 'merge-sort-recursion-tree.html';
+};
 
 var elInput = document.getElementById('arrayInput');
 var elError = document.getElementById('error');
