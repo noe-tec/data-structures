@@ -1,0 +1,1032 @@
+/* ============================================================
+   SHSTYLE — tema de presentaciones (reveal.js)
+   Tema claro, minimalista, alto contraste para proyección.
+   Se carga DESPUÉS de reveal.css. No requiere tema base de Reveal.
+   ============================================================ */
+
+/* ---------- Design tokens ---------- */
+:root {
+  /* Color: 1 tinta + 1 acento + 2 semánticos. Nada más. */
+  --c-bg: #ffffff;
+  --c-ink: #16181d;        /* texto principal — contraste 16:1 sobre bg */
+  --c-ink-soft: #4b5260;   /* texto secundario — contraste 7.5:1 */
+  --c-accent: #0b57d0;     /* azul: énfasis, links, términos */
+  --c-accent-bg: #e8f0fe;
+  --c-ok: #146c2e;         /* verde: respuesta correcta */
+  --c-ok-bg: #e6f4ea;
+  --c-err: #b3261e;        /* rojo: respuesta incorrecta */
+  --c-err-bg: #fce8e6;
+  --c-line: #d7dbe2;       /* bordes y separadores */
+  --c-code-bg: #f4f5f7;
+  --c-ai: #6d28d9;         /* violeta: exclusivo de conexiones con IA */
+  --c-ai-bg: #f4effc;
+  --c-ai-hover: #e9defa;
+  --c-on-accent: #ffffff;  /* texto sobre rellenos de color (acento, tinta, ok, err, IA) */
+
+  /* Grises y azules auxiliares de los diagramas SVG */
+  --c-surface-1: #f0f1f4;
+  --c-surface-2: #eceff3;
+  --c-surface-3: #e8eaef;
+  --c-surface-4: #e2e6ec;
+  --c-ink-faint: #aab0bb;
+  --c-ink-faint-2: #9aa1ad;
+  --c-accent-soft: #9dc0f0;
+  --c-accent-soft-2: #cfe0f8;
+  --c-mm-stack: #f5f8fe;
+  --c-mm-heap: #f4faf6;
+  --c-mm-datos: #f7f7f9;
+  --c-mm-basura: #f1f2f4;
+
+  --c-shadow: rgba(20, 22, 29, 0.18);
+  --c-shadow-strong: rgba(0, 0, 0, 0.3);
+  --c-overlay: rgba(22, 24, 29, 0.55);
+
+  --font-sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+
+  --radius: 10px;
+}
+
+/* ---------- Base ---------- */
+.reveal-viewport { background: var(--c-bg); }
+
+.reveal {
+  font-family: var(--font-sans);
+  font-size: 34px;               /* base sobre lienzo 1280×720 — todo el tema escala desde aquí */
+  color: var(--c-ink);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.reveal .slides section {
+  text-align: left;              /* minimalista: todo alineado a la izquierda */
+  padding: 0 20px;
+}
+
+/* ---------- Tipografía ---------- */
+.reveal h1, .reveal h2, .reveal h3 {
+  color: var(--c-ink);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  margin-bottom: 0.42em;
+  line-height: 1.15;
+}
+.reveal h1 { font-size: 1.9em; }
+.reveal h2 { font-size: 1.35em; }
+.reveal h3 { font-size: 1.05em; color: var(--c-ink-soft); }
+
+.reveal p, .reveal li { line-height: 1.42; }
+.reveal ul, .reveal ol { margin-left: 1em; }
+.reveal li { margin-bottom: 0.28em; }
+.reveal li::marker { color: var(--c-accent); }
+
+.reveal strong { font-weight: 700; }
+.reveal em { color: var(--c-accent); font-style: normal; font-weight: 600; }
+
+.reveal a { color: var(--c-accent); text-decoration: none; border-bottom: 2px solid currentColor; }
+
+.reveal .muted { color: var(--c-ink-soft); font-size: 0.8em; }
+
+/* Kicker: etiqueta pequeña sobre el título (nº de tema, bloque) */
+.reveal .kicker {
+  display: block;
+  font-size: 0.55em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--c-accent);
+  margin-bottom: 0.7em;
+}
+
+/* Portada */
+.reveal section.cover { text-align: left; }
+.reveal section.cover h1 { font-size: 2.3em; max-width: 12em; }
+.reveal section.cover .cover-meta {
+  color: var(--c-ink-soft);
+  font-size: 0.65em;
+  margin-top: 2.5em;
+  border-top: 3px solid var(--c-ink);
+  padding-top: 0.8em;
+  display: inline-block;
+}
+
+/* Slide de sección (separador de tema) */
+.reveal section.divider h2 {
+  font-size: 1.9em;
+  border-left: 10px solid var(--c-accent);
+  padding-left: 0.5em;
+}
+
+/* ---------- Código ---------- */
+:root {
+  --c-code-panel: #14161d;     /* panel oscuro: el código destaca sobre el slide claro */
+  --c-code-head: #1f232d;
+  --c-code-head-ink: #8b93a5;
+  --c-code-head-line: #2a2f3b;
+  --c-code-ink: #e8eaf0;
+  --c-code-border: transparent;
+}
+
+/* ---------- Modo oscuro ----------
+   Se activa con data-theme="dark" en <html> (botón o tecla D; ver shstyle.js).
+   Mismos nombres de token; solo cambian los valores. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --c-bg: #15171c;
+  --c-ink: #e6e8ee;
+  --c-ink-soft: #a7adba;
+  --c-accent: #8ab4f8;
+  --c-accent-bg: #1d2a44;
+  --c-ok: #6dd58c;
+  --c-ok-bg: #16301f;
+  --c-err: #f2b8b5;
+  --c-err-bg: #3b1d1b;
+  --c-line: #3a3f4b;
+  --c-code-bg: #1f222a;
+  --c-ai: #c4a5f5;
+  --c-ai-bg: #261d3a;
+  --c-ai-hover: #3a2c58;
+  --c-on-accent: #15171c;
+
+  --c-surface-1: #20232b;
+  --c-surface-2: #252932;
+  --c-surface-3: #2a2e38;
+  --c-surface-4: #30343f;
+  --c-ink-faint: #6b7280;
+  --c-ink-faint-2: #747b88;
+  --c-accent-soft: #3b5b8f;
+  --c-accent-soft-2: #27406a;
+  --c-mm-stack: #1b2233;
+  --c-mm-heap: #1a261f;
+  --c-mm-datos: #1f2128;
+  --c-mm-basura: #262930;
+
+  --c-shadow: rgba(0, 0, 0, 0.5);
+  --c-shadow-strong: rgba(0, 0, 0, 0.6);
+  --c-overlay: rgba(0, 0, 0, 0.65);
+
+  --c-code-panel: #0e1014;
+  --c-code-head: #1a1d25;
+  --c-code-border: #3a3f4b;
+}
+
+.reveal code {
+  font-family: var(--font-mono);
+  background: var(--c-code-bg);
+  color: var(--c-ink);
+  padding: 0.08em 0.3em;
+  border-radius: 6px;
+  font-size: 0.92em;
+}
+
+/* Bloques de código: panel oscuro a lo ancho del slide */
+.reveal pre {
+  position: relative;   /* ancla los clones absolutos de data-line-numbers */
+  width: 100%;
+  margin: 0.34em 0;
+  background: var(--c-code-panel);
+  border: none;
+  outline: 1px solid var(--c-code-border);  /* solo visible en oscuro */
+  outline-offset: -1px;
+  border-radius: 14px;
+  box-shadow: 0 8px 28px var(--c-shadow);
+  font-size: 0.72em;             /* ~24px proyectado */
+  line-height: 1.55;
+  overflow: hidden;
+}
+
+/* Barra de título opcional: <pre data-title="pila.hpp"> */
+.reveal pre[data-title]::before {
+  content: attr(data-title);
+  display: block;
+  background: var(--c-code-head);
+  color: var(--c-code-head-ink);
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  padding: 0.55em 1.3em;
+  border-bottom: 1px solid var(--c-code-head-line);
+}
+
+.reveal pre code {
+  background: transparent;
+  color: var(--c-code-ink);
+  padding: 0.75em 1.15em;
+  max-height: 560px;
+}
+
+/* Resaltado de líneas de Reveal (data-line-numbers):
+   las líneas activas mantienen su color; el resto se atenúa */
+.reveal .hljs.has-highlights tr:not(.highlight-line) { opacity: 0.25; }
+
+/* En vez de apilar los pasos como capas absolutas (se desalinean con la
+   barra de título), se muestra únicamente el paso activo, en flujo normal */
+.reveal pre code.fragment:not(.current-fragment) { display: none; }
+.reveal pre code.current-fragment { position: static !important; display: block; }
+.reveal pre:has(> code.current-fragment) > code:first-child:not(.current-fragment) { display: none; }
+
+/* ---------- Tablas ---------- */
+.reveal table { border-collapse: collapse; font-size: 0.75em; margin: 0.5em 0; }
+.reveal th {
+  border-bottom: 3px solid var(--c-ink);
+  font-weight: 700; text-align: left; padding: 0.4em 0.8em;
+}
+.reveal td { border-bottom: 1px solid var(--c-line); padding: 0.4em 0.8em; }
+
+/* ---------- Ecuaciones (KaTeX) ---------- */
+/* KaTeX se carga desde shstyle.js solo si el deck tiene ecuaciones.
+   Escribir \( … \) en línea y \[ … \] en bloque; usar .eq / .eq-key
+   para las ecuaciones que van separadas del texto. */
+.reveal .katex { font-size: 1.02em; }
+
+/* Ecuación en bloque: aire propio, centrada respecto al slide */
+.reveal .eq { margin: 0.55em 0; text-align: center; }
+.reveal .eq .katex { font-size: 1.15em; }
+
+/* Ecuación destacada: la definición o identidad central del slide.
+   Es el equivalente de .box-key para matemáticas — máx. una por slide. */
+.reveal .eq-key {
+  border-left: 8px solid var(--c-accent);
+  background: var(--c-accent-bg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.7em 0.9em;
+  margin: 0.8em 0;
+  text-align: center;
+}
+.reveal .eq-key .katex { font-size: 1.2em; }
+
+/* Dentro de listas: no romper el interlineado del bullet */
+.reveal li .katex-display,
+.reveal li .eq { margin: 0.35em 0; }
+
+/* En celdas de tabla la ecuación se alinea con el texto, no al centro */
+.reveal td .eq, .reveal th .eq { text-align: left; margin: 0; }
+
+/* Ficha del glosario: las definiciones también admiten ecuaciones */
+.reveal-viewport .glossary-card .katex-display { margin: 0.5em 0; }
+
+/* ---------- Cajas ---------- */
+/* Caja de idea clave: úsala una vez por slide como máximo */
+.reveal .box-key {
+  border-left: 8px solid var(--c-accent);
+  background: var(--c-accent-bg);
+  padding: 0.5em 0.9em;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 0.55em 0;
+  font-weight: 600;
+}
+
+/* Caja de conexión con IA: distingue el "dónde vive esto en sistemas
+   de IA reales" del contenido básico del curso. Violeta exclusivo. */
+.reveal .box-ai {
+  position: relative;
+  border: 3px solid var(--c-ai);
+  background: var(--c-ai-bg);
+  border-radius: var(--radius);
+  padding: 1em 0.9em 0.6em;
+  margin: 1em 0 0.8em;
+  font-size: 0.85em;
+}
+.reveal .box-ai::before {
+  content: "🤖 " attr(data-label);
+  position: absolute;
+  top: -0.85em; left: 0.7em;
+  background: var(--c-ai);
+  color: var(--c-on-accent);
+  font-size: 0.55em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.3em 0.8em;
+  border-radius: 999px;
+}
+.reveal .box-ai:not([data-label])::before { content: "🤖 AI connection"; }
+.reveal .box-ai .term { color: var(--c-ai); border-bottom-color: var(--c-ai); }
+.reveal .box-ai .term:hover { background: var(--c-ai-hover); }
+.reveal .box-ai em { color: var(--c-ai); }
+.reveal .box-ai li::marker { color: var(--c-ai); }
+
+/* Kicker violeta para slides dedicados por completo a la conexión IA */
+.reveal .kicker-ai { color: var(--c-ai); }
+
+/* Dos columnas */
+.reveal .cols { display: flex; gap: 1.2em; align-items: flex-start; }
+.reveal .cols > * { flex: 1; min-width: 0; }
+
+/* ---------- Términos clicables (glosario) ---------- */
+.reveal .term {
+  color: var(--c-accent);
+  border-bottom: 3px dotted var(--c-accent);
+  cursor: pointer;
+  font-weight: 600;
+}
+.reveal .term:hover { background: var(--c-accent-bg); }
+
+/* Modal de definición */
+.glossary-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--c-overlay);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.glossary-card {
+  background: var(--c-bg);
+  color: var(--c-ink);
+  max-width: 700px; width: 100%;
+  max-height: 80vh; overflow-y: auto;
+  border-radius: var(--radius);
+  border-top: 8px solid var(--c-accent);
+  padding: 28px 32px;
+  font-size: 24px; line-height: 1.55;
+  font-family: var(--font-sans);
+  box-shadow: 0 20px 60px var(--c-shadow-strong);
+}
+.glossary-card h4 { margin: 0 0 0.5em; font-size: 1.25em; color: var(--c-accent); }
+.glossary-card p { margin: 0 0 0.6em; }
+.glossary-card code { font-family: var(--font-mono); background: var(--c-code-bg); padding: 0.1em 0.3em; border-radius: 4px; }
+.glossary-card .glossary-close {
+  margin-top: 0.8em;
+  border: 2px solid var(--c-ink); background: none; color: var(--c-ink);
+  font: inherit; font-weight: 600;
+  padding: 0.35em 1em; border-radius: 8px; cursor: pointer;
+}
+.glossary-card .glossary-close:hover { background: var(--c-ink); color: var(--c-bg); }
+
+/* ---------- Quiz ---------- */
+.reveal .quiz { margin-top: 0.2em; }
+.reveal .quiz .quiz-question { font-weight: 700; margin-bottom: 0.5em; font-size: 0.95em; }
+
+.reveal .quiz-option {
+  display: flex; align-items: center; gap: 0.6em;
+  width: 100%;
+  text-align: left;
+  font: inherit; font-size: 0.78em;
+  color: var(--c-ink);
+  background: var(--c-bg);
+  border: 3px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: 0.38em 0.8em;
+  margin-bottom: 0.3em;
+  cursor: pointer;
+  min-height: 52px;              /* touch target cómodo en móvil */
+  transition: border-color 0.15s, background 0.15s;
+}
+.reveal .quiz-option:hover:not(:disabled) { border-color: var(--c-accent); }
+
+.reveal .quiz-option .opt-letter {
+  flex: none;
+  width: 1.6em; height: 1.6em;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 3px solid currentColor;
+  font-weight: 700; font-size: 0.8em;
+}
+
+.reveal .quiz-option.is-correct {
+  border-color: var(--c-ok); background: var(--c-ok-bg); color: var(--c-ok);
+  font-weight: 600;
+}
+.reveal .quiz-option.is-wrong {
+  border-color: var(--c-err); background: var(--c-err-bg); color: var(--c-err);
+}
+.reveal .quiz-option:disabled { cursor: default; }
+.reveal .quiz.answered .quiz-option:not(.is-correct):not(.is-wrong) { opacity: 0.45; }
+
+.reveal .quiz-explain {
+  display: none;
+  border-left: 8px solid var(--c-ok);
+  background: var(--c-ok-bg);
+  padding: 0.5em 0.9em;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 0.7em;
+  margin-top: 0.5em;
+}
+.reveal .quiz.answered .quiz-explain { display: block; animation: rise 0.35s ease; }
+
+/* ---------- Solución oculta (auto-estudio) ----------
+   <div class="solucion" data-label="Ver solución">…contenido…</div>
+   El JS envuelve el contenido y antepone el botón. */
+.reveal .solucion { margin-top: 0.5em; }
+.reveal .solucion-toggle {
+  font: inherit; font-size: 0.72em; font-weight: 600;
+  color: var(--c-accent);
+  background: var(--c-bg);
+  border: 3px solid var(--c-accent);
+  border-radius: var(--radius);
+  padding: 0.4em 1em;
+  min-height: 52px;
+  cursor: pointer;
+}
+.reveal .solucion-toggle:hover { background: var(--c-accent-bg); }
+.reveal .solucion-body { display: none; }
+.reveal .solucion.open .solucion-body {
+  display: block;
+  animation: rise 0.35s ease;
+  /* La solución se abre dentro del slide: si no cabe, se desplaza aquí
+     en lugar de empujar el contenido fuera del lienzo. */
+  max-height: var(--solucion-max, 330px);
+  overflow-y: auto;
+  overscroll-behavior: contain;      /* el scroll no se propaga al deck */
+  padding-right: 6px;
+}
+.reveal .solucion.open .solucion-toggle { color: var(--c-ink-soft); border-color: var(--c-line); }
+/* Los <pre> de dentro no imponen su propio límite: manda el de la caja. */
+.reveal .solucion-body > pre { margin-top: 0; }
+.reveal .solucion-body > pre code { max-height: none; }
+.reveal .solucion-body > :last-child { margin-bottom: 0; }
+
+/* Barra de desplazamiento discreta, visible al proyectar */
+.reveal .solucion-body::-webkit-scrollbar { width: 10px; }
+.reveal .solucion-body::-webkit-scrollbar-track { background: transparent; }
+.reveal .solucion-body::-webkit-scrollbar-thumb {
+  background: var(--c-line); border-radius: 999px;
+  border: 2px solid var(--c-bg);
+}
+.reveal .solucion-body:hover::-webkit-scrollbar-thumb { background: var(--c-ink-soft); }
+.reveal .solucion-body { scrollbar-width: thin; scrollbar-color: var(--c-line) transparent; }
+
+/* Aviso de que queda contenido abajo; el JS lo quita al llegar al final. */
+.reveal .solucion.open.hay-mas { position: relative; }
+.reveal .solucion.open.hay-mas::after {
+  content: "▾ more";
+  position: absolute; left: 14px; bottom: 6px;   /* a la izquierda: la derecha la ocupan los controles de Reveal */
+  font-size: 0.55em; font-weight: 600; color: var(--c-ink-soft);
+  background: var(--c-bg); border: 2px solid var(--c-line);
+  border-radius: 999px; padding: 0.1em 0.7em;
+  pointer-events: none;
+}
+
+/* ---------- Checklist de salida ----------
+   <ul class="checklist" data-deck="v00"><li>…</li></ul>
+   Cada punto se marca al hacer clic; el avance se guarda en el navegador. */
+.reveal .checklist { list-style: none; margin-left: 0; font-size: 0.78em; }
+.reveal .checklist li {
+  display: flex; align-items: flex-start; gap: 0.6em;
+  border: 3px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: 0.4em 0.8em;
+  margin-bottom: 0.4em;
+  min-height: 52px;
+  cursor: pointer;
+}
+.reveal .checklist li::marker { content: ""; }
+.reveal .checklist li::before {
+  content: "";
+  flex: none;
+  width: 1.1em; height: 1.1em;
+  margin-top: 0.22em;
+  border: 3px solid var(--c-ink-soft);
+  border-radius: 5px;
+}
+.reveal .checklist li.done { border-color: var(--c-ok); background: var(--c-ok-bg); color: var(--c-ok); }
+.reveal .checklist li.done::before {
+  content: "✓";
+  display: flex; align-items: center; justify-content: center;
+  border-color: var(--c-ok); background: var(--c-ok); color: var(--c-on-accent);
+  font-size: 0.8em; font-weight: 700;
+}
+.reveal .checklist .cl-ref { color: var(--c-ink-soft); font-size: 0.85em; margin-left: auto; white-space: nowrap; }
+.reveal .checklist li.done .cl-ref { color: var(--c-ok); }
+
+/* ---------- Panel de resultado del diagnóstico ---------- */
+.reveal .score-panel { font-size: 0.8em; }
+.reveal .score-panel .score-num { font-size: 2.2em; font-weight: 700; color: var(--c-accent); line-height: 1; }
+.reveal .score-panel .score-msg { margin: 0.4em 0 0.7em; }
+.reveal .score-panel ul { font-size: 0.85em; margin-left: 1em; }
+.reveal .score-panel .score-pend { color: var(--c-ink-soft); }
+
+/* ---------- Animaciones didácticas ---------- */
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes pulse-once { 0% { transform: scale(1); } 40% { transform: scale(1.06); } 100% { transform: scale(1); } }
+
+/* Fragments extra sobre los de Reveal */
+.reveal .fragment.pulse.visible { animation: pulse-once 0.6s ease; }
+.reveal .fragment.mark.visible {
+  background: var(--c-accent-bg);
+  box-shadow: 0 0 0 6px var(--c-accent-bg);
+  border-radius: 4px;
+}
+.reveal .fragment.tachar.visible { text-decoration: line-through; opacity: 0.45; }
+
+/* Diagramas SVG animados por pasos: .anim-step se muestra con fragments.
+   El JS sincroniza los pasos con los fragments del slide. */
+.reveal svg .anim-step { opacity: 0; transition: opacity 0.4s ease; }
+.reveal svg .anim-step.on { opacity: 1; }
+.reveal svg text { font-family: var(--font-sans); }
+.reveal svg .svg-node { fill: var(--c-bg); stroke: var(--c-ink); stroke-width: 3; }
+.reveal svg .svg-node-hl { fill: var(--c-accent-bg); stroke: var(--c-accent); stroke-width: 4; }
+.reveal svg .svg-edge { stroke: var(--c-ink); stroke-width: 3; fill: none; }
+.reveal svg .svg-label { fill: var(--c-ink); font-size: 26px; font-weight: 600; }
+
+/* ---------- Referencias y material para profundizar ---------- */
+.reveal .refs { font-size: 0.62em; line-height: 1.45; }
+.reveal .refs h3 {
+  font-size: 1em; color: var(--c-ink);
+  border-bottom: 3px solid var(--c-ink);
+  padding-bottom: 0.3em; margin-bottom: 0.7em;
+}
+.reveal .refs ul { list-style: none; margin-left: 0; }
+.reveal .refs li {
+  margin-bottom: 0.7em;
+  padding-left: 1em;
+  text-indent: -1em;         /* sangría francesa */
+}
+.reveal .refs li::marker { content: ""; }
+.reveal .refs .ref-type {
+  display: inline-block;
+  text-indent: 0;
+  font-size: 0.75em; font-weight: 600;
+  color: var(--c-ink-soft);
+  border: 2px solid var(--c-line);
+  border-radius: 999px;
+  padding: 0.05em 0.6em;
+  margin-right: 0.4em;
+  vertical-align: middle;
+}
+.reveal .refs a { border-bottom-width: 1px; }
+.reveal .refs em { color: var(--c-ink); font-style: italic; font-weight: 400; }
+.reveal .refs .ref-nota { color: var(--c-ink-soft); }
+
+/* Nota de uso de IA al pie del slide de referencias */
+.reveal .refs-ia {
+  font-size: 0.5em; line-height: 1.4;
+  color: var(--c-ink-soft);
+  border-top: 2px solid var(--c-line);
+  margin-top: 1.2em; padding-top: 0.6em;
+}
+
+/* ---------- Progreso y controles ---------- */
+.reveal .progress { color: var(--c-accent); height: 6px; }
+.reveal .controls { color: var(--c-accent); }
+.reveal .slide-number {
+  background: none; color: var(--c-ink-soft);
+  font-family: var(--font-sans); font-size: 20px;
+  right: 20px; bottom: 14px;
+}
+
+/* ============================================================
+   SIMULADOR DE PARTICIÓN (Lomuto / Hoare)
+   Lo construye SHStyle.initParticion a partir de
+   <div class="sim-particion" data-alg="…" data-array="…">.
+   Un paso del simulador = un fragment del slide.
+   ============================================================ */
+
+.reveal .sim-particion {
+  --sim-cols: 8;
+  display: flex;
+  flex-direction: column;
+  gap: 0.20em;
+  font-size: 1em;
+}
+
+/* ---------- La cinta de casillas ---------- */
+.reveal .sim-cinta,
+.reveal .sim-zonas {
+  display: grid;
+  grid-template-columns: repeat(var(--sim-cols), 1fr);
+  gap: 0 0.22em;
+  width: 100%;
+  max-width: 26em;
+}
+
+.reveal .sim-col { display: flex; flex-direction: column; align-items: stretch; }
+
+/* fila de punteros, encima de las casillas */
+.reveal .sim-ptr {
+  height: 1.05em;
+  display: flex; justify-content: center; align-items: flex-end; gap: 0.24em;
+  font-family: var(--font-mono);
+  font-size: 0.58em;
+  font-weight: 700;
+  line-height: 1;
+}
+.reveal .sim-ptr span {
+  opacity: 0;
+  transform: translateY(-0.28em);
+  transition: opacity .18s ease, transform .18s ease;
+  padding: 0.14em 0.34em;
+  border-radius: 0.3em;
+  color: var(--c-on-accent);
+}
+.reveal .sim-ptr .pi { background: var(--c-accent); }
+.reveal .sim-ptr .pj { background: var(--c-err); }
+.reveal .sim-ptr .pk { background: var(--c-accent); }
+.reveal .sim-ptr .pp { background: var(--c-ok); }
+.reveal .sim-col.has-i .sim-ptr .pi,
+.reveal .sim-col.has-j .sim-ptr .pj,
+.reveal .sim-col.has-k .sim-ptr .pk,
+.reveal .sim-col.has-p .sim-ptr .pp { opacity: 1; transform: none; }
+
+/* la casilla */
+.reveal .sim-celda {
+  height: 1.72em;
+  display: flex; align-items: center; justify-content: center;
+  border: 3px solid var(--c-ink);
+  border-radius: 8px;
+  background: var(--c-bg);
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.reveal .sim-col.ghost .sim-celda {
+  border-style: dashed;
+  border-color: var(--c-line);
+  background: transparent;
+}
+
+/* estados de casilla */
+.reveal .sim-col.mk-i  .sim-celda { border-color: var(--c-accent); background: var(--c-accent-bg); }
+.reveal .sim-col.mk-j  .sim-celda { border-color: var(--c-err);    background: var(--c-err-bg); }
+.reveal .sim-col.mk-sw .sim-celda { border-color: var(--c-ok);     background: var(--c-ok-bg); transform: translateY(-0.12em); }
+.reveal .sim-col.mk-p  .sim-celda { border-color: var(--c-accent); border-style: dashed; border-width: 4px; }
+.reveal .sim-col.mk-f  .sim-celda { border-color: var(--c-ok);     background: var(--c-ok-bg); }
+
+/* Prefijo ya ordenado y definitivo (selection sort). */
+.reveal .sim-col.mk-ord .sim-celda { border-color: var(--c-ok); background: var(--c-ok-bg); }
+
+/* Descartado en quickselect: sigue visible, pero fuera de juego. */
+.reveal .sim-col.mk-desc .sim-celda {
+  opacity: .28;
+  border-color: var(--c-line);
+  border-width: 2px;
+  background: var(--c-bg);
+}
+.reveal .sim-col.mk-desc .sim-idx { opacity: .3; }
+
+/* número de índice, debajo */
+.reveal .sim-idx {
+  height: 1em;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.52em;
+  color: var(--c-ink-soft);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+}
+.reveal .sim-col.ghost .sim-idx { opacity: .55; }
+
+/* ---------- Llaves de las zonas finales ---------- */
+.reveal .sim-zonas { height: 0.92em; }
+.reveal .sim-zona {
+  border-top: 4px solid var(--c-ok);
+  border-radius: 0;
+  margin-top: 0.1em;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.52em;
+  font-weight: 700;
+  color: var(--c-ok);
+  line-height: 1.7;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.reveal .sim-zona.on { opacity: 1; }
+.reveal .sim-zona.piv { border-top-color: var(--c-accent); color: var(--c-accent); }
+/* Invariante de selection sort: lo ordenado contra lo que falta. */
+.reveal .sim-zona.ord  { border-top-color: var(--c-ok); color: var(--c-ok); }
+.reveal .sim-zona.pend { border-top-color: var(--c-line); color: var(--c-ink-soft); font-weight: 400; }
+
+/* ---------- Barra de estado + controles ---------- */
+.reveal .sim-barra {
+  display: flex; align-items: center; gap: 0.34em;
+  flex-wrap: nowrap;
+  min-height: 1.35em;
+}
+.reveal .sim-chip {
+  font-family: var(--font-mono);
+  font-size: 0.56em;
+  font-weight: 700;
+  padding: 0.24em 0.55em;
+  border-radius: 0.36em;
+  background: var(--c-code-bg);
+  color: var(--c-ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.reveal .sim-chip.ci { background: var(--c-accent-bg); color: var(--c-accent); }
+.reveal .sim-chip.cj { background: var(--c-err-bg);    color: var(--c-err); }
+.reveal .sim-chip.cok { background: var(--c-ok-bg);    color: var(--c-ok); }
+.reveal .sim-chip[hidden] { display: none; }
+.reveal .sim-test {
+  font-family: var(--font-mono);
+  font-size: 0.56em;
+  color: var(--c-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.reveal .sim-ctrl { display: flex; align-items: center; gap: 0.2em; flex: 0 0 auto; }
+.reveal .sim-ctrl button {
+  font-family: var(--font-sans);
+  font-size: 0.55em;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.34em 0.6em;
+  border: 2px solid var(--c-line);
+  border-radius: 0.4em;
+  background: var(--c-bg);
+  color: var(--c-ink);
+  cursor: pointer;
+}
+.reveal .sim-ctrl button:hover:not(:disabled) { border-color: var(--c-accent); color: var(--c-accent); }
+.reveal .sim-ctrl button:disabled { opacity: .35; cursor: default; }
+.reveal .sim-ctrl button:focus-visible { outline: 3px solid var(--c-accent); outline-offset: 2px; }
+.reveal .sim-cont {
+  font-family: var(--font-mono);
+  font-size: 0.52em;
+  color: var(--c-ink-soft);
+  font-variant-numeric: tabular-nums;
+  padding: 0 0.24em;
+  white-space: nowrap;
+}
+
+/* ---------- Parte baja: código | explicación del paso ---------- */
+.reveal .sim-abajo {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55em;
+  width: 100%;
+}
+
+.reveal .sim-dice {
+  margin: 0;
+  flex: 1 1 0;
+  min-width: 11em;
+  font-size: 0.66em;
+  line-height: 1.34;
+  min-height: 5.4em;       /* alto fijo: el layout no salta entre pasos */
+}
+.reveal .sim-dice b { color: var(--c-accent); font-weight: 700; }
+/* Pausa de predicción: se pregunta un paso antes de mostrar la respuesta. */
+.reveal .sim-dice .predice {
+  display: block;
+  margin-top: 0.3em;
+  padding: 0.18em 0.55em;
+  border-left: 5px solid var(--c-accent);
+  background: var(--c-accent-bg);
+  border-radius: 0 8px 8px 0;
+}
+.reveal .sim-dice code {
+  white-space: nowrap;
+  font-size: 0.92em;
+  background: var(--c-code-bg);
+  padding: 0.05em 0.24em;
+  border-radius: 4px;
+}
+
+/* ---------- Panel de código con la línea activa ---------- */
+.reveal .sim-codigo {
+  flex: 0 0 auto;
+  width: auto;             /* gana a .reveal pre { width: 100% } del tema */
+  max-width: 52%;
+  margin: 0;
+  background: var(--c-code-panel);
+  border-radius: 12px;
+  padding: 0.42em 0;
+  font-family: var(--font-mono);
+  font-size: 0.72em;       /* mínimo proyectable: ~24px en el lienzo de 1280 */
+  line-height: 1.42;
+  overflow-x: auto;
+  color: var(--c-code-ink);
+}
+.reveal .sim-linea {
+  padding: 0 0.9em;
+  white-space: pre;
+  border-left: 4px solid transparent;
+  transition: background .18s ease;
+}
+.reveal .sim-linea.on { background: rgba(130,171,245,.20); border-left-color: #82abf5; }
+/* El panel de trabajo de quickselect se llena ronda por ronda. Los renglones
+   que faltan no ocupan lugar: el panel crece hacia abajo y no empuja nada,
+   porque es lo último del slide. */
+.reveal .sim-linea.oculta { display: none; }
+.reveal .sim-trabajo { letter-spacing: -0.01em; }
+.reveal .sim-codigo .kw  { color: #ff7b72; }
+.reveal .sim-codigo .num { color: #79c0ff; }
+.reveal .sim-codigo .fn  { color: #d2a8ff; }
+.reveal .sim-codigo .cm  { color: #8b949e; }
+
+/* ---------- Simulador de lista enlazada ---------- */
+.reveal .sim-lista .sl-svg { width: 100%; height: 232px; display: block; }
+.reveal .sim-lista .sl-codigo { max-width: 58%; }
+
+.reveal .sl-nodo .caja  { fill: var(--c-bg); stroke: var(--c-ink); stroke-width: 3; }
+.reveal .sl-nodo .div   { stroke: var(--c-ink); stroke-width: 2; }
+.reveal .sl-nodo .dato  { font-family: var(--font-mono); font-size: 26px; font-weight: 700;
+                          fill: var(--c-ink); text-anchor: middle; }
+.reveal .sl-nodo .raiz  { fill: var(--c-ink); }
+.reveal .sl-nodo.hl .caja      { fill: var(--c-accent-bg); stroke: var(--c-accent); }
+.reveal .sl-nodo.nuevo .caja   { fill: var(--c-ok-bg); stroke: var(--c-ok); }
+.reveal .sl-nodo.liberado      { opacity: .45; }
+.reveal .sl-nodo.liberado .caja{ stroke-dasharray: 7 5; stroke: var(--c-ink-soft); }
+.reveal .sl-nodo.perdido .caja { fill: var(--c-err-bg); stroke: var(--c-err); stroke-dasharray: 7 5; }
+.reveal .sl-etq { font-family: var(--font-mono); font-size: 15px; font-weight: 700;
+                  fill: var(--c-err); text-anchor: middle; }
+.reveal .sl-nodo.liberado .sl-etq { fill: var(--c-ink-soft); }
+
+.reveal .sl-flecha       { stroke: var(--c-ink); stroke-width: 3; fill: none; }
+.reveal .sl-flecha.nueva { stroke: var(--c-ok); stroke-width: 4; }
+.reveal .sl-punta        { fill: var(--c-ink); }
+.reveal .sl-punta.nueva  { fill: var(--c-ok); }
+.reveal .sl-flecha.muerta { stroke: var(--c-ink-soft); stroke-width: 2; stroke-dasharray: 6 5; opacity: .6; }
+.reveal .sl-punta.muerta  { fill: var(--c-ink-soft); opacity: .6; }
+.reveal .sl-etq.izq       { text-anchor: start; }
+.reveal .sl-nulo         { stroke: var(--c-ink); stroke-width: 2.5; }
+
+.reveal .sl-ptr text { font-family: var(--font-mono); font-size: 16px; font-weight: 700;
+                       fill: var(--c-on-accent); text-anchor: middle; }
+.reveal .sl-ptr.ph rect { fill: var(--c-ink); }
+.reveal .sl-ptr.pp rect { fill: var(--c-accent); }
+.reveal .sl-ptr.pn rect { fill: var(--c-ok); }
+.reveal .sl-ptr.pv rect { fill: var(--c-err); }
+
+/* ---------- Diagramas de variantes de lista (sesión 11) ---------- */
+.reveal .vl-titulo { font-family: var(--font-sans); font-size: 26px; font-weight: 700; fill: var(--c-ink); }
+.reveal .vl-sub    { font-family: var(--font-mono); font-size: 17px; fill: var(--c-ink-soft); }
+.reveal .vl-inv    { font-family: var(--font-mono); font-size: 19px; font-weight: 700; fill: var(--c-ok); }
+.reveal .vl-inv.c  { text-anchor: middle; }
+.reveal .vl-inv.r  { text-anchor: end; }
+.reveal .vl-a      { font-family: var(--font-mono); font-size: 19px; font-weight: 700; fill: var(--c-ok); text-anchor: middle; }
+.reveal .vl-hl     { fill: none; stroke: var(--c-ok); stroke-width: 4; }
+.reveal .vl-cap      { font-family: var(--font-sans); font-size: 25px; font-weight: 600; fill: var(--c-ink); }
+.reveal .vl-cap.err  { fill: var(--c-err); }
+.reveal .vl-cap.ok   { fill: var(--c-ok); }
+.reveal .vl-mono     { font-family: var(--font-mono); }
+.reveal .vl-flecha-err { stroke: var(--c-err); stroke-width: 4; fill: none; }
+.reveal .vl-punta-err  { fill: var(--c-err); }
+.reveal .vl-liberado   { fill: var(--c-bg); fill-opacity: .6; stroke: var(--c-ink-soft); stroke-width: 3; stroke-dasharray: 7 5; }
+.reveal .vl-liberado.err { stroke: var(--c-err); }
+.reveal .vl-perdido    { fill: var(--c-err-bg); fill-opacity: .75; stroke: var(--c-err); stroke-width: 3; stroke-dasharray: 7 5; }
+.reveal .sl-etq.gris   { fill: var(--c-ink-soft); }
+.reveal .vl-sep    { stroke: var(--c-line); stroke-width: 2; stroke-dasharray: 4 6; }
+
+/* ---------- Simuladores de memoria ---------- */
+.reveal .mm-svg { display: block; width: 100%; }
+.reveal .mm-fila { height: 184px; }
+.reveal .sim-mem .sim-codigo { line-height: 1.34; }
+
+/* mem-alias: celdas del stack */
+.reveal .mm-celda rect { fill: var(--c-bg); stroke: var(--c-ink); stroke-width: 3; }
+.reveal .mm-celda.ptr rect { fill: var(--c-accent-bg); stroke: var(--c-accent); }
+.reveal .mm-celda.cambio rect { fill: var(--c-ok-bg); stroke: var(--c-ok); stroke-width: 4; }
+.reveal .mm-hueco { fill: none; stroke: var(--c-line); stroke-width: 2; stroke-dasharray: 6 6; }
+.reveal .mm-valor { font-family: var(--font-mono); font-size: 30px; font-weight: 700;
+                    fill: var(--c-ink); text-anchor: middle; }
+.reveal .mm-valor.dir { font-size: 24px; fill: var(--c-accent); }
+.reveal .mm-dir { font-family: var(--font-mono); font-size: 15px; fill: var(--c-ink-soft); text-anchor: middle; }
+.reveal .mm-tam { font-family: var(--font-mono); font-size: 13px; fill: var(--c-ink-soft); text-anchor: end; }
+.reveal .mm-nombre rect { fill: var(--c-ink); }
+.reveal .mm-nombre text { font-family: var(--font-mono); font-size: 17px; font-weight: 700;
+                          fill: var(--c-on-accent); text-anchor: middle; }
+.reveal .mm-nombre.alias rect { fill: var(--c-accent); }
+
+.reveal .mm-flecha { fill: none; stroke: var(--c-accent); stroke-width: 3; }
+.reveal .mm-flecha.nueva { stroke: var(--c-ok); stroke-width: 4; }
+.reveal .mm-flecha.colgante { stroke: var(--c-err); stroke-dasharray: 7 5; }
+.reveal .mm-flecha.saliendo { opacity: .45; }
+.reveal .mm-punta { fill: var(--c-accent); }
+.reveal .mm-punta.nueva { fill: var(--c-ok); }
+.reveal .mm-punta.tinta { fill: var(--c-ink); }
+.reveal .mm-flecha.copia { stroke: var(--c-ink); }
+.reveal .mm-flecha.ref { stroke: var(--c-accent); stroke-dasharray: 7 5; }
+.reveal .mm-push { height: 226px; }
+.reveal .sl-nodo.fuga .caja { fill: var(--c-err-bg); stroke: var(--c-err); stroke-dasharray: 7 5; }
+.reveal .mm-punta.colgante { fill: var(--c-err); }
+
+/* mem-mapa: mapa del proceso a la izquierda, código y explicación a la derecha */
+.reveal .mm-cuerpo { display: flex; gap: 0.5em; align-items: flex-start; }
+.reveal .mm-izq { flex: 0 0 44%; }
+.reveal .mm-der { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 0.3em; }
+.reveal .mm-mapa .mm-der .sim-codigo { max-width: 100%; line-height: 1.34; }
+.reveal .mm-mapa .mm-der .sim-dice { min-height: 0; flex: none; font-size: 0.62em; }  /* flex:none: en columna, flex-basis 0 lo aplastaba y el texto se salía */
+
+.reveal .mm-eje { stroke: var(--c-line); stroke-width: 2; }
+.reveal .mm-eje-txt { font-family: var(--font-sans); font-size: 12px; fill: var(--c-ink-soft); letter-spacing: .04em; }
+.reveal .mm-region { fill: none; stroke: var(--c-line); stroke-width: 2; }
+.reveal .mm-region.stack { fill: var(--c-mm-stack); }
+.reveal .mm-region.heap  { fill: var(--c-mm-heap); }
+.reveal .mm-region.datos, .reveal .mm-region.cod { fill: var(--c-mm-datos); }
+.reveal .mm-reg-titulo { font-family: var(--font-sans); font-size: 15px; font-weight: 700; fill: var(--c-ink);
+                         text-transform: uppercase; letter-spacing: .08em; }
+.reveal .mm-reg-nota { font-family: var(--font-sans); font-size: 13px; fill: var(--c-ink-soft); text-anchor: end; }
+.reveal .mm-libre { font-family: var(--font-sans); font-size: 13px; fill: var(--c-ink-soft); text-anchor: middle; }
+
+.reveal .mm-frame rect { fill: var(--c-bg); stroke: var(--c-accent); stroke-width: 2.5; }
+.reveal .mm-frame.saliendo { opacity: .4; }
+.reveal .mm-frame.saliendo > rect { stroke-dasharray: 6 5; stroke: var(--c-ink-soft); }
+.reveal .mm-fn  { font-family: var(--font-mono); font-size: 15px; font-weight: 700; fill: var(--c-accent); }
+.reveal .mm-var { font-family: var(--font-mono); font-size: 16px; fill: var(--c-ink); }
+.reveal .mm-val { fill: var(--c-bg); stroke: var(--c-ink); stroke-width: 1.5; }
+.reveal .mm-val.basura { fill: var(--c-mm-basura); stroke: var(--c-line); stroke-dasharray: 4 3; }
+.reveal .mm-val.cambio { fill: var(--c-ok-bg); stroke: var(--c-ok); stroke-width: 2.5; }
+.reveal .mm-val-txt { font-family: var(--font-mono); font-size: 16px; font-weight: 700; fill: var(--c-ink); text-anchor: middle; }
+.reveal .mm-val-txt.basura { font-weight: 400; font-style: italic; fill: var(--c-ink-soft); }
+.reveal .mm-dir-txt { font-family: var(--font-mono); font-size: 13px; fill: var(--c-ink-soft); text-anchor: end; }
+.reveal .mm-dir-txt.izq { text-anchor: start; }
+
+.reveal .mm-bloque rect { fill: var(--c-ok-bg); stroke: var(--c-ok); stroke-width: 2.5; }
+.reveal .mm-bloque.liberado { opacity: .5; }
+.reveal .mm-bloque.liberado rect { fill: var(--c-bg); stroke: var(--c-ink-soft); stroke-dasharray: 6 5; }
+.reveal .mm-bloque.fuga rect { fill: var(--c-err-bg); stroke: var(--c-err); stroke-dasharray: 6 5; }
+.reveal .mm-b-val { font-family: var(--font-mono); font-size: 24px; font-weight: 700; fill: var(--c-ink); text-anchor: middle; }
+.reveal .mm-b-dir { font-family: var(--font-mono); font-size: 13px; fill: var(--c-ink-soft); text-anchor: middle; }
+.reveal .mm-b-etq { font-family: var(--font-mono); font-size: 13px; font-weight: 700; fill: var(--c-err); text-anchor: middle; }
+.reveal .mm-bloque.liberado .mm-b-etq { fill: var(--c-ink-soft); }
+
+.reveal .mm-fcod rect { fill: var(--c-bg); stroke: var(--c-line); stroke-width: 1.5; }
+.reveal .mm-fcod.activo rect { fill: var(--c-accent-bg); stroke: var(--c-accent); stroke-width: 2.5; }
+.reveal .mm-fcod-n { font-family: var(--font-mono); font-size: 15px; font-weight: 700; fill: var(--c-ink); }
+.reveal .mm-fcod.activo .mm-fcod-n { fill: var(--c-accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal .sim-celda,
+  .reveal .sim-ptr span,
+  .reveal .sim-zona,
+  .reveal .sim-linea { transition: none; }
+}
+
+/* ---------- Móvil ---------- */
+@media (max-width: 760px) {
+  .reveal .cols { flex-direction: column; gap: 0.4em; }
+  .glossary-card { font-size: 18px; padding: 20px; }
+  .reveal pre { font-size: 0.7em; }
+  .reveal .sim-barra { flex-wrap: wrap; }
+  .reveal .sim-test { flex-basis: 100%; order: 3; }
+  .reveal .sim-abajo { flex-direction: column; gap: 0.35em; }
+  .reveal .sim-codigo { width: 100%; }
+  .reveal .sim-dice { min-height: 0; }
+}
+
+/* ---------- Colores de diagramas SVG ----------
+   f-<token> = fill, s-<token> = stroke. :where() deja especificidad 0,
+   así cualquier regla de clase del tema sigue mandando (como hacían los
+   atributos fill/stroke que reemplazan). Nunca escribir hex en un deck. */
+:where(.f-bg) { fill: var(--c-bg); }
+:where(.f-ink) { fill: var(--c-ink); }
+:where(.f-ink-soft) { fill: var(--c-ink-soft); }
+:where(.f-accent) { fill: var(--c-accent); }
+:where(.f-accent-bg) { fill: var(--c-accent-bg); }
+:where(.f-ok) { fill: var(--c-ok); }
+:where(.f-ok-bg) { fill: var(--c-ok-bg); }
+:where(.f-err) { fill: var(--c-err); }
+:where(.f-err-bg) { fill: var(--c-err-bg); }
+:where(.f-line) { fill: var(--c-line); }
+:where(.f-code-bg) { fill: var(--c-code-bg); }
+:where(.f-surface-1) { fill: var(--c-surface-1); }
+:where(.f-surface-2) { fill: var(--c-surface-2); }
+:where(.f-surface-3) { fill: var(--c-surface-3); }
+:where(.f-surface-4) { fill: var(--c-surface-4); }
+:where(.f-ink-faint) { fill: var(--c-ink-faint); }
+:where(.f-ink-faint-2) { fill: var(--c-ink-faint-2); }
+:where(.f-accent-soft) { fill: var(--c-accent-soft); }
+:where(.f-accent-soft-2) { fill: var(--c-accent-soft-2); }
+:where(.s-bg) { stroke: var(--c-bg); }
+:where(.s-ink) { stroke: var(--c-ink); }
+:where(.s-ink-soft) { stroke: var(--c-ink-soft); }
+:where(.s-accent) { stroke: var(--c-accent); }
+:where(.s-accent-bg) { stroke: var(--c-accent-bg); }
+:where(.s-ok) { stroke: var(--c-ok); }
+:where(.s-ok-bg) { stroke: var(--c-ok-bg); }
+:where(.s-err) { stroke: var(--c-err); }
+:where(.s-err-bg) { stroke: var(--c-err-bg); }
+:where(.s-line) { stroke: var(--c-line); }
+:where(.s-code-bg) { stroke: var(--c-code-bg); }
+:where(.s-surface-1) { stroke: var(--c-surface-1); }
+:where(.s-surface-2) { stroke: var(--c-surface-2); }
+:where(.s-surface-3) { stroke: var(--c-surface-3); }
+:where(.s-surface-4) { stroke: var(--c-surface-4); }
+:where(.s-ink-faint) { stroke: var(--c-ink-faint); }
+:where(.s-ink-faint-2) { stroke: var(--c-ink-faint-2); }
+:where(.s-accent-soft) { stroke: var(--c-accent-soft); }
+:where(.s-accent-soft-2) { stroke: var(--c-accent-soft-2); }
+
+/* En oscuro, lo que en SVG no declara color (negro por omisión) toma la tinta del tema */
+:root[data-theme="dark"] .reveal svg { fill: var(--c-ink); }
+
+/* ---------- Botón de modo oscuro ---------- */
+.theme-toggle {
+  position: fixed; left: 14px; bottom: 12px; z-index: 30;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--c-ink-soft);
+  border: 2px solid var(--c-line); cursor: pointer; padding: 0;
+  opacity: 0.55; transition: opacity .15s, color .15s, border-color .15s;
+}
+.theme-toggle:hover, .theme-toggle:focus-visible { opacity: 1; color: var(--c-accent); border-color: var(--c-accent); }
+.theme-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.theme-toggle .ic-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
+:root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
+
+/* ---------- Impresión / PDF ---------- */
+@media print {
+  .reveal .quiz-explain { display: block; }
+  .reveal .solucion-body { display: block; }
+  .reveal .solucion-toggle { display: none; }
+  .reveal .sim-ctrl { display: none; }
+  .theme-toggle { display: none; }
+}

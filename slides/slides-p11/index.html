@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P11 — Stacks, Queues, Deques and Priority Queues</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+  <script>try{if(localStorage.getItem("shstyle-theme")==="dark"&&!/print-pdf/i.test(location.search))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+  <link rel="stylesheet" href="../css/shstyle.css">
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- ============ COVER ============ -->
+    <section class="cover">
+      <span class="kicker">Data Structures and Algorithms · Block 2</span>
+      <h1>Stacks, Queues, Deques<br>and Priority Queues</h1>
+      <div class="cover-meta">
+        P11 · Week 7<br>
+        Noe Samano
+      </div>
+    </section>
+
+    <!-- ============ GOALS ============ -->
+    <section>
+      <span class="kicker">Today's goal</span>
+      <h2>By the end of this session you will be able to…</h2>
+      <ul>
+        <li class="fragment">Code a stack and a queue in two ways, with a fixed array and with a linked list.</li>
+        <li class="fragment">Give the exact cost of every operation and explain what makes each one O(1).</li>
+        <li class="fragment">Explain why a queue in an array needs a <span class="term" data-term="circular-buffer">circular buffer</span>, and trace one by hand.</li>
+        <li class="fragment">Choose between stack, queue, <span class="term" data-term="deque">deque</span> and <span class="term" data-term="priority-queue">priority queue</span> from the access pattern of a problem.</li>
+      </ul>
+    </section>
+
+    <!-- ============ MOTIVATION ============ -->
+    <section>
+      <span class="kicker">The problem</span>
+      <h2>Restricting access is a feature</h2>
+      <ul>
+        <li class="fragment">A vector or a linked list lets you touch any position. Many problems only ever need one or two ends.</li>
+        <li class="fragment">Fewer operations means each one can be O(1), and the code cannot misuse the data by accident.</li>
+        <li class="fragment">Today: four structures defined by <em>which element leaves next</em> — the newest (stack), the oldest (queue), either end (deque), the most urgent (priority queue).</li>
+      </ul>
+      <div class="box-key fragment">The access rule is the data structure. Array or linked list is only how you store it.</div>
+    </section>
+
+    <!-- ============ DIVIDER 11.1 ============ -->
+    <section class="divider">
+      <h2>11.1 Stack</h2>
+    </section>
+
+    <section>
+      <span class="kicker">11.1 · Stack</span>
+      <h2>Only the top is visible</h2>
+      <ul>
+        <li class="fragment">A stack inserts and removes at the same end, the <strong>top</strong>. The last element in is the first one out: <span class="term" data-term="lifo">LIFO</span>.</li>
+        <li class="fragment"><code>push(x)</code> puts x on top · <code>pop()</code> removes the top · <code>getTop()</code> reads it without removing it.</li>
+        <li class="fragment">Like a pile of plates: you add and take from the top, never from the middle.</li>
+      </ul>
+      <div class="box-key fragment">push and pop only touch the top, so neither depends on how many elements are below.</div>
+    </section>
+
+    <section>
+      <span class="kicker">11.1 · Stack</span>
+      <h2>Seven operations on an array of five</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><rect class="svg-node" x="150" y="320" width="130" height="58" rx="8"/><text class="svg-label" x="130" y="357" text-anchor="end" style="font-size:22px;">0</text><rect class="svg-node" x="150" y="254" width="130" height="58" rx="8"/><text class="svg-label" x="130" y="291" text-anchor="end" style="font-size:22px;">1</text><rect class="svg-node" x="150" y="188" width="130" height="58" rx="8"/><text class="svg-label" x="130" y="225" text-anchor="end" style="font-size:22px;">2</text><rect class="svg-node" x="150" y="122" width="130" height="58" rx="8"/><text class="svg-label" x="130" y="159" text-anchor="end" style="font-size:22px;">3</text><rect class="svg-node" x="150" y="56" width="130" height="58" rx="8"/><text class="svg-label" x="130" y="93" text-anchor="end" style="font-size:22px;">4</text><text class="svg-label" x="215.0" y="30" text-anchor="middle" style="font-size:22px;">data[MAX = 5]</text><line class="svg-edge" x1="400" y1="40" x2="400" y2="400"/></g>
+<g class="anim-step" data-step="0" data-step-off="1"><text class="svg-label" x="296" y="408" style="font-size:22px;">top = −1</text><text class="svg-label" x="440" y="150" style="font-size:30px; font-family: var(--font-mono);">empty stack</text><text class="svg-label" x="440" y="200" style="font-size:22px;">top = −1 means: no elements</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><rect class="svg-node-hl" x="150" y="320" width="130" height="58" rx="8"/><text class="svg-label" x="215.0" y="358" text-anchor="middle" style="font-size:26px;">9</text><text class="svg-label" x="296" y="357" style="font-size:22px;">← top</text><text class="svg-label" x="440" y="150" style="font-size:30px; font-family: var(--font-mono);">push(9)</text><text class="svg-label" x="440" y="200" style="font-size:22px;">top: −1 → 0, then data[0] = 9</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><text class="svg-label" x="215.0" y="358" text-anchor="middle" style="font-size:26px;">9</text><rect class="svg-node-hl" x="150" y="254" width="130" height="58" rx="8"/><text class="svg-label" x="215.0" y="292" text-anchor="middle" style="font-size:26px;">2</text><text class="svg-label" x="296" y="291" style="font-size:22px;">← top</text><text class="svg-label" x="440" y="150" style="font-size:30px; font-family: var(--font-mono);">push(2)</text><text class="svg-label" x="440" y="200" style="font-size:22px;">top: 0 → 1, then data[1] = 2</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><rect class="svg-node-hl" x="150" y="320" width="130" height="58" rx="8"/><text class="svg-label" x="215.0" y="358" text-anchor="middle" style="font-size:26px;">9</text><text class="f-ink-faint" x="215.0" y="292" text-anchor="middle" style="font-size:26px; font-weight:600;">2</text><text class="svg-label" x="296" y="357" style="font-size:22px;">← top</text><text class="svg-label" x="440" y="150" style="font-size:30px; font-family: var(--font-mono);">pop()</text><text class="svg-label" x="440" y="200" style="font-size:22px;">top: 1 → 0</text><text class="svg-label" x="440" y="240" style="font-size:22px;">the 2 is still in data[1], but it is no longer in the stack</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><text class="svg-label" x="215.0" y="358" text-anchor="middle" style="font-size:26px;">9</text><rect class="svg-node-hl" x="150" y="254" width="130" height="58" rx="8"/><text class="svg-label" x="215.0" y="292" text-anchor="middle" style="font-size:26px;">4</text><text class="svg-label" x="296" y="291" style="font-size:22px;">← top</text><text class="svg-label" x="440" y="150" style="font-size:30px; font-family: var(--font-mono);">push(4)</text><text class="svg-label" x="440" y="200" style="font-size:22px;">top: 0 → 1, then data[1] = 4</text><text class="svg-label" x="440" y="240" style="font-size:22px;">the old 2 is simply overwritten</text></g>
+<g class="anim-step" data-step="5" data-step-off="6"><text class="svg-label" x="215.0" y="358" text-anchor="middle" style="font-size:26px;">9</text><text class="svg-label" x="215.0" y="292" text-anchor="middle" style="font-size:26px;">4</text><rect class="svg-node-hl" x="150" y="188" width="130" height="58" rx="8"/><text class="svg-label" x="215.0" y="226" text-anchor="middle" style="font-size:26px;">7</text><text class="svg-label" x="296" y="225" style="font-size:22px;">← top</text><text class="svg-label" x="440" y="150" style="font-size:30px; font-family: var(--font-mono);">push(7)</text><text class="svg-label" x="440" y="200" style="font-size:22px;">top: 1 → 2, then data[2] = 7</text><text class="svg-label" x="440" y="240" style="font-size:22px;">getTop() returns 7: the last one in</text></g>
+<g class="anim-step" data-step="6" data-step-off="7"><text class="svg-label" x="215.0" y="358" text-anchor="middle" style="font-size:26px;">9</text><rect class="svg-node-hl" x="150" y="254" width="130" height="58" rx="8"/><text class="svg-label" x="215.0" y="292" text-anchor="middle" style="font-size:26px;">4</text><text class="f-ink-faint" x="215.0" y="226" text-anchor="middle" style="font-size:26px; font-weight:600;">7</text><text class="svg-label" x="296" y="291" style="font-size:22px;">← top</text><text class="svg-label" x="440" y="150" style="font-size:30px; font-family: var(--font-mono);">pop()</text><text class="svg-label" x="440" y="200" style="font-size:22px;">top: 2 → 1 · 7 leaves first</text><text class="svg-label" x="440" y="240" style="font-size:22px;">Last In, First Out</text></g>
+<g class="anim-step" data-step="7"><rect class="svg-node-hl" x="150" y="320" width="130" height="58" rx="8"/><text class="svg-label" x="215.0" y="358" text-anchor="middle" style="font-size:26px;">9</text><text class="f-ink-faint" x="215.0" y="292" text-anchor="middle" style="font-size:26px; font-weight:600;">4</text><text class="f-ink-faint" x="215.0" y="226" text-anchor="middle" style="font-size:26px; font-weight:600;">7</text><text class="svg-label" x="296" y="357" style="font-size:22px;">← top</text><text class="svg-label" x="440" y="150" style="font-size:30px; font-family: var(--font-mono);">pop()</text><text class="svg-label" x="440" y="200" style="font-size:22px;">top: 1 → 0 · getTop() returns 9</text><text class="svg-label" x="440" y="240" style="font-size:22px;">every operation touched only data[top]: O(1)</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">11.1 · Stack</span>
+      <h2>Stack on a fixed array</h2>
+      <pre data-title="array_stack.hpp"><code class="language-cpp" data-trim data-line-numbers="1-12|1|3-4|8-9|12">
+// members: static const int MAX = 5;  int data[MAX];  int top = -1;
+bool push(int x) {
+    if (top == MAX - 1) return false;   // full: x is lost
+    data[++top] = x;
+    return true;
+}
+bool pop() {
+    if (top == -1) return false;        // empty
+    --top;                              // no need to erase
+    return true;
+}
+int getTop() const { return data[top]; }   // caller checks first
+      </code></pre>
+      <ul>
+        <li class="fragment"><code>top = -1</code> means empty. <code>data[++top] = x</code>: first move top, then write.</li>
+        <li class="fragment">A full stack rejects x instead of writing out of bounds.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">11.1 · Stack</span>
+      <h2>Stack on a linked list: the head is the top</h2>
+      <pre data-title="list_stack.hpp"><code class="language-cpp" data-trim data-line-numbers="1-12|3|4-10|12">
+// struct Node { int info; Node* next; };
+// member: Node* head = nullptr;         (the head is the top)
+void push(int x) { head = new Node{x, head}; }
+bool pop() {
+    if (head == nullptr) return false;  // empty
+    Node* old = head;
+    head = head-&gt;next;
+    delete old;
+    return true;
+}
+int getTop() const { return head-&gt;info; }
+~ListStack() { while (pop()) {} }       // free every node
+      </code></pre>
+      <ul>
+        <li class="fragment">push inserts before the head and pop deletes the head: both O(1), and there is no capacity limit.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">11.1 · Stack</span>
+      <h2>Both are O(1); they differ in memory</h2>
+      <table>
+        <thead><tr><th></th><th>Fixed array</th><th>Linked list</th><th><code>std::vector</code></th></tr></thead>
+        <tbody>
+          <tr class="fragment"><td>push</td><td>O(1), fails when full</td><td>O(1), one <code>new</code></td><td>O(1) <span class="term" data-term="amortized">amortized</span></td></tr>
+          <tr class="fragment"><td>pop · getTop</td><td>O(1)</td><td>O(1), one <code>delete</code></td><td>O(1)</td></tr>
+          <tr class="fragment"><td>Extra memory</td><td>MAX slots reserved up front</td><td>one pointer per element</td><td>spare capacity after growth</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li class="fragment">A vector used with <code>push_back</code> / <code>pop_back</code> is a stack with no fixed limit: an occasional push copies everything, but the average cost stays O(1).</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">11.1 · Stack</span>
+      <h2>Application: checking balanced brackets</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><text class="svg-label" x="40" y="32" style="font-size:22px;">input:</text><text class="svg-label" x="130" y="32" style="font-size:24px; font-family: var(--font-mono);">{ [ ( ) ] ( ] }</text><text class="f-ink-soft" x="400" y="32" style="font-size:22px; font-weight:600;">stack drawn bottom → top</text></g>
+<g class="anim-step" data-step="1"><text class="svg-label" x="40" y="88" style="font-size:22px;">read</text><text class="svg-label" x="110" y="89" style="font-size:26px; font-family: var(--font-mono);">{</text><rect class="svg-node-hl" x="170" y="58" width="46" height="44" rx="8"/><text class="svg-label" x="193" y="89" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">{</text><text class="svg-label" x="400" y="88" style="font-size:22px;">opener → push</text></g>
+<g class="anim-step" data-step="2"><text class="svg-label" x="40" y="140" style="font-size:22px;">read</text><text class="svg-label" x="110" y="141" style="font-size:26px; font-family: var(--font-mono);">[</text><rect class="svg-node" x="170" y="110" width="46" height="44" rx="8"/><text class="svg-label" x="193" y="141" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">{</text><rect class="svg-node-hl" x="222" y="110" width="46" height="44" rx="8"/><text class="svg-label" x="245" y="141" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">[</text><text class="svg-label" x="400" y="140" style="font-size:22px;">opener → push</text></g>
+<g class="anim-step" data-step="3"><text class="svg-label" x="40" y="192" style="font-size:22px;">read</text><text class="svg-label" x="110" y="193" style="font-size:26px; font-family: var(--font-mono);">(</text><rect class="svg-node" x="170" y="162" width="46" height="44" rx="8"/><text class="svg-label" x="193" y="193" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">{</text><rect class="svg-node" x="222" y="162" width="46" height="44" rx="8"/><text class="svg-label" x="245" y="193" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">[</text><rect class="svg-node-hl" x="274" y="162" width="46" height="44" rx="8"/><text class="svg-label" x="297" y="193" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">(</text><text class="svg-label" x="400" y="192" style="font-size:22px;">opener → push</text></g>
+<g class="anim-step" data-step="4"><text class="svg-label" x="40" y="244" style="font-size:22px;">read</text><text class="svg-label" x="110" y="245" style="font-size:26px; font-family: var(--font-mono);">)</text><rect class="svg-node" x="170" y="214" width="46" height="44" rx="8"/><text class="svg-label" x="193" y="245" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">{</text><rect class="svg-node-hl" x="222" y="214" width="46" height="44" rx="8"/><text class="svg-label" x="245" y="245" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">[</text><text class="svg-label" x="400" y="244" style="font-size:22px;">closer ) matches the top ( → pop</text></g>
+<g class="anim-step" data-step="5"><text class="svg-label" x="40" y="296" style="font-size:22px;">read</text><text class="svg-label" x="110" y="297" style="font-size:26px; font-family: var(--font-mono);">]</text><rect class="svg-node-hl" x="170" y="266" width="46" height="44" rx="8"/><text class="svg-label" x="193" y="297" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">{</text><text class="svg-label" x="400" y="296" style="font-size:22px;">closer ] matches the top [ → pop</text></g>
+<g class="anim-step" data-step="6"><text class="svg-label" x="40" y="348" style="font-size:22px;">read</text><text class="svg-label" x="110" y="349" style="font-size:26px; font-family: var(--font-mono);">(</text><rect class="svg-node" x="170" y="318" width="46" height="44" rx="8"/><text class="svg-label" x="193" y="349" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">{</text><rect class="svg-node-hl" x="222" y="318" width="46" height="44" rx="8"/><text class="svg-label" x="245" y="349" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">(</text><text class="svg-label" x="400" y="348" style="font-size:22px;">opener → push</text></g>
+<g class="anim-step" data-step="7"><text class="svg-label" x="40" y="400" style="font-size:22px;">read</text><text class="svg-label" x="110" y="401" style="font-size:26px; font-family: var(--font-mono);">]</text><rect class="svg-node" x="170" y="370" width="46" height="44" rx="8"/><text class="svg-label" x="193" y="401" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">{</text><rect class="svg-node-hl" x="222" y="370" width="46" height="44" rx="8"/><rect x="222" y="370" width="46" height="44" rx="8" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="245" y="401" text-anchor="middle" style="font-size:24px; font-family: var(--font-mono);">(</text><text class="f-err" x="400" y="400" style="font-size:22px; font-weight:600;">closer ] but the top is ( → unbalanced, stop</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <!-- ============ QUIZ 1 ============ -->
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="c">
+        <p class="quiz-question">You build a stack on a singly linked list that keeps <em>only a head pointer</em>. Where should push and pop work?</p>
+        <button class="quiz-option" data-opt="a">At the tail: new elements belong at the end, and pop can remove the tail node in O(1).</button>
+        <button class="quiz-option" data-opt="b">At either end: a linked list has no capacity limit, so both ends cost the same.</button>
+        <button class="quiz-option" data-opt="c">At the head: push and pop are both O(1) there, with no traversal at all.</button>
+        <div class="quiz-explain">
+          <strong>C.</strong> At the head, both operations change one pointer. A fails because removing the tail
+          of a singly linked list needs the node <em>before</em> it, and finding it is an O(n) walk — even with a tail pointer.
+          B confuses capacity with cost: unlimited size says nothing about how expensive each end is.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DIVIDER 11.2 ============ -->
+    <section class="divider">
+      <h2>11.2 Queue</h2>
+    </section>
+
+    <section>
+      <span class="kicker">11.2 · Queue</span>
+      <h2>Enter at the back, leave at the front</h2>
+      <ul>
+        <li class="fragment">A queue inserts at one end (the <strong>back</strong>) and removes at the other (the <strong>front</strong>). The first element in is the first one out: <span class="term" data-term="fifo">FIFO</span>.</li>
+        <li class="fragment"><code>enqueue(x)</code> adds at the back · <code>dequeue()</code> removes the front · <code>getFront()</code> reads it.</li>
+        <li class="fragment">Like the line at a supermarket checkout: arrival order is service order.</li>
+      </ul>
+      <div class="box-key fragment">A queue needs two ends, so an implementation must make <em>both</em> of them O(1).</div>
+    </section>
+
+    <section>
+      <span class="kicker">11.2 · Queue</span>
+      <h2>Why a plain array does not work</h2>
+      <ul>
+        <li class="fragment"><strong>Shift on dequeue:</strong> move every element one slot left. Correct, but each dequeue is O(n).</li>
+        <li class="fragment"><strong>Move the front index instead:</strong> O(1), but front and back drift right. After 5 enqueues and 3 dequeues:</li>
+      </ul>
+      <div class="fragment"><svg viewBox="0 0 1100 160" style="width:100%; max-height:160px;"><g><rect class="svg-node" x="150" y="30" width="90" height="64" rx="8"/><text class="svg-label" x="195.0" y="22" text-anchor="middle" style="font-size:18px;">0</text><rect class="svg-node" x="250" y="30" width="90" height="64" rx="8"/><text class="svg-label" x="295.0" y="22" text-anchor="middle" style="font-size:18px;">1</text><rect class="svg-node" x="350" y="30" width="90" height="64" rx="8"/><text class="svg-label" x="395.0" y="22" text-anchor="middle" style="font-size:18px;">2</text><rect class="svg-node" x="450" y="30" width="90" height="64" rx="8"/><text class="svg-label" x="495.0" y="22" text-anchor="middle" style="font-size:18px;">3</text><rect class="svg-node" x="550" y="30" width="90" height="64" rx="8"/><text class="svg-label" x="595.0" y="22" text-anchor="middle" style="font-size:18px;">4</text><text class="f-ink-faint" x="195.0" y="72" text-anchor="middle" style="font-size:26px; font-weight:600;">1</text><text class="f-ink-faint" x="295.0" y="72" text-anchor="middle" style="font-size:26px; font-weight:600;">2</text><text class="f-ink-faint" x="395.0" y="72" text-anchor="middle" style="font-size:26px; font-weight:600;">3</text><text class="svg-label" x="495.0" y="72" text-anchor="middle" style="font-size:26px;">4</text><text class="svg-label" x="595.0" y="72" text-anchor="middle" style="font-size:26px;">5</text><text class="svg-label" x="495.0" y="124" text-anchor="middle" style="font-size:20px;">front</text><text class="svg-label" x="595.0" y="150" text-anchor="middle" style="font-size:20px;">back</text><text class="svg-label" x="680" y="58" style="font-size:22px;">back = 4 = CAP − 1</text><text class="svg-label" x="680" y="92" style="font-size:22px;">→ the array looks full,</text><text class="svg-label" x="680" y="126" style="font-size:22px;">  but slots 0–2 are free</text></g></svg></div>
+      <p class="fragment">The fix: let the indices wrap around — the slot after <code>CAP − 1</code> is slot 0.</p>
+    </section>
+
+    <section>
+      <span class="kicker">11.2 · Queue</span>
+      <h2>A circular buffer with CAP = 5</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><rect class="svg-node" x="170" y="100" width="90" height="72" rx="8"/><text class="svg-label" x="215.0" y="88" text-anchor="middle" style="font-size:20px;">0</text><rect class="svg-node" x="280" y="100" width="90" height="72" rx="8"/><text class="svg-label" x="325.0" y="88" text-anchor="middle" style="font-size:20px;">1</text><rect class="svg-node" x="390" y="100" width="90" height="72" rx="8"/><text class="svg-label" x="435.0" y="88" text-anchor="middle" style="font-size:20px;">2</text><rect class="svg-node" x="500" y="100" width="90" height="72" rx="8"/><text class="svg-label" x="545.0" y="88" text-anchor="middle" style="font-size:20px;">3</text><rect class="svg-node" x="610" y="100" width="90" height="72" rx="8"/><text class="svg-label" x="655.0" y="88" text-anchor="middle" style="font-size:20px;">4</text><text class="svg-label" x="40" y="146" style="font-size:22px;">data</text><path class="svg-edge s-ink-faint" d="M 655.0 66 C 655.0 36, 215.0 36, 215.0 66" stroke-dasharray="6 6"/><text class="f-ink-soft" x="435.0" y="26" text-anchor="middle" style="font-size:18px; font-weight:600;">after slot 4 comes slot 0</text></g>
+<g class="anim-step" data-step="0" data-step-off="1"><text class="f-accent" x="215.0" y="206" text-anchor="middle" style="font-size:22px; font-weight:700;">front</text><text class="svg-label" x="215.0" y="236" text-anchor="middle" style="font-size:22px;">next</text><text class="svg-label" x="40" y="300" style="font-size:26px;">empty · front = 0, count = 0</text><text class="svg-label" x="40" y="345" style="font-size:22px;">next back slot = (front + count) % 5 = 0</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><text class="svg-label" x="215.0" y="147" text-anchor="middle" style="font-size:28px;">1</text><text class="svg-label" x="325.0" y="147" text-anchor="middle" style="font-size:28px;">2</text><text class="svg-label" x="435.0" y="147" text-anchor="middle" style="font-size:28px;">3</text><text class="svg-label" x="545.0" y="147" text-anchor="middle" style="font-size:28px;">4</text><text class="f-accent" x="215.0" y="206" text-anchor="middle" style="font-size:22px; font-weight:700;">front</text><text class="svg-label" x="655.0" y="236" text-anchor="middle" style="font-size:22px;">next</text><text class="svg-label" x="40" y="300" style="font-size:26px;">enqueue 1, 2, 3, 4 · front = 0, count = 4</text><text class="svg-label" x="40" y="345" style="font-size:22px;">each one goes to (front + count) % 5</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><text class="svg-label" x="435.0" y="147" text-anchor="middle" style="font-size:28px;">3</text><text class="svg-label" x="545.0" y="147" text-anchor="middle" style="font-size:28px;">4</text><text class="f-ink-faint" x="215.0" y="147" text-anchor="middle" style="font-size:28px; font-weight:600;">1</text><text class="f-ink-faint" x="325.0" y="147" text-anchor="middle" style="font-size:28px; font-weight:600;">2</text><text class="f-accent" x="435.0" y="206" text-anchor="middle" style="font-size:22px; font-weight:700;">front</text><text class="svg-label" x="655.0" y="236" text-anchor="middle" style="font-size:22px;">next</text><text class="svg-label" x="40" y="300" style="font-size:26px;">dequeue() twice · front = 2, count = 2</text><text class="svg-label" x="40" y="345" style="font-size:22px;">front moves right; slots 0 and 1 are free again</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><text class="svg-label" x="435.0" y="147" text-anchor="middle" style="font-size:28px;">3</text><text class="svg-label" x="545.0" y="147" text-anchor="middle" style="font-size:28px;">4</text><rect class="svg-node-hl" x="610" y="100" width="90" height="72" rx="8"/><text class="svg-label" x="655.0" y="147" text-anchor="middle" style="font-size:28px;">5</text><text class="f-ink-faint" x="215.0" y="147" text-anchor="middle" style="font-size:28px; font-weight:600;">1</text><text class="f-ink-faint" x="325.0" y="147" text-anchor="middle" style="font-size:28px; font-weight:600;">2</text><text class="f-accent" x="435.0" y="206" text-anchor="middle" style="font-size:22px; font-weight:700;">front</text><text class="svg-label" x="215.0" y="236" text-anchor="middle" style="font-size:22px;">next</text><text class="svg-label" x="40" y="300" style="font-size:26px;">enqueue(5) → slot (2 + 2) % 5 = 4</text><text class="svg-label" x="40" y="345" style="font-size:22px;">front = 2, count = 3</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><rect class="svg-node-hl" x="170" y="100" width="90" height="72" rx="8"/><text class="svg-label" x="215.0" y="147" text-anchor="middle" style="font-size:28px;">6</text><text class="svg-label" x="435.0" y="147" text-anchor="middle" style="font-size:28px;">3</text><text class="svg-label" x="545.0" y="147" text-anchor="middle" style="font-size:28px;">4</text><text class="svg-label" x="655.0" y="147" text-anchor="middle" style="font-size:28px;">5</text><text class="f-ink-faint" x="325.0" y="147" text-anchor="middle" style="font-size:28px; font-weight:600;">2</text><text class="f-accent" x="435.0" y="206" text-anchor="middle" style="font-size:22px; font-weight:700;">front</text><text class="svg-label" x="325.0" y="236" text-anchor="middle" style="font-size:22px;">next</text><text class="svg-label" x="40" y="300" style="font-size:26px;">enqueue(6) → slot (2 + 3) % 5 = 0</text><text class="svg-label" x="40" y="345" style="font-size:22px;">the back wraps around to the start</text></g>
+<g class="anim-step" data-step="5" data-step-off="6"><text class="svg-label" x="215.0" y="147" text-anchor="middle" style="font-size:28px;">6</text><rect class="svg-node-hl" x="280" y="100" width="90" height="72" rx="8"/><text class="svg-label" x="325.0" y="147" text-anchor="middle" style="font-size:28px;">7</text><text class="svg-label" x="435.0" y="147" text-anchor="middle" style="font-size:28px;">3</text><text class="svg-label" x="545.0" y="147" text-anchor="middle" style="font-size:28px;">4</text><text class="svg-label" x="655.0" y="147" text-anchor="middle" style="font-size:28px;">5</text><text class="f-accent" x="435.0" y="206" text-anchor="middle" style="font-size:22px; font-weight:700;">front</text><text class="svg-label" x="40" y="300" style="font-size:26px;">enqueue(7) → slot (2 + 4) % 5 = 1</text><text class="svg-label" x="40" y="345" style="font-size:22px;">count = 5 = CAP: now it is really full</text></g>
+<g class="anim-step" data-step="6"><text class="svg-label" x="215.0" y="147" text-anchor="middle" style="font-size:28px;">6</text><text class="svg-label" x="325.0" y="147" text-anchor="middle" style="font-size:28px;">7</text><text class="svg-label" x="435.0" y="147" text-anchor="middle" style="font-size:28px;">3</text><text class="svg-label" x="545.0" y="147" text-anchor="middle" style="font-size:28px;">4</text><text class="svg-label" x="655.0" y="147" text-anchor="middle" style="font-size:28px;">5</text><text class="f-accent" x="435.0" y="206" text-anchor="middle" style="font-size:22px; font-weight:700;">front</text><text class="f-err" x="40" y="300" style="font-size:26px; font-weight:600;">enqueue(8) → count == CAP → returns false</text><text class="svg-label" x="40" y="345" style="font-size:22px;">nothing changes; the next dequeue returns 3</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">11.2 · Queue</span>
+      <h2>Circular queue: the back is (front + count) % CAP</h2>
+      <pre data-title="array_queue.hpp"><code class="language-cpp" data-trim data-line-numbers="1-13|3|4-5|9-11">
+// members: int data[CAP];  int front = 0, count = 0;
+bool enqueue(int x) {
+    if (count == CAP) return false;        // full
+    data[(front + count) % CAP] = x;       // the back slot
+    ++count;
+    return true;
+}
+bool dequeue() {
+    if (count == 0) return false;          // empty
+    front = (front + 1) % CAP;             // wrap around
+    --count;
+    return true;
+}
+      </code></pre>
+      <ul>
+        <li class="fragment"><code>count</code> tells a full queue from an empty one: with only two indices, both look like <code>front == back</code>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">11.2 · Queue</span>
+      <h2>Linked queue: in at the tail, out at the head</h2>
+      <pre data-title="list_queue.hpp"><code class="language-cpp" data-trim data-line-numbers="1-14|2-6|4|7-14|11">
+// members: Node* head = nullptr;  Node* tail = nullptr;
+void enqueue(int x) {                 // at the back: O(1)
+    Node* n = new Node{x, nullptr};
+    if (tail) tail-&gt;next = n; else head = n;
+    tail = n;
+}
+bool dequeue() {                      // at the front: O(1)
+    if (!head) return false;
+    Node* old = head;
+    head = head-&gt;next;
+    if (!head) tail = nullptr;        // it was the last node
+    delete old;
+    return true;
+}
+      </code></pre>
+      <ul>
+        <li class="fragment">The reverse fails: removing the tail needs its predecessor, an O(n) walk.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">11.2 · Queue</span>
+      <h2>Circular array or linked list: both O(1)</h2>
+      <table>
+        <thead><tr><th></th><th>Array + shifting</th><th>Circular array</th><th>Linked list (head + tail)</th></tr></thead>
+        <tbody>
+          <tr class="fragment"><td>enqueue</td><td>O(1), fails when full</td><td>O(1), fails when full</td><td>O(1)</td></tr>
+          <tr class="fragment"><td>dequeue</td><td>O(n): shifts n − 1 elements</td><td>O(1)</td><td>O(1)</td></tr>
+          <tr class="fragment"><td>Capacity</td><td>fixed</td><td>fixed</td><td>only limited by memory</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li class="fragment">Circular array: no <code>new</code> per element and contiguous memory. Linked list: no capacity to guess in advance.</li>
+      </ul>
+    </section>
+
+    <!-- ============ QUIZ 2 ============ -->
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="a">
+        <p class="quiz-question">A circular queue has CAP = 5, <code>front = 3</code> and <code>count = 4</code>. In which slot does the <em>next</em> enqueue write?</p>
+        <button class="quiz-option" data-opt="a">Slot 2, because (3 + 4) % 5 = 2.</button>
+        <button class="quiz-option" data-opt="b">Slot 7, because front + count = 3 + 4 = 7.</button>
+        <button class="quiz-option" data-opt="c">None: the back already reached the end of the array, so it is full.</button>
+        <div class="quiz-explain">
+          <strong>A.</strong> The occupied slots are 3, 4, 0, 1; the next free one is (3 + 4) % 5 = 2.
+          B forgets the modulo: writing <code>data[7]</code> is out of bounds, which is undefined behavior.
+          C is the plain-array thinking the circular buffer fixes: the queue is full only when count == CAP, and here count is 4.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DIVIDER 11.3 ============ -->
+    <section class="divider">
+      <h2>11.3 Deque</h2>
+    </section>
+
+    <section>
+      <span class="kicker">11.3 · Deque</span>
+      <h2>A deque opens at both ends</h2>
+      <ul>
+        <li class="fragment">A <span class="term" data-term="deque">deque</span> (double-ended queue) inserts and removes at the front <em>and</em> at the back: <code>pushFront</code>, <code>pushBack</code>, <code>popFront</code>, <code>popBack</code>.</li>
+        <li class="fragment">Store it as a doubly linked list with two pointers, <code>front</code> and <code>back</code>: each node knows its <code>prev</code>, so popBack is O(1) too.</li>
+      </ul>
+      <div class="fragment"><svg viewBox="0 0 1100 200" style="width:100%; max-height:200px;"><g><rect class="svg-node" x="170" y="60" width="110" height="64" rx="8"/><text class="svg-label" x="225.0" y="102" text-anchor="middle" style="font-size:26px;">10</text><line class="svg-edge" x1="286" y1="80" x2="346" y2="80"/><polygon class="f-ink" points="356,80 344,73 344,87"/><line class="svg-edge" x1="354" y1="106" x2="294" y2="106"/><polygon class="f-ink" points="284,106 296,99 296,113"/><rect class="svg-node" x="360" y="60" width="110" height="64" rx="8"/><text class="svg-label" x="415.0" y="102" text-anchor="middle" style="font-size:26px;">20</text><line class="svg-edge" x1="476" y1="80" x2="536" y2="80"/><polygon class="f-ink" points="546,80 534,73 534,87"/><line class="svg-edge" x1="544" y1="106" x2="484" y2="106"/><polygon class="f-ink" points="474,106 486,99 486,113"/><rect class="svg-node" x="550" y="60" width="110" height="64" rx="8"/><text class="svg-label" x="605.0" y="102" text-anchor="middle" style="font-size:26px;">30</text><line class="svg-edge" x1="666" y1="80" x2="726" y2="80"/><polygon class="f-ink" points="736,80 724,73 724,87"/><line class="svg-edge" x1="734" y1="106" x2="674" y2="106"/><polygon class="f-ink" points="664,106 676,99 676,113"/><rect class="svg-node" x="740" y="60" width="110" height="64" rx="8"/><text class="svg-label" x="795.0" y="102" text-anchor="middle" style="font-size:26px;">40</text><text class="f-ink-soft" x="280.0" y="52" text-anchor="middle" style="font-size:18px; font-weight:600;">next →</text><text class="f-ink-soft" x="280.0" y="150" text-anchor="middle" style="font-size:18px; font-weight:600;">← prev</text><text class="f-accent" x="225.0" y="186" text-anchor="middle" style="font-size:22px; font-weight:700;">front</text><text class="f-accent" x="795.0" y="186" text-anchor="middle" style="font-size:22px; font-weight:700;">back</text></g></svg></div>
+    </section>
+
+    <section>
+      <span class="kicker">11.3 · Deque</span>
+      <h2>popFront has three cases</h2>
+      <pre data-title="deque.hpp"><code class="language-cpp" data-trim data-line-numbers="1-12|2|4-5|6-8|10">
+bool popFront() {
+    if (front == nullptr) return false;       // case 1: empty
+    DNode* old = front;
+    if (front == back) {                      // case 2: one node
+        front = back = nullptr;
+    } else {                                  // case 3: two or more
+        front = front-&gt;next;
+        front-&gt;prev = nullptr;
+    }
+    delete old;
+    return true;
+}
+      </code></pre>
+      <ul>
+        <li class="fragment">Case 2 is the one people forget: removing the only node must reset <em>both</em> pointers. popBack is the mirror image (front ↔ back, next ↔ prev).</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">11.3 · Deque</span>
+      <h2>One deque, two structures</h2>
+      <div class="cols">
+        <div class="fragment">
+          <h3>Stack (one end)</h3>
+          <ul>
+            <li><code>push</code> → <code>pushFront</code></li>
+            <li><code>pop</code> → <code>popFront</code></li>
+            <li><code>getTop</code> → <code>getFront</code></li>
+          </ul>
+        </div>
+        <div class="fragment">
+          <h3>Queue (in at the back, out at the front)</h3>
+          <ul>
+            <li><code>enqueue</code> → <code>pushBack</code></li>
+            <li><code>dequeue</code> → <code>popFront</code></li>
+            <li><code>getFront</code> → <code>getFront</code></li>
+          </ul>
+        </div>
+      </div>
+      <p class="fragment">The stack and queue methods become one-line wrappers. The standard library does exactly this: by default, <code>std::stack</code> and <code>std::queue</code> are built on <code>std::deque</code>.</p>
+    </section>
+
+    <!-- ============ QUIZ 3 ============ -->
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="b">
+        <p class="quiz-question">You delete the <code>if (front == back)</code> branch from popFront. The deque holds <em>exactly one</em> node. What happens on popFront()?</p>
+        <button class="quiz-option" data-opt="a">It still works: front becomes nullptr, and back is updated by the same line.</button>
+        <button class="quiz-option" data-opt="b"><code>front-&gt;prev</code> dereferences nullptr: undefined behavior, and back would be left dangling.</button>
+        <button class="quiz-option" data-opt="c">It returns false, because a deque with one node counts as empty.</button>
+        <div class="quiz-explain">
+          <strong>B.</strong> With one node, <code>front = front-&gt;next</code> makes front nullptr, and the next line writes through it.
+          Even if that line did not crash, <code>back</code> would still point to the deleted node: a <span class="term" data-term="dangling-pointer">dangling pointer</span>.
+          A assumes back is updated, but no line touches it. C confuses one node with zero: only <code>front == nullptr</code> means empty.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DIVIDER 11.4 ============ -->
+    <section class="divider">
+      <h2>11.4 Priority queue</h2>
+    </section>
+
+    <section>
+      <span class="kicker">11.4 · Priority queue</span>
+      <h2>The most urgent leaves first, not the oldest</h2>
+      <ul>
+        <li class="fragment">A <span class="term" data-term="priority-queue">priority queue</span> stores elements with a priority. <code>insert(x)</code> adds one; <code>extractMin()</code> removes the most urgent one.</li>
+        <li class="fragment">Arrival order does not matter: the emergency room sees the heart attack before the sprained ankle that arrived an hour earlier.</li>
+        <li class="fragment"><strong>Min-priority queue:</strong> the smallest key leaves first. <strong>Max-priority queue:</strong> the largest.</li>
+      </ul>
+      <div class="box-key fragment">A queue orders by arrival time; a priority queue orders by a key you choose.</div>
+    </section>
+
+    <section>
+      <span class="kicker">11.4 · Priority queue</span>
+      <h2>Three ways to store it, three trade-offs</h2>
+      <table>
+        <thead><tr><th></th><th>Unsorted array</th><th>Sorted array</th><th>Binary heap</th></tr></thead>
+        <tbody>
+          <tr class="fragment"><td>insert</td><td>O(1) amortized: append</td><td>O(n): shift to keep order</td><td>O(log n)</td></tr>
+          <tr class="fragment"><td>extractMin</td><td>O(n): scan for the min</td><td>O(1): min at the end</td><td>O(log n)</td></tr>
+          <tr class="fragment"><td>findMin</td><td>O(n)</td><td>O(1)</td><td>O(1)</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li class="fragment">The two arrays make one operation cheap and the other O(n). The heap balances both at O(log n); we build it in a later session.</li>
+      </ul>
+      <p class="fragment muted">Sorted array: keep it in decreasing order, so the minimum is the last element and <code>pop_back</code> removes it.</p>
+    </section>
+
+    <section>
+      <span class="kicker">11.4 · Priority queue</span>
+      <h2><code>std::priority_queue</code> puts the largest on top</h2>
+      <pre data-title="pq.cpp"><code class="language-cpp" data-trim data-line-numbers="1-8|2-4|6-8">
+#include &lt;queue&gt;
+std::priority_queue&lt;int&gt; maxPq;                  // largest on top
+for (int x : {5, 1, 8, 3}) maxPq.push(x);
+std::cout &lt;&lt; maxPq.top();                        // 8
+
+std::priority_queue&lt;int, std::vector&lt;int&gt;, std::greater&lt;int&gt;&gt; minPq;
+for (int x : {5, 1, 8, 3}) minPq.push(x);
+std::cout &lt;&lt; minPq.top();                        // 1
+      </code></pre>
+      <ul>
+        <li class="fragment">The default is a <em>max</em>-priority queue. For a min-priority queue, pass <code>std::greater&lt;int&gt;</code> as the comparator.</li>
+        <li class="fragment"><code>push</code> and <code>pop</code> are O(log n) and <code>top</code> is O(1): inside, it is a binary heap on a vector.</li>
+      </ul>
+    </section>
+
+    <!-- ============ QUIZ 4 ============ -->
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="c">
+        <p class="quiz-question">A <em>default</em> <code>std::priority_queue&lt;int&gt;</code> receives push(5), push(1), push(8), push(3), then pop() twice. What does <code>top()</code> return?</p>
+        <button class="quiz-option" data-opt="a">5: the smallest values leave first, so 1 and 3 are gone.</button>
+        <button class="quiz-option" data-opt="b">8: elements leave in arrival order, so 5 and 1 are gone.</button>
+        <button class="quiz-option" data-opt="c">3: the largest values leave first, so 8 and 5 are gone.</button>
+        <div class="quiz-explain">
+          <strong>C.</strong> The default comparator is <code>std::less</code>, and it produces a max-heap: 8 leaves, then 5, and 3 is on top.
+          A describes the min-priority queue you get with <code>std::greater</code>. B describes a plain FIFO queue:
+          a priority queue ignores arrival order.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">Choosing a structure</span>
+      <h2>Choose by who must leave next</h2>
+      <table>
+        <thead><tr><th>Problem</th><th>Who leaves next</th><th>Structure</th></tr></thead>
+        <tbody>
+          <tr class="fragment"><td>Undo, bracket matching, backtracking</td><td>the newest</td><td>stack</td></tr>
+          <tr class="fragment"><td>Print jobs, requests to a server</td><td>the oldest</td><td>queue</td></tr>
+          <tr class="fragment"><td>Sliding window, bounded history</td><td>newest or oldest</td><td>deque</td></tr>
+          <tr class="fragment"><td>ER triage, event simulation</td><td>the most urgent</td><td>priority queue</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li class="fragment">Then pick the storage: an array when you know the maximum size, a linked list when you do not.</li>
+      </ul>
+    </section>
+
+    <!-- ============ QUIZ 5 ============ -->
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="b">
+        <p class="quiz-question">A browser's Back button returns to the most recent page, and the history keeps <em>only the last 50 pages</em>: when page 51 arrives, the oldest is dropped. Which structure fits?</p>
+        <button class="quiz-option" data-opt="a">A stack: Back always returns the newest page, and that is LIFO.</button>
+        <button class="quiz-option" data-opt="b">A deque: Back removes at the newest end and the limit drops at the oldest end.</button>
+        <button class="quiz-option" data-opt="c">A queue: pages are dropped in the order they arrived, and that is FIFO.</button>
+        <div class="quiz-explain">
+          <strong>B.</strong> The problem needs removals at both ends: the newest page for Back and the oldest one for the limit.
+          A covers Back but cannot drop the bottom of the stack in O(1). C covers the limit but would send Back to the oldest page.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">Worked example</span>
+      <h2>Evaluating postfix with one stack</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><text class="svg-label" x="40" y="30" style="font-size:22px;">input:</text><text class="svg-label" x="130" y="30" style="font-size:24px; font-family: var(--font-mono);">6 5 2 3 + 8 * + 3 + *</text><text class="f-ink-soft" x="600" y="30" style="font-size:22px; font-weight:600;">stack drawn bottom → top</text></g>
+<g class="anim-step" data-step="1"><text class="svg-label" x="40" y="78" style="font-size:22px; font-family: var(--font-mono);">6 5 2 3</text><rect class="svg-node" x="170" y="50" width="56" height="40" rx="8"/><text class="svg-label" x="198" y="78" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node" x="232" y="50" width="56" height="40" rx="8"/><text class="svg-label" x="260" y="78" text-anchor="middle" style="font-size:22px;">5</text><rect class="svg-node" x="294" y="50" width="56" height="40" rx="8"/><text class="svg-label" x="322" y="78" text-anchor="middle" style="font-size:22px;">2</text><rect class="svg-node-hl" x="356" y="50" width="56" height="40" rx="8"/><text class="svg-label" x="384" y="78" text-anchor="middle" style="font-size:22px;">3</text><text class="svg-label" x="440" y="78" style="font-size:21px;">operands → push</text></g>
+<g class="anim-step" data-step="2"><text class="svg-label" x="40" y="124" style="font-size:22px; font-family: var(--font-mono);">+</text><rect class="svg-node" x="170" y="96" width="56" height="40" rx="8"/><text class="svg-label" x="198" y="124" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node" x="232" y="96" width="56" height="40" rx="8"/><text class="svg-label" x="260" y="124" text-anchor="middle" style="font-size:22px;">5</text><rect class="svg-node-hl" x="294" y="96" width="56" height="40" rx="8"/><text class="svg-label" x="322" y="124" text-anchor="middle" style="font-size:22px;">5</text><text class="svg-label" x="440" y="124" style="font-size:21px;">pop 3 and 2, push 2 + 3 = 5</text></g>
+<g class="anim-step" data-step="3"><text class="svg-label" x="40" y="170" style="font-size:22px; font-family: var(--font-mono);">8</text><rect class="svg-node" x="170" y="142" width="56" height="40" rx="8"/><text class="svg-label" x="198" y="170" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node" x="232" y="142" width="56" height="40" rx="8"/><text class="svg-label" x="260" y="170" text-anchor="middle" style="font-size:22px;">5</text><rect class="svg-node" x="294" y="142" width="56" height="40" rx="8"/><text class="svg-label" x="322" y="170" text-anchor="middle" style="font-size:22px;">5</text><rect class="svg-node-hl" x="356" y="142" width="56" height="40" rx="8"/><text class="svg-label" x="384" y="170" text-anchor="middle" style="font-size:22px;">8</text><text class="svg-label" x="440" y="170" style="font-size:21px;">operand → push</text></g>
+<g class="anim-step" data-step="4"><text class="svg-label" x="40" y="216" style="font-size:22px; font-family: var(--font-mono);">*</text><rect class="svg-node" x="170" y="188" width="56" height="40" rx="8"/><text class="svg-label" x="198" y="216" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node" x="232" y="188" width="56" height="40" rx="8"/><text class="svg-label" x="260" y="216" text-anchor="middle" style="font-size:22px;">5</text><rect class="svg-node-hl" x="294" y="188" width="56" height="40" rx="8"/><text class="svg-label" x="322" y="216" text-anchor="middle" style="font-size:22px;">40</text><text class="svg-label" x="440" y="216" style="font-size:21px;">pop 8 and 5, push 5 × 8 = 40</text></g>
+<g class="anim-step" data-step="5"><text class="svg-label" x="40" y="262" style="font-size:22px; font-family: var(--font-mono);">+</text><rect class="svg-node" x="170" y="234" width="56" height="40" rx="8"/><text class="svg-label" x="198" y="262" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node-hl" x="232" y="234" width="56" height="40" rx="8"/><text class="svg-label" x="260" y="262" text-anchor="middle" style="font-size:22px;">45</text><text class="svg-label" x="440" y="262" style="font-size:21px;">pop 40 and 5, push 5 + 40 = 45</text></g>
+<g class="anim-step" data-step="6"><text class="svg-label" x="40" y="308" style="font-size:22px; font-family: var(--font-mono);">3</text><rect class="svg-node" x="170" y="280" width="56" height="40" rx="8"/><text class="svg-label" x="198" y="308" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node" x="232" y="280" width="56" height="40" rx="8"/><text class="svg-label" x="260" y="308" text-anchor="middle" style="font-size:22px;">45</text><rect class="svg-node-hl" x="294" y="280" width="56" height="40" rx="8"/><text class="svg-label" x="322" y="308" text-anchor="middle" style="font-size:22px;">3</text><text class="svg-label" x="440" y="308" style="font-size:21px;">operand → push</text></g>
+<g class="anim-step" data-step="7"><text class="svg-label" x="40" y="354" style="font-size:22px; font-family: var(--font-mono);">+</text><rect class="svg-node" x="170" y="326" width="56" height="40" rx="8"/><text class="svg-label" x="198" y="354" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node-hl" x="232" y="326" width="56" height="40" rx="8"/><text class="svg-label" x="260" y="354" text-anchor="middle" style="font-size:22px;">48</text><text class="svg-label" x="440" y="354" style="font-size:21px;">pop 3 and 45, push 45 + 3 = 48</text></g>
+<g class="anim-step" data-step="8"><text class="svg-label" x="40" y="400" style="font-size:22px; font-family: var(--font-mono);">*</text><rect class="svg-node-hl" x="170" y="372" width="56" height="40" rx="8"/><text class="svg-label" x="198" y="400" text-anchor="middle" style="font-size:20px;">288</text><text class="svg-label" x="440" y="400" style="font-size:21px;">pop 48 and 6, push 6 × 48 = 288 · one value left: the result</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <!-- ============ PAIR CHALLENGE ============ -->
+    <section>
+      <span class="kicker">Pair challenge</span>
+      <h2>One structure built from another</h2>
+      <div class="cols">
+        <div>
+          <h3>LC 232 — Implement Queue using Stacks <span class="muted">[Easy]</span></h3>
+          <p>Build a FIFO queue with <code>push</code>, <code>pop</code>, <code>peek</code> and <code>empty</code> using only two stacks. Target: <span class="term" data-term="amortized">amortized</span> O(1) per operation.</p>
+        </div>
+        <div>
+          <h3>LC 239 — Sliding Window Maximum <span class="muted">[Hard]</span></h3>
+          <p>Report the maximum of every window of k consecutive elements in O(n) total, not O(n·k). Hint: a deque of indices whose values decrease from front to back.</p>
+        </div>
+      </div>
+      <ul>
+        <li class="fragment"><strong>Roles:</strong> the driver types, the navigator reviews and questions. Switch roles halfway through.</li>
+      </ul>
+    </section>
+
+    <!-- ============ NEXT SESSION ============ -->
+    <section class="divider">
+      <h2>Next session:<br>Trees and Binary Search Trees</h2>
+    </section>
+
+    <!-- ============ DIVIDER: EXTRA MATERIAL ============ -->
+    <section class="divider">
+      <h2>Extra material · self-study</h2>
+      <p class="muted">Not covered in class: where these structures live in AI systems, and their STL versions.</p>
+    </section>
+
+    <section>
+      <span class="kicker kicker-ai">Why it matters today</span>
+      <h2>Four access rules inside AI systems</h2>
+      <div class="box-ai" data-label="Why it matters today">
+        <ul>
+          <li class="fragment"><strong>Queue:</strong> a server that runs a language model keeps incoming requests in a waiting queue; a scheduler decides which ones join the next batch. First-come, first-served is FIFO.</li>
+          <li class="fragment"><strong>Priority queue:</strong> beam search keeps only the k best partial answers at each step — a top-k selection, commonly done with a heap.</li>
+          <li class="fragment"><strong>Circular buffer:</strong> a reinforcement-learning replay buffer has a fixed capacity and overwrites its oldest experience first — today's circular queue.</li>
+          <li class="fragment"><strong>Stack:</strong> reverse-mode automatic differentiation (backpropagation) records operations and then processes them in reverse order: last in, first out.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">STL</span>
+      <h2>Container adaptors: an interface over a container</h2>
+      <table>
+        <thead><tr><th>Adaptor</th><th>Operations</th><th>Default container</th></tr></thead>
+        <tbody>
+          <tr class="fragment"><td><code>std::stack</code></td><td><code>push</code>, <code>pop</code>, <code>top</code></td><td><code>std::deque</code></td></tr>
+          <tr class="fragment"><td><code>std::queue</code></td><td><code>push</code>, <code>pop</code>, <code>front</code>, <code>back</code></td><td><code>std::deque</code></td></tr>
+          <tr class="fragment"><td><code>std::priority_queue</code></td><td><code>push</code>, <code>pop</code>, <code>top</code></td><td><code>std::vector</code></td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li class="fragment">A <span class="term" data-term="container-adaptor">container adaptor</span> hides every operation except the allowed ones. You can change the storage: <code>std::stack&lt;int, std::vector&lt;int&gt;&gt;</code>.</li>
+        <li class="fragment"><code>std::deque</code> itself offers <code>push_front</code>, <code>push_back</code>, <code>pop_front</code>, <code>pop_back</code> in O(1), plus indexing.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">STL</span>
+      <h2>Read with top(), then remove with pop()</h2>
+      <pre><code class="language-cpp" data-trim data-line-numbers="1-8|4-6|7-8">
+std::stack&lt;int&gt; s;
+s.push(9);
+s.push(2);
+int x = s.top();    // 1. read the top...
+s.pop();            // 2. ...then remove it: pop() returns void
+std::cout &lt;&lt; x;     // 2
+if (!s.empty())
+    std::cout &lt;&lt; s.top();   // UB if the stack is empty
+      </code></pre>
+      <ul>
+        <li class="fragment"><code>pop()</code> returns <code>void</code> by design: returning the removed element by value could throw during the copy, after the element was already gone.</li>
+        <li class="fragment"><code>top()</code>, <code>front()</code> or <code>pop()</code> on an empty adaptor is <strong>undefined behavior</strong>, not an exception. Check <code>empty()</code> first.</li>
+      </ul>
+    </section>
+
+    <!-- ============ REFERENCES ============ -->
+    <section>
+      <span class="kicker">P11</span>
+      <h2>References and further reading</h2>
+      <div class="refs cols">
+        <div>
+          <h3>References</h3>
+          <ul>
+            <li><span class="ref-type">Book</span> de la Cueva Hernández, V. M., González Guerra, L. H. and Salinas Gurrión, E. G. <em>Estructuras de datos y algoritmos fundamentales</em>, Editorial Digital del Tecnológico de Monterrey, Monterrey, Mexico, 2020. § 8.1.5–8.4.</li>
+            <li><span class="ref-type">Book</span> Weiss, M. A. <em>Data Structures and Algorithm Analysis in C++</em>, 4th ed., Pearson, 2014. § 3.6–3.7.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Further reading</h3>
+          <ul>
+            <li><span class="ref-type">Book</span> Weiss, 4th ed., Ch. 6 <span class="ref-nota">— priority queues and binary heaps, in depth.</span></li>
+            <li><span class="ref-type">Book</span> Cormen, T. H., Leiserson, C. E., Rivest, R. L. and Stein, C. <em>Introduction to Algorithms</em>, 3rd ed., MIT Press, 2009. <span class="ref-nota">— § 10.1 (stacks and queues) and § 6.5 (priority queues), a more formal treatment.</span></li>
+            <li><span class="ref-type">Web</span> <a href="https://visualgo.net/en/list">VisuAlgo — Linked list, stack, queue, deque</a> <span class="ref-nota">— animate push, pop, enqueue and dequeue at your own pace.</span></li>
+            <li><span class="ref-type">Web</span> <a href="https://en.cppreference.com/w/cpp/container/stack">cppreference — std::stack</a> <span class="ref-nota">— the adaptor, its template parameters and its preconditions.</span></li>
+            <li><span class="ref-type">Web</span> <a href="https://en.cppreference.com/w/cpp/container/priority_queue">cppreference — std::priority_queue</a> <span class="ref-nota">— why the default is a max-heap and how to pass a comparator.</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="refs-ia">Note: these slides were generated with the help of artificial intelligence, specifically Claude (Anthropic).</p>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="../js/shstyle.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    margin: 0.06,
+    hash: true,
+    progress: true,
+    slideNumber: 'c/t',
+    controls: true,
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    plugins: [ RevealHighlight ]
+  }).then(() => {
+    SHStyle.init({
+      lifo: {
+        titulo: "LIFO (Last In, First Out)",
+        def: "The access rule of a stack: the element removed is always the one inserted most recently. The first element pushed is the last one popped."
+      },
+      fifo: {
+        titulo: "FIFO (First In, First Out)",
+        def: "The access rule of a queue: elements leave in the same order they arrived. The element that has waited longest is always the next one out."
+      },
+      amortized: {
+        titulo: "Amortized cost",
+        def: "The average cost per operation over any sequence of operations. <code>vector::push_back</code> sometimes copies all n elements, but those copies are rare enough that n pushes cost O(n) in total: O(1) amortized each."
+      },
+      "circular-buffer": {
+        titulo: "Circular buffer",
+        def: "A fixed-size array whose indices wrap around: the slot after <code>CAP − 1</code> is slot 0, computed with <code>% CAP</code>. It lets a queue reuse freed slots so enqueue and dequeue are both O(1)."
+      },
+      deque: {
+        titulo: "Deque (double-ended queue)",
+        def: "A linear structure that inserts and removes at both ends in O(1). It generalizes both the stack (use one end) and the queue (insert at one end, remove at the other)."
+      },
+      "priority-queue": {
+        titulo: "Priority queue",
+        def: "An abstract data type where each element has a priority and removal always returns the most urgent one (the minimum or the maximum key), regardless of arrival order. Usually implemented with a binary heap."
+      },
+      "dangling-pointer": {
+        titulo: "Dangling pointer",
+        def: "A pointer that still holds the address of memory that has been freed. Reading or writing through it is undefined behavior."
+      },
+      "container-adaptor": {
+        titulo: "Container adaptor",
+        def: "A standard library class (<code>std::stack</code>, <code>std::queue</code>, <code>std::priority_queue</code>) that wraps an underlying container and exposes only the operations of one access rule."
+      }
+    });
+  });
+</script>
+</body>
+</html>
