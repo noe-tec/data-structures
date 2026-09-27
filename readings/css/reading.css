@@ -1,0 +1,167 @@
+/* ============================================================
+   READING — short web readings that accompany the shstyle slides.
+   Same tokens as ../../slides/css/shstyle.css (light + dark), but
+   laid out as a scrolling page instead of a slide deck.
+   ============================================================ */
+
+:root {
+  --c-bg: #ffffff;
+  --c-ink: #16181d;
+  --c-ink-soft: #4b5260;
+  --c-accent: #0b57d0;
+  --c-accent-bg: #e8f0fe;
+  --c-line: #d7dbe2;
+  --c-code-bg: #f4f5f7;
+  --c-surface-1: #f0f1f4;
+  --font-sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  --radius: 10px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --c-bg: #15171c;
+  --c-ink: #e6e8ee;
+  --c-ink-soft: #a7adba;
+  --c-accent: #8ab4f8;
+  --c-accent-bg: #1d2a44;
+  --c-line: #3a3f4b;
+  --c-code-bg: #1f222a;
+  --c-surface-1: #20232b;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--c-bg); }
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.65;
+  letter-spacing: -0.005em;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 16px 80px;
+}
+
+/* ---------- Header ---------- */
+.kicker {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--c-accent);
+  margin-bottom: 0.6em;
+}
+h1 {
+  font-size: 2.3rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.3em;
+}
+.meta {
+  color: var(--c-ink-soft);
+  font-size: 0.9rem;
+  border-top: 3px solid var(--c-ink);
+  display: inline-block;
+  padding-top: 0.5em;
+  margin-bottom: 2em;
+}
+
+/* ---------- Text ---------- */
+h2 {
+  font-size: 1.45rem;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  margin: 2.2em 0 0.5em;
+  padding-left: 0.5em;
+  border-left: 6px solid var(--c-accent);
+}
+p { margin: 0 0 1em; }
+.lead { font-size: 1.12rem; }
+ul { padding-left: 1.2em; margin: 0 0 1em; }
+li { margin-bottom: 0.45em; }
+li::marker { color: var(--c-accent); }
+strong { font-weight: 700; }
+em { color: var(--c-accent); font-style: normal; font-weight: 600; }
+a { color: var(--c-accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--c-code-bg);
+  padding: 0.08em 0.3em;
+  border-radius: 5px;
+}
+sup.cite { font-size: 0.72em; line-height: 0; }
+sup.cite a { border-bottom: none; font-weight: 600; }
+
+/* ---------- Table ---------- */
+.table-wrap { overflow-x: auto; margin: 1.2em 0 1.4em; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 0.55em 0.7em; border-bottom: 1px solid var(--c-line); vertical-align: top; }
+thead th { border-bottom: 2px solid var(--c-ink); font-weight: 700; }
+
+/* ---------- Boxes ---------- */
+.box-key {
+  background: var(--c-accent-bg);
+  border-left: 6px solid var(--c-accent);
+  border-radius: var(--radius);
+  padding: 0.8em 1.1em;
+  margin: 1em 0 1.4em;
+}
+.box-note {
+  background: var(--c-surface-1);
+  border-radius: var(--radius);
+  padding: 1em 1.2em;
+  margin: 2em 0;
+}
+.box-note h2 { border: none; padding: 0; margin: 0 0 0.4em; font-size: 1.1rem; }
+.box-note p:last-child { margin-bottom: 0; }
+
+/* ---------- Questions and references ---------- */
+ol.questions li { margin-bottom: 0.7em; }
+.refs { font-size: 0.86rem; color: var(--c-ink-soft); }
+.refs ol { padding-left: 1.6em; }
+.refs li { margin-bottom: 0.55em; }
+.refs em { color: inherit; font-style: italic; font-weight: 400; }
+.refs li:target { background: var(--c-accent-bg); border-radius: 4px; }
+.footnote {
+  margin-top: 2.5em;
+  padding-top: 1em;
+  border-top: 1px solid var(--c-line);
+  font-size: 0.8rem;
+  color: var(--c-ink-soft);
+}
+
+/* ---------- Theme toggle (button or D key; choice saved as reading-theme) ---------- */
+.theme-toggle {
+  position: fixed; left: 14px; bottom: 12px;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-bg); color: var(--c-ink-soft);
+  border: 2px solid var(--c-line); cursor: pointer; padding: 0;
+  opacity: 0.7;
+}
+.theme-toggle:hover, .theme-toggle:focus-visible { opacity: 1; color: var(--c-accent); border-color: var(--c-accent); }
+.theme-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.theme-toggle .ic-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .ic-sun { display: block; }
+:root[data-theme="dark"] .theme-toggle .ic-moon { display: none; }
+
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  h1 { font-size: 1.9rem; }
+  .page { padding-top: 32px; }
+}
+
+@media print {
+  .theme-toggle { display: none; }
+  a { border-bottom: none; }
+}

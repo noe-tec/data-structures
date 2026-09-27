@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who Goes Next? — Reading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+  <!-- Starts in light mode; the reader's choice (button or D key) is remembered for all readings. -->
+  <script>try{if(localStorage.getItem("reading-theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}</script>
+  <link rel="stylesheet" href="../css/reading.css">
+</head>
+<body>
+<main class="page">
+
+  <header>
+    <span class="kicker">Reading · 5 minutes</span>
+    <h1>Who goes next? Stacks, queues, deques and priority queues in the software you use</h1>
+    <div class="meta">Data Structures and Algorithms</div>
+  </header>
+
+  <p class="lead">You have probably used all four of the structures in this reading today. You pressed
+    <em>Back</em> on your phone, a video kept loading a few seconds ahead of what you were watching, a message
+    arrived in the order it was sent, and somewhere a hospital attended the most serious patient first, not the
+    one who arrived first.</p>
+
+  <p>Each of those systems answers the same question: <strong>which element leaves next?</strong> The answer is
+    the whole difference between a stack, a queue, a deque and a priority queue.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Structure</th><th>Who leaves next</th><th>You met it when…</th></tr></thead>
+      <tbody>
+        <tr><td>Stack</td><td>the newest (LIFO)</td><td>you pressed Back on your phone</td></tr>
+        <tr><td>Queue</td><td>the oldest (FIFO)</td><td>a video loaded ahead of what you watched</td></tr>
+        <tr><td>Deque</td><td>the newest <em>or</em> the oldest</td><td>an app kept only your last N items</td></tr>
+        <tr><td>Priority queue</td><td>the most urgent</td><td>a map found your fastest route</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Stacks: undo the last thing</h2>
+  <ul>
+    <li><strong>The Back button.</strong> Android keeps the screens you open in a <em>back stack</em>: a new
+      screen is pushed on top, and Back pops it to reveal the previous one — "a last in, first out object
+      structure", in the words of its documentation.<sup class="cite"><a href="#ref-1">[1]</a></sup></li>
+    <li><strong>Every program you run.</strong> Each function call pushes a frame on the <em>call stack</em>,
+      and returning pops it.<sup class="cite"><a href="#ref-2">[2]</a></sup> A recursion that never stops keeps
+      pushing until the stack runs out of space: a <em>stack overflow</em>.<sup class="cite"><a href="#ref-3">[3]</a></sup></li>
+  </ul>
+  <div class="box-key">Use a stack when the most recent item is the one you need back first.</div>
+
+  <h2>Queues: first come, first served</h2>
+  <ul>
+    <li><strong>The web page you are reading.</strong> JavaScript in the browser takes pending work from a
+      queue: it runs one job completely, then pulls the next one, oldest first.<sup class="cite"><a href="#ref-2">[2]</a></sup></li>
+    <li><strong>Buffers everywhere.</strong> Your operating system moves data between devices and programs
+      through <em>circular buffers</em>: a fixed array where the producer writes at the head and the consumer
+      reads at the tail.<sup class="cite"><a href="#ref-4">[4]</a></sup></li>
+  </ul>
+  <div class="box-key">Use a queue when fairness means "in the order it arrived".</div>
+
+  <h2>Deques: both ends open</h2>
+  <ul>
+    <li><strong>"Keep only the last N."</strong> Python's <code>deque</code> with a maximum length drops the
+      oldest item from the other end when it is full — useful when only the most recent activity
+      matters.<sup class="cite"><a href="#ref-5">[5]</a></sup></li>
+    <li><strong>Sharing work between processor cores.</strong> In <em>work stealing</em>, each core keeps its
+      tasks in a deque: it works at one end, and an idle core steals from the other.<sup class="cite"><a href="#ref-6">[6]</a></sup>
+      Java's <code>ForkJoinPool</code> works this way.<sup class="cite"><a href="#ref-7">[7]</a></sup></li>
+  </ul>
+  <div class="box-key">Use a deque when you need to add or remove at both ends.</div>
+
+  <h2>Priority queues: the most urgent first</h2>
+  <ul>
+    <li><strong>Maps and navigation.</strong> Dijkstra's shortest-path algorithm repeatedly takes the closest
+      place not yet visited, and it does that with a priority queue.<sup class="cite"><a href="#ref-8">[8]</a></sup></li>
+    <li><strong>Your CPU.</strong> The Linux scheduler decides which program runs next. Its newest version picks
+      the task with the earliest deadline;<sup class="cite"><a href="#ref-9">[9]</a></sup> its predecessor, CFS,
+      kept every runnable task in a red-black tree — a balanced binary search tree — and always ran the
+      leftmost one.<sup class="cite"><a href="#ref-10">[10]</a></sup></li>
+  </ul>
+  <div class="box-key">Use a priority queue when importance, not arrival time, decides who goes next.</div>
+
+  <div class="box-note">
+    <h2>Did you know?</h2>
+    <p>These ideas are older than personal computers. Alan Turing already used a stack in 1946 to call and return
+      from subroutines, with the words <em>bury</em> and <em>unbury</em>.<sup class="cite"><a href="#ref-11">[11]</a></sup>
+      And the mathematics of waiting lines started in 1909, when Agner Erlang studied calls at the Copenhagen
+      Telephone Company.<sup class="cite"><a href="#ref-12">[12]</a></sup></p>
+  </div>
+
+  <h2>Think about it</h2>
+  <ol class="questions">
+    <li>You open screens A → B → C on your phone and press Back twice. Which screen do you see, and why does a
+      stack give that answer without searching?</li>
+    <li>A queue lives in an array of 5 slots. After several enqueues and dequeues, the back has reached the last
+      slot, but slots 0 and 1 are free. What would you do so the next element can still enter?</li>
+    <li>In an emergency room, why would a plain queue be dangerous? What must the structure know about each
+      patient that a queue ignores?</li>
+  </ol>
+
+  <section class="refs">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1">Android Developers. <a href="https://developer.android.com/guide/components/activities/tasks-and-back-stack">Tasks and the back stack</a>.</li>
+      <li id="ref-2">MDN Web Docs. <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model">JavaScript execution model</a> (call stack and job queue).</li>
+      <li id="ref-3">Weiss, M. A. <em>Data Structures and Algorithm Analysis in C++</em>, 4th ed., Pearson, 2014. § 3.6.3 (function calls).</li>
+      <li id="ref-4">The Linux Kernel documentation. <a href="https://docs.kernel.org/core-api/circular-buffers.html">Circular buffers</a>.</li>
+      <li id="ref-5">Python documentation. <a href="https://docs.python.org/3/library/collections.html#collections.deque"><code>collections.deque</code></a>.</li>
+      <li id="ref-6">Blumofe, R. D. and Leiserson, C. E. <a href="https://dl.acm.org/doi/10.1145/324133.324234">Scheduling multithreaded computations by work stealing</a>, <em>Journal of the ACM</em> 46(5), 1999.</li>
+      <li id="ref-7">Oracle. <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ForkJoinPool.html"><code>ForkJoinPool</code></a>, Java SE 21 API.</li>
+      <li id="ref-8">Cormen, T. H., Leiserson, C. E., Rivest, R. L. and Stein, C. <em>Introduction to Algorithms</em>, 3rd ed., MIT Press, 2009. § 24.3 (Dijkstra's algorithm).</li>
+      <li id="ref-9">The Linux Kernel documentation. <a href="https://docs.kernel.org/scheduler/sched-eevdf.html">EEVDF Scheduler</a>.</li>
+      <li id="ref-10">The Linux Kernel documentation. <a href="https://docs.kernel.org/scheduler/sched-design-CFS.html">CFS Scheduler</a>.</li>
+      <li id="ref-11">Carpenter, B. E. and Doran, R. W. (eds.). <em>A. M. Turing's ACE Report of 1946 and Other Papers</em>, MIT Press, 1986.</li>
+      <li id="ref-12">MacTutor History of Mathematics. <a href="https://mathshistory.st-andrews.ac.uk/SH/erlang_sh.pdf">Agner Erlang and the Mathematics of Telecommunication Traffic</a>.</li>
+    </ol>
+  </section>
+
+  <p class="footnote">Note: this reading was written with the help of artificial intelligence, specifically Claude (Anthropic).</p>
+
+</main>
+
+<button class="theme-toggle" type="button" aria-label="Dark / light mode (D)" title="Dark / light mode (D)">
+  <svg class="ic-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  <svg class="ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.querySelector('.theme-toggle');
+    function sync() { btn.setAttribute('aria-pressed', root.dataset.theme === 'dark' ? 'true' : 'false'); }
+    function toggle() {
+      var dark = root.dataset.theme !== 'dark';
+      if (dark) root.dataset.theme = 'dark'; else delete root.dataset.theme;
+      try { localStorage.setItem('reading-theme', dark ? 'dark' : 'light'); } catch (e) {}
+      sync();
+    }
+    btn.addEventListener('click', toggle);
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'd' || e.key === 'D') && !e.ctrlKey && !e.metaKey && !e.altKey) toggle();
+    });
+    sync();
+  })();
+</script>
+</body>
+</html>
