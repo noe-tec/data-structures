@@ -484,23 +484,16 @@ bool popFront() {
       <span class="fragment"></span>
     </section>
 
-    <!-- ============ PAIR CHALLENGE ============ -->
+    <!-- ============ IN-CLASS EXERCISE ============ -->
     <section>
-      <span class="kicker">Pair challenge</span>
-      <h2>One structure built from another</h2>
-      <div class="cols">
-        <div>
-          <h3>LC 232 — Implement Queue using Stacks <span class="muted">[Easy]</span></h3>
-          <p>Build a FIFO queue with <code>push</code>, <code>pop</code>, <code>peek</code> and <code>empty</code> using only two stacks. Target: <span class="term" data-term="amortized">amortized</span> O(1) per operation.</p>
-        </div>
-        <div>
-          <h3>LC 239 — Sliding Window Maximum <span class="muted">[Hard]</span></h3>
-          <p>Report the maximum of every window of k consecutive elements in O(n) total, not O(n·k). Hint: a deque of indices whose values decrease from front to back.</p>
-        </div>
-      </div>
+      <span class="kicker">In-class exercise</span>
+      <h2>Build your own ArrayStack</h2>
       <ul>
-        <li class="fragment"><strong>Roles:</strong> the driver types, the navigator reviews and questions. Switch roles halfway through.</li>
+        <li class="fragment"><strong>Implement</strong> <code>ArrayStack</code> with <code>MAX = 5</code>: <code>push</code>, <code>pop</code>, <code>getTop</code>, <code>isEmpty</code> and <code>isFull</code>. <code>push</code> and <code>pop</code> return <code>false</code> when they cannot work.</li>
+        <li class="fragment"><strong>Test 1:</strong> push(9), push(2), pop(), push(4), push(7), pop(), pop() → <code>getTop()</code> must return 9.</li>
+        <li class="fragment"><strong>Test 2:</strong> five pushes succeed and the sixth returns <code>false</code>; <code>pop()</code> on an empty stack returns <code>false</code>.</li>
       </ul>
+      <p class="fragment muted">Work on your own. Watch the start value of <code>top</code> and <code>++top</code> vs. <code>top++</code>.</p>
     </section>
 
     <!-- ============ NEXT SESSION ============ -->
@@ -511,7 +504,7 @@ bool popFront() {
     <!-- ============ DIVIDER: EXTRA MATERIAL ============ -->
     <section class="divider">
       <h2>Extra material · self-study</h2>
-      <p class="muted">Not covered in class: where these structures live in AI systems, and their STL versions.</p>
+      <p class="muted">Not covered in class: where these structures live in AI systems, their STL versions, and the take-home challenge.</p>
     </section>
 
     <section>
@@ -559,6 +552,25 @@ if (!s.empty())
       <ul>
         <li class="fragment"><code>pop()</code> returns <code>void</code> by design: returning the removed element by value could throw during the copy, after the element was already gone.</li>
         <li class="fragment"><code>top()</code>, <code>front()</code> or <code>pop()</code> on an empty adaptor is <strong>undefined behavior</strong>, not an exception. Check <code>empty()</code> first.</li>
+      </ul>
+    </section>
+
+    <!-- ============ TAKE-HOME CHALLENGE ============ -->
+    <section>
+      <span class="kicker">Challenge · at home</span>
+      <h2>Take it home: one structure built from another</h2>
+      <div class="cols">
+        <div>
+          <h3>LC 232 — Implement Queue using Stacks <span class="muted">[Easy] · required</span></h3>
+          <p>Build a FIFO queue with <code>push</code>, <code>pop</code>, <code>peek</code> (read the front without removing it, like <code>getFront</code>) and <code>empty</code>, using only two stacks. Target: <span class="term" data-term="amortized">amortized</span> O(1) per operation.</p>
+        </div>
+        <div>
+          <h3>LC 239 — Sliding Window Maximum <span class="muted">[Hard] · optional</span></h3>
+          <p>Report the maximum of every window of k consecutive elements in O(n) total, not O(n·k). Hint: a deque of indices whose values decrease from front to back.</p>
+        </div>
+      </div>
+      <ul>
+        <li class="fragment">Use <code>std::stack</code> and <code>std::deque</code> from the previous slides, or your own classes: the solution only depends on the operations, not on how they are stored.</li>
       </ul>
     </section>
 
