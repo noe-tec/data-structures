@@ -417,72 +417,15 @@ bool popFront() {
       </div>
     </section>
 
-    <!-- ============ DIVIDER 11.4 ============ -->
-    <section class="divider">
-      <h2>11.4 Priority queue</h2>
-    </section>
-
     <section>
-      <span class="kicker">11.4 · Priority queue</span>
+      <span class="kicker">Preview · Priority queue</span>
       <h2>The most urgent leaves first, not the oldest</h2>
       <ul>
         <li class="fragment">A <span class="term" data-term="priority-queue">priority queue</span> stores elements with a priority. <code>insert(x)</code> adds one; <code>extractMin()</code> removes the most urgent one.</li>
         <li class="fragment">Arrival order does not matter: the emergency room sees the heart attack before the sprained ankle that arrived an hour earlier.</li>
-        <li class="fragment"><strong>Min-priority queue:</strong> the smallest key leaves first. <strong>Max-priority queue:</strong> the largest.</li>
+        <li class="fragment">Doing both operations fast needs a new structure, the <em>binary heap</em>, which is a kind of tree. We will build it after trees.</li>
       </ul>
       <div class="box-key fragment">A queue orders by arrival time; a priority queue orders by a key you choose.</div>
-    </section>
-
-    <section>
-      <span class="kicker">11.4 · Priority queue</span>
-      <h2>Three ways to store it, three trade-offs</h2>
-      <table>
-        <thead><tr><th></th><th>Unsorted array</th><th>Sorted array</th><th>Binary heap</th></tr></thead>
-        <tbody>
-          <tr class="fragment"><td>insert</td><td>O(1) amortized: append</td><td>O(n): shift to keep order</td><td>O(log n)</td></tr>
-          <tr class="fragment"><td>extractMin</td><td>O(n): scan for the min</td><td>O(1): min at the end</td><td>O(log n)</td></tr>
-          <tr class="fragment"><td>findMin</td><td>O(n)</td><td>O(1)</td><td>O(1)</td></tr>
-        </tbody>
-      </table>
-      <ul>
-        <li class="fragment">The two arrays make one operation cheap and the other O(n). The heap balances both at O(log n); we build it in a later session.</li>
-      </ul>
-      <p class="fragment muted">Sorted array: keep it in decreasing order, so the minimum is the last element and <code>pop_back</code> removes it.</p>
-    </section>
-
-    <section>
-      <span class="kicker">11.4 · Priority queue</span>
-      <h2><code>std::priority_queue</code> puts the largest on top</h2>
-      <pre data-title="pq.cpp"><code class="language-cpp" data-trim data-line-numbers="1-8|2-4|6-8">
-#include &lt;queue&gt;
-std::priority_queue&lt;int&gt; maxPq;                  // largest on top
-for (int x : {5, 1, 8, 3}) maxPq.push(x);
-std::cout &lt;&lt; maxPq.top();                        // 8
-
-std::priority_queue&lt;int, std::vector&lt;int&gt;, std::greater&lt;int&gt;&gt; minPq;
-for (int x : {5, 1, 8, 3}) minPq.push(x);
-std::cout &lt;&lt; minPq.top();                        // 1
-      </code></pre>
-      <ul>
-        <li class="fragment">The default is a <em>max</em>-priority queue. For a min-priority queue, pass <code>std::greater&lt;int&gt;</code> as the comparator.</li>
-        <li class="fragment"><code>push</code> and <code>pop</code> are O(log n) and <code>top</code> is O(1): inside, it is a binary heap on a vector.</li>
-      </ul>
-    </section>
-
-    <!-- ============ QUIZ 4 ============ -->
-    <section>
-      <span class="kicker">Checkpoint</span>
-      <div class="quiz" data-correct="c">
-        <p class="quiz-question">A <em>default</em> <code>std::priority_queue&lt;int&gt;</code> receives push(5), push(1), push(8), push(3), then pop() twice. What does <code>top()</code> return?</p>
-        <button class="quiz-option" data-opt="a">5: the smallest values leave first, so 1 and 3 are gone.</button>
-        <button class="quiz-option" data-opt="b">8: elements leave in arrival order, so 5 and 1 are gone.</button>
-        <button class="quiz-option" data-opt="c">3: the largest values leave first, so 8 and 5 are gone.</button>
-        <div class="quiz-explain">
-          <strong>C.</strong> The default comparator is <code>std::less</code>, and it produces a max-heap: 8 leaves, then 5, and 3 is on top.
-          A describes the min-priority queue you get with <code>std::greater</code>. B describes a plain FIFO queue:
-          a priority queue ignores arrival order.
-        </div>
-      </div>
     </section>
 
     <section>
@@ -506,7 +449,7 @@ std::cout &lt;&lt; minPq.top();                        // 1
     <section>
       <span class="kicker">Checkpoint</span>
       <div class="quiz" data-correct="b">
-        <p class="quiz-question">A browser's Back button returns to the most recent page, and the history keeps <em>only the last 50 pages</em>: when page 51 arrives, the oldest is dropped. Which structure fits?</p>
+        <p class="quiz-question">A browser keeps the pages you can go Back to; Forward uses a separate list. Back returns to the most recent page, and the history keeps <em>only the last 50 pages</em>: when page 51 arrives, the oldest is dropped. Which structure fits the Back history?</p>
         <button class="quiz-option" data-opt="a">A stack: Back always returns the newest page, and that is LIFO.</button>
         <button class="quiz-option" data-opt="b">A deque: Back removes at the newest end and the limit drops at the oldest end.</button>
         <button class="quiz-option" data-opt="c">A queue: pages are dropped in the order they arrived, and that is FIFO.</button>
@@ -592,7 +535,6 @@ std::cout &lt;&lt; minPq.top();                        // 1
         <tbody>
           <tr class="fragment"><td><code>std::stack</code></td><td><code>push</code>, <code>pop</code>, <code>top</code></td><td><code>std::deque</code></td></tr>
           <tr class="fragment"><td><code>std::queue</code></td><td><code>push</code>, <code>pop</code>, <code>front</code>, <code>back</code></td><td><code>std::deque</code></td></tr>
-          <tr class="fragment"><td><code>std::priority_queue</code></td><td><code>push</code>, <code>pop</code>, <code>top</code></td><td><code>std::vector</code></td></tr>
         </tbody>
       </table>
       <ul>
@@ -635,11 +577,11 @@ if (!s.empty())
         <div>
           <h3>Further reading</h3>
           <ul>
-            <li><span class="ref-type">Book</span> Weiss, 4th ed., Ch. 6 <span class="ref-nota">— priority queues and binary heaps, in depth.</span></li>
+            <li><span class="ref-type">Book</span> Weiss, 4th ed., Ch. 6 <span class="ref-nota">— priority queues and binary heaps, the topic we reach after trees.</span></li>
             <li><span class="ref-type">Book</span> Cormen, T. H., Leiserson, C. E., Rivest, R. L. and Stein, C. <em>Introduction to Algorithms</em>, 3rd ed., MIT Press, 2009. <span class="ref-nota">— § 10.1 (stacks and queues) and § 6.5 (priority queues), a more formal treatment.</span></li>
             <li><span class="ref-type">Web</span> <a href="https://visualgo.net/en/list">VisuAlgo — Linked list, stack, queue, deque</a> <span class="ref-nota">— animate push, pop, enqueue and dequeue at your own pace.</span></li>
             <li><span class="ref-type">Web</span> <a href="https://en.cppreference.com/w/cpp/container/stack">cppreference — std::stack</a> <span class="ref-nota">— the adaptor, its template parameters and its preconditions.</span></li>
-            <li><span class="ref-type">Web</span> <a href="https://en.cppreference.com/w/cpp/container/priority_queue">cppreference — std::priority_queue</a> <span class="ref-nota">— why the default is a max-heap and how to pass a comparator.</span></li>
+            <li><span class="ref-type">Web</span> <a href="https://en.cppreference.com/w/cpp/container/queue">cppreference — std::queue</a> <span class="ref-nota">— the FIFO adaptor, its operations and preconditions.</span></li>
           </ul>
         </div>
       </div>
@@ -696,7 +638,7 @@ if (!s.empty())
       },
       "container-adaptor": {
         titulo: "Container adaptor",
-        def: "A standard library class (<code>std::stack</code>, <code>std::queue</code>, <code>std::priority_queue</code>) that wraps an underlying container and exposes only the operations of one access rule."
+        def: "A standard library class such as <code>std::stack</code> or <code>std::queue</code> that wraps an underlying container and exposes only the operations of one access rule."
       }
     });
   });
