@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P12 — Trees and Binary Search Trees</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+  <script>try{if(localStorage.getItem("shstyle-theme")==="dark"&&!/print-pdf/i.test(location.search))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+  <link rel="stylesheet" href="../css/shstyle.css">
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <section class="cover">
+      <span class="kicker">Data Structures and Algorithms</span>
+      <h1>Trees and<br>Binary Search Trees</h1>
+      <div class="cover-meta">
+        P12 · Week 9<br>
+        Noe Samano
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">Before we start</span>
+      <h2>Motivation reading</h2>
+      <div class="cols">
+        <div><svg class="qr" viewBox="0 0 45 45" style="width:300px; height:300px;" role="img" aria-label="QR code: https://noe-tec.github.io/data-structures/readings/reading-p12/" shape-rendering="crispEdges"><rect width="45" height="45" fill="white"/><path fill="black" d="M4,4h7v1h-7zM12,4h2v1h-2zM15,4h2v1h-2zM18,4h1v1h-1zM23,4h3v1h-3zM30,4h2v1h-2zM34,4h7v1h-7zM4,5h1v1h-1zM10,5h1v1h-1zM13,5h4v1h-4zM19,5h5v1h-5zM25,5h4v1h-4zM32,5h1v1h-1zM34,5h1v1h-1zM40,5h1v1h-1zM4,6h1v1h-1zM6,6h3v1h-3zM10,6h1v1h-1zM17,6h1v1h-1zM21,6h1v1h-1zM25,6h1v1h-1zM28,6h1v1h-1zM34,6h1v1h-1zM36,6h3v1h-3zM40,6h1v1h-1zM4,7h1v1h-1zM6,7h3v1h-3zM10,7h1v1h-1zM12,7h2v1h-2zM15,7h2v1h-2zM18,7h1v1h-1zM20,7h1v1h-1zM22,7h1v1h-1zM24,7h1v1h-1zM26,7h1v1h-1zM29,7h4v1h-4zM34,7h1v1h-1zM36,7h3v1h-3zM40,7h1v1h-1zM4,8h1v1h-1zM6,8h3v1h-3zM10,8h1v1h-1zM12,8h3v1h-3zM19,8h1v1h-1zM21,8h1v1h-1zM27,8h1v1h-1zM30,8h2v1h-2zM34,8h1v1h-1zM36,8h3v1h-3zM40,8h1v1h-1zM4,9h1v1h-1zM10,9h1v1h-1zM12,9h2v1h-2zM15,9h1v1h-1zM17,9h1v1h-1zM20,9h2v1h-2zM23,9h2v1h-2zM29,9h1v1h-1zM32,9h1v1h-1zM34,9h1v1h-1zM40,9h1v1h-1zM4,10h7v1h-7zM12,10h1v1h-1zM14,10h1v1h-1zM16,10h1v1h-1zM18,10h1v1h-1zM20,10h1v1h-1zM22,10h1v1h-1zM24,10h1v1h-1zM26,10h1v1h-1zM28,10h1v1h-1zM30,10h1v1h-1zM32,10h1v1h-1zM34,10h7v1h-7zM12,11h1v1h-1zM14,11h2v1h-2zM17,11h1v1h-1zM19,11h1v1h-1zM24,11h2v1h-2zM27,11h1v1h-1zM30,11h1v1h-1zM32,11h1v1h-1zM4,12h1v1h-1zM8,12h1v1h-1zM10,12h3v1h-3zM14,12h1v1h-1zM16,12h1v1h-1zM20,12h1v1h-1zM23,12h2v1h-2zM27,12h1v1h-1zM33,12h5v1h-5zM40,12h1v1h-1zM4,13h3v1h-3zM9,13h1v1h-1zM15,13h4v1h-4zM22,13h2v1h-2zM25,13h2v1h-2zM28,13h2v1h-2zM31,13h3v1h-3zM36,13h1v1h-1zM39,13h1v1h-1zM6,14h1v1h-1zM9,14h2v1h-2zM12,14h1v1h-1zM18,14h2v1h-2zM21,14h3v1h-3zM27,14h6v1h-6zM34,14h3v1h-3zM38,14h1v1h-1zM4,15h1v1h-1zM6,15h1v1h-1zM8,15h2v1h-2zM11,15h1v1h-1zM13,15h3v1h-3zM17,15h1v1h-1zM19,15h7v1h-7zM27,15h1v1h-1zM30,15h1v1h-1zM33,15h4v1h-4zM38,15h2v1h-2zM7,16h1v1h-1zM10,16h1v1h-1zM15,16h1v1h-1zM21,16h1v1h-1zM25,16h2v1h-2zM28,16h1v1h-1zM31,16h1v1h-1zM33,16h3v1h-3zM38,16h3v1h-3zM6,17h4v1h-4zM11,17h2v1h-2zM14,17h2v1h-2zM17,17h3v1h-3zM22,17h1v1h-1zM25,17h1v1h-1zM27,17h1v1h-1zM29,17h4v1h-4zM36,17h2v1h-2zM4,18h1v1h-1zM6,18h5v1h-5zM12,18h2v1h-2zM15,18h2v1h-2zM19,18h1v1h-1zM21,18h1v1h-1zM24,18h1v1h-1zM27,18h1v1h-1zM31,18h1v1h-1zM33,18h1v1h-1zM35,18h4v1h-4zM7,19h3v1h-3zM11,19h1v1h-1zM13,19h2v1h-2zM16,19h1v1h-1zM20,19h4v1h-4zM26,19h1v1h-1zM28,19h1v1h-1zM31,19h1v1h-1zM33,19h4v1h-4zM38,19h1v1h-1zM7,20h1v1h-1zM10,20h1v1h-1zM16,20h2v1h-2zM22,20h2v1h-2zM26,20h3v1h-3zM30,20h1v1h-1zM33,20h3v1h-3zM37,20h4v1h-4zM5,21h2v1h-2zM9,21h1v1h-1zM11,21h1v1h-1zM13,21h2v1h-2zM18,21h1v1h-1zM20,21h1v1h-1zM23,21h2v1h-2zM31,21h2v1h-2zM35,21h3v1h-3zM39,21h1v1h-1zM7,22h1v1h-1zM10,22h5v1h-5zM16,22h2v1h-2zM20,22h1v1h-1zM24,22h2v1h-2zM31,22h1v1h-1zM34,22h5v1h-5zM5,23h2v1h-2zM9,23h1v1h-1zM13,23h2v1h-2zM16,23h3v1h-3zM21,23h2v1h-2zM25,23h2v1h-2zM28,23h1v1h-1zM30,23h3v1h-3zM34,23h1v1h-1zM38,23h2v1h-2zM5,24h2v1h-2zM8,24h1v1h-1zM10,24h1v1h-1zM12,24h1v1h-1zM18,24h4v1h-4zM23,24h1v1h-1zM25,24h4v1h-4zM31,24h1v1h-1zM33,24h3v1h-3zM38,24h1v1h-1zM4,25h2v1h-2zM13,25h1v1h-1zM15,25h1v1h-1zM17,25h1v1h-1zM19,25h3v1h-3zM27,25h3v1h-3zM31,25h2v1h-2zM35,25h2v1h-2zM4,26h1v1h-1zM6,26h1v1h-1zM9,26h3v1h-3zM13,26h5v1h-5zM19,26h1v1h-1zM22,26h1v1h-1zM24,26h4v1h-4zM31,26h2v1h-2zM35,26h4v1h-4zM6,27h1v1h-1zM11,27h1v1h-1zM14,27h3v1h-3zM18,27h2v1h-2zM24,27h2v1h-2zM30,27h2v1h-2zM35,27h2v1h-2zM38,27h3v1h-3zM4,28h1v1h-1zM6,28h5v1h-5zM12,28h1v1h-1zM14,28h1v1h-1zM18,28h1v1h-1zM20,28h1v1h-1zM24,28h1v1h-1zM28,28h1v1h-1zM30,28h1v1h-1zM33,28h2v1h-2zM37,28h2v1h-2zM40,28h1v1h-1zM4,29h1v1h-1zM6,29h2v1h-2zM9,29h1v1h-1zM13,29h1v1h-1zM18,29h1v1h-1zM22,29h2v1h-2zM26,29h1v1h-1zM28,29h2v1h-2zM31,29h2v1h-2zM36,29h1v1h-1zM38,29h1v1h-1zM6,30h2v1h-2zM9,30h3v1h-3zM13,30h3v1h-3zM19,30h1v1h-1zM21,30h3v1h-3zM25,30h3v1h-3zM30,30h3v1h-3zM35,30h2v1h-2zM38,30h1v1h-1zM6,31h3v1h-3zM11,31h1v1h-1zM14,31h8v1h-8zM23,31h3v1h-3zM27,31h1v1h-1zM31,31h1v1h-1zM35,31h1v1h-1zM38,31h1v1h-1zM40,31h1v1h-1zM4,32h3v1h-3zM8,32h1v1h-1zM10,32h1v1h-1zM12,32h1v1h-1zM14,32h1v1h-1zM21,32h1v1h-1zM24,32h3v1h-3zM28,32h1v1h-1zM32,32h5v1h-5zM38,32h2v1h-2zM12,33h1v1h-1zM14,33h3v1h-3zM19,33h2v1h-2zM24,33h4v1h-4zM29,33h4v1h-4zM36,33h1v1h-1zM39,33h1v1h-1zM4,34h7v1h-7zM12,34h1v1h-1zM15,34h7v1h-7zM24,34h1v1h-1zM27,34h3v1h-3zM32,34h1v1h-1zM34,34h1v1h-1zM36,34h1v1h-1zM4,35h1v1h-1zM10,35h1v1h-1zM13,35h1v1h-1zM15,35h1v1h-1zM17,35h2v1h-2zM20,35h3v1h-3zM26,35h3v1h-3zM32,35h1v1h-1zM36,35h3v1h-3zM40,35h1v1h-1zM4,36h1v1h-1zM6,36h3v1h-3zM10,36h1v1h-1zM12,36h1v1h-1zM14,36h2v1h-2zM18,36h1v1h-1zM22,36h2v1h-2zM26,36h1v1h-1zM28,36h1v1h-1zM30,36h1v1h-1zM32,36h8v1h-8zM4,37h1v1h-1zM6,37h3v1h-3zM10,37h1v1h-1zM13,37h2v1h-2zM16,37h2v1h-2zM20,37h1v1h-1zM23,37h2v1h-2zM28,37h1v1h-1zM30,37h2v1h-2zM34,37h2v1h-2zM37,37h3v1h-3zM4,38h1v1h-1zM6,38h3v1h-3zM10,38h1v1h-1zM13,38h2v1h-2zM16,38h1v1h-1zM20,38h3v1h-3zM24,38h2v1h-2zM27,38h2v1h-2zM33,38h2v1h-2zM37,38h1v1h-1zM39,38h1v1h-1zM4,39h1v1h-1zM10,39h1v1h-1zM14,39h4v1h-4zM21,39h2v1h-2zM25,39h2v1h-2zM28,39h1v1h-1zM31,39h1v1h-1zM33,39h1v1h-1zM36,39h1v1h-1zM38,39h2v1h-2zM4,40h7v1h-7zM12,40h1v1h-1zM16,40h6v1h-6zM23,40h5v1h-5zM31,40h1v1h-1zM33,40h3v1h-3zM38,40h3v1h-3z"/></svg></div>
+        <div>
+          <p><strong>One in a million.</strong> How software keeps data sorted while it never stops changing.</p>
+          <p class="muted">A three-minute read. Scan the code or open:<br>
+            <a href="https://noe-tec.github.io/data-structures/readings/reading-p12/">noe-tec.github.io/data-structures/readings/reading-p12/</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">Today's goal</span>
+      <h2>By the end of this session you will be able to…</h2>
+      <ul>
+        <li class="fragment">Name the parts of a tree and compute the <span class="term" data-term="depth">depth</span> and <span class="term" data-term="height">height</span> of a node.</li>
+        <li class="fragment">Trace the preorder, inorder and postorder <span class="term" data-term="traversal">traversals</span> of a binary tree by hand.</li>
+        <li class="fragment">Code search and insert in a <span class="term" data-term="bst">binary search tree</span>, and explain why each one costs O(height).</li>
+        <li class="fragment">Remove a node in each of the three cases, and explain why the replacement keeps the order.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">The problem</span>
+      <h2>Fast search or fast insert: so far, pick one</h2>
+      <table>
+        <thead><tr><th>Sorted data in a…</th><th>search(x)</th><th>insert(x), keeping the order</th></tr></thead>
+        <tbody>
+          <tr class="fragment"><td>Sorted array</td><td>O(log n), binary search</td><td>O(n): shift the elements after x</td></tr>
+          <tr class="fragment"><td>Sorted linked list</td><td>O(n): walk from the head</td><td>O(1) to link, after an O(n) walk</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li class="fragment">A tree keeps the halving idea of binary search, but it links its nodes with pointers, so an insertion shifts nothing.</li>
+      </ul>
+      <div class="box-key fragment">The target: search, insert and remove, all in O(log n).</div>
+    </section>
+
+    <section class="divider">
+      <h2>12.1 Trees</h2>
+    </section>
+
+    <section>
+      <span class="kicker">12.1 · Trees</span>
+      <h2>One tree, eight words</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><text class="f-ink-soft" x="20" y="47" style="font-size:18px; font-weight:600;">depth 0</text><text class="f-ink-soft" x="20" y="132" style="font-size:18px; font-weight:600;">depth 1</text><text class="f-ink-soft" x="20" y="217" style="font-size:18px; font-weight:600;">depth 2</text><text class="f-ink-soft" x="20" y="302" style="font-size:18px; font-weight:600;">depth 3</text><line class="svg-edge" x1="480" y1="40" x2="150" y2="125"/><line class="svg-edge" x1="480" y1="40" x2="440" y2="125"/><line class="svg-edge" x1="480" y1="40" x2="850" y2="125"/><line class="svg-edge" x1="150" y1="125" x2="150" y2="210"/><line class="svg-edge" x1="440" y1="125" x2="300" y2="210"/><line class="svg-edge" x1="440" y1="125" x2="400" y2="210"/><line class="svg-edge" x1="440" y1="125" x2="500" y2="210"/><line class="svg-edge" x1="440" y1="125" x2="600" y2="210"/><line class="svg-edge" x1="850" y1="125" x2="780" y2="210"/><line class="svg-edge" x1="850" y1="125" x2="920" y2="210"/><line class="svg-edge" x1="400" y1="210" x2="320" y2="295"/><line class="svg-edge" x1="400" y1="210" x2="400" y2="295"/><line class="svg-edge" x1="400" y1="210" x2="480" y2="295"/><line class="svg-edge" x1="920" y1="210" x2="920" y2="295"/><rect class="svg-node" x="455" y="20" width="50" height="40" rx="20"/><text class="svg-label" x="480" y="47.92" text-anchor="middle" style="font-size:22px;">43</text><rect class="svg-node" x="125" y="105" width="50" height="40" rx="20"/><text class="svg-label" x="150" y="132.92" text-anchor="middle" style="font-size:22px;">10</text><rect class="svg-node" x="415" y="105" width="50" height="40" rx="20"/><text class="svg-label" x="440" y="132.92" text-anchor="middle" style="font-size:22px;">25</text><rect class="svg-node" x="825" y="105" width="50" height="40" rx="20"/><text class="svg-label" x="850" y="132.92" text-anchor="middle" style="font-size:22px;">51</text><rect class="svg-node" x="125" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="150" y="217.92" text-anchor="middle" style="font-size:22px;">12</text><rect class="svg-node" x="275" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="300" y="217.92" text-anchor="middle" style="font-size:22px;">68</text><rect class="svg-node" x="375" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="217.92" text-anchor="middle" style="font-size:22px;">23</text><rect class="svg-node" x="475" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="500" y="217.92" text-anchor="middle" style="font-size:22px;">58</text><rect class="svg-node" x="575" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="600" y="217.92" text-anchor="middle" style="font-size:22px;">37</text><rect class="svg-node" x="755" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="780" y="217.92" text-anchor="middle" style="font-size:22px;">48</text><rect class="svg-node" x="895" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="920" y="217.92" text-anchor="middle" style="font-size:22px;">73</text><rect class="svg-node" x="295" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="320" y="302.92" text-anchor="middle" style="font-size:22px;">16</text><rect class="svg-node" x="375" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="302.92" text-anchor="middle" style="font-size:22px;">82</text><rect class="svg-node" x="455" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="480" y="302.92" text-anchor="middle" style="font-size:22px;">39</text><rect class="svg-node" x="895" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="920" y="302.92" text-anchor="middle" style="font-size:22px;">95</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><rect class="svg-node-hl" x="455" y="20" width="50" height="40" rx="20"/><text class="svg-label" x="480" y="47.92" text-anchor="middle" style="font-size:22px;">43</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Root: the only node with no parent</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">here: 43</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><rect class="svg-node-hl" x="125" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="150" y="217.92" text-anchor="middle" style="font-size:22px;">12</text><rect class="svg-node-hl" x="275" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="300" y="217.92" text-anchor="middle" style="font-size:22px;">68</text><rect class="svg-node-hl" x="295" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="320" y="302.92" text-anchor="middle" style="font-size:22px;">16</text><rect class="svg-node-hl" x="375" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="302.92" text-anchor="middle" style="font-size:22px;">82</text><rect class="svg-node-hl" x="455" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="480" y="302.92" text-anchor="middle" style="font-size:22px;">39</text><rect class="svg-node-hl" x="475" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="500" y="217.92" text-anchor="middle" style="font-size:22px;">58</text><rect class="svg-node-hl" x="575" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="600" y="217.92" text-anchor="middle" style="font-size:22px;">37</text><rect class="svg-node-hl" x="755" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="780" y="217.92" text-anchor="middle" style="font-size:22px;">48</text><rect class="svg-node-hl" x="895" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="920" y="302.92" text-anchor="middle" style="font-size:22px;">95</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Leaf: a node with no children</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">here: 12, 68, 16, 82, 39, 58, 37, 48 and 95</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><rect class="svg-node-hl" x="415" y="105" width="50" height="40" rx="20"/><text class="svg-label" x="440" y="132.92" text-anchor="middle" style="font-size:22px;">25</text><rect class="svg-node-hl" x="375" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="217.92" text-anchor="middle" style="font-size:22px;">23</text><rect class="svg-node-hl" x="575" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="600" y="217.92" text-anchor="middle" style="font-size:22px;">37</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Parent, child and siblings</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">25 is the parent of 23 and 37 · 23 and 37 share a parent, so they are siblings</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><rect class="svg-node-hl" x="455" y="20" width="50" height="40" rx="20"/><text class="svg-label" x="480" y="47.92" text-anchor="middle" style="font-size:22px;">43</text><rect class="svg-node-hl" x="415" y="105" width="50" height="40" rx="20"/><text class="svg-label" x="440" y="132.92" text-anchor="middle" style="font-size:22px;">25</text><rect class="svg-node-hl" x="375" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="217.92" text-anchor="middle" style="font-size:22px;">23</text><rect class="svg-node-hl" x="375" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="302.92" text-anchor="middle" style="font-size:22px;">82</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Path: a sequence of nodes, each one the parent of the next</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">43 – 25 – 23 – 82 is a path of length 3: the length counts edges, not nodes</text></g>
+<g class="anim-step" data-step="5" data-step-off="6"><rect class="svg-node-hl" x="415" y="105" width="50" height="40" rx="20"/><text class="svg-label" x="440" y="132.92" text-anchor="middle" style="font-size:22px;">25</text><rect class="svg-node-hl" x="275" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="300" y="217.92" text-anchor="middle" style="font-size:22px;">68</text><rect class="svg-node-hl" x="375" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="217.92" text-anchor="middle" style="font-size:22px;">23</text><rect class="svg-node-hl" x="475" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="500" y="217.92" text-anchor="middle" style="font-size:22px;">58</text><rect class="svg-node-hl" x="575" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="600" y="217.92" text-anchor="middle" style="font-size:22px;">37</text><rect class="svg-node-hl" x="295" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="320" y="302.92" text-anchor="middle" style="font-size:22px;">16</text><rect class="svg-node-hl" x="375" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="302.92" text-anchor="middle" style="font-size:22px;">82</text><rect class="svg-node-hl" x="455" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="480" y="302.92" text-anchor="middle" style="font-size:22px;">39</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Subtree: a node together with everything below it</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">a tree is a root plus smaller trees: that is why tree code is recursive</text></g>
+<g class="anim-step" data-step="6" data-step-off="7"><rect class="svg-node-hl" x="455" y="20" width="50" height="40" rx="20"/><text class="svg-label" x="480" y="47.92" text-anchor="middle" style="font-size:22px;">43</text><rect class="svg-node-hl" x="415" y="105" width="50" height="40" rx="20"/><text class="svg-label" x="440" y="132.92" text-anchor="middle" style="font-size:22px;">25</text><rect class="svg-node-hl" x="475" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="500" y="217.92" text-anchor="middle" style="font-size:22px;">58</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Depth: the length of the path from the root</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">the root is at depth 0 · 58 is at depth 2</text></g>
+<g class="anim-step" data-step="7" data-step-off="8"><rect class="svg-node-hl" x="415" y="105" width="50" height="40" rx="20"/><text class="svg-label" x="440" y="132.92" text-anchor="middle" style="font-size:22px;">25</text><rect class="svg-node-hl" x="375" y="190" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="217.92" text-anchor="middle" style="font-size:22px;">23</text><rect class="svg-node-hl" x="375" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="400" y="302.92" text-anchor="middle" style="font-size:22px;">82</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Height: the length of the longest path down to a leaf</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">a leaf has height 0 · 25 has height 2 (25 – 23 – 82) · the tree has height 3</text></g>
+<g class="anim-step" data-step="8"><rect class="svg-node-hl" x="415" y="105" width="50" height="40" rx="20"/><text class="svg-label" x="440" y="132.92" text-anchor="middle" style="font-size:22px;">25</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Degree: the number of children</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">25 has degree 4 and no node has more, so the degree of the tree is 4</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <p class="muted">Tree from de la Cueva et al. (2020), Fig. 9.2.</p>
+    </section>
+
+    <section>
+      <span class="kicker">12.1 · Trees</span>
+      <h2>A binary tree: a root and two subtrees</h2>
+      <ul>
+        <li class="fragment">In a <strong>binary tree</strong> no node has more than two children. A binary tree is either empty, or a root with a left subtree and a right subtree.</li>
+      </ul>
+      <div class="fragment"><svg viewBox="0 0 1100 260" style="width:100%; max-height:200px;">
+<g><line class="svg-edge" x1="550" y1="40" x2="380" y2="110"/><line class="svg-edge" x1="550" y1="40" x2="720" y2="110"/><polygon class="svg-node" points="380,110 295,210 465,210"/><text class="svg-label" x="380" y="194" text-anchor="middle" style="font-size:20px;">TL</text><polygon class="svg-node" points="720,110 635,210 805,210"/><text class="svg-label" x="720" y="194" text-anchor="middle" style="font-size:20px;">TR</text><rect class="svg-node" x="496" y="15" width="108" height="50" rx="25"/><text class="svg-label" x="550" y="49.72" text-anchor="middle" style="font-size:27px;">root</text><text class="f-ink-soft" x="380" y="244" text-anchor="middle" style="font-size:22px; font-weight:600;">left subtree</text><text class="f-ink-soft" x="720" y="244" text-anchor="middle" style="font-size:22px; font-weight:600;">right subtree</text></g>
+</svg></div>
+      <div class="fragment"><pre><code class="language-cpp" data-trim>
+struct Node {
+    int info;        // the value
+    Node* left;      // root of the left subtree, or nullptr
+    Node* right;     // root of the right subtree, or nullptr
+};
+      </code></pre></div>
+    </section>
+
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="b">
+        <p class="quiz-question">A tree is a root with two children, and both children are leaves. With the definitions of this course, what are the <em>height of the tree</em> and the <em>depth of the leaves</em>?</p>
+        <button class="quiz-option" data-opt="a">Height 2 and depth 1: the longest path has two nodes.</button>
+        <button class="quiz-option" data-opt="b">Height 1 and depth 1: both count the edges of a path.</button>
+        <button class="quiz-option" data-opt="c">Height 1 and depth 2: the root is at depth 1.</button>
+        <div class="quiz-explain">
+          <strong>B.</strong> The longest path from the root down to a leaf has one edge, so the height is 1; one edge separates the root from each leaf, so their depth is 1.
+          A counts nodes instead of edges: some books do (there a leaf has height 1), but here a leaf has height 0.
+          C starts the depths at 1, but the root is at depth 0.
+        </div>
+      </div>
+    </section>
+
+    <section class="divider">
+      <h2>12.2 Traversals</h2>
+    </section>
+
+    <section>
+      <span class="kicker">12.2 · Traversals</span>
+      <h2>Three orders: when do you visit the root?</h2>
+      <table>
+        <thead><tr><th>Traversal</th><th>1st</th><th>2nd</th><th>3rd</th></tr></thead>
+        <tbody>
+          <tr class="fragment"><td>Preorder</td><td><strong>root</strong></td><td>left subtree</td><td>right subtree</td></tr>
+          <tr class="fragment"><td>Inorder</td><td>left subtree</td><td><strong>root</strong></td><td>right subtree</td></tr>
+          <tr class="fragment"><td>Postorder</td><td>left subtree</td><td>right subtree</td><td><strong>root</strong></td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li class="fragment">A <span class="term" data-term="traversal">traversal</span> visits every node exactly once. "Visit" means do something with the node: print it, count it, delete it.</li>
+        <li class="fragment">Left always goes before right. Each subtree is traversed with the same rule, so the code is recursive.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">12.2 · Traversals</span>
+      <h2>Preorder: the root first, then left, then right</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="550" y1="30" x2="290" y2="98"/><line class="svg-edge" x1="550" y1="30" x2="810" y2="98"/><line class="svg-edge" x1="290" y1="98" x2="170" y2="166"/><line class="svg-edge" x1="290" y1="98" x2="410" y2="166"/><line class="svg-edge" x1="810" y1="98" x2="690" y2="166"/><line class="svg-edge" x1="810" y1="98" x2="930" y2="166"/><line class="svg-edge" x1="170" y1="166" x2="90" y2="234"/><line class="svg-edge" x1="170" y1="166" x2="250" y2="234"/><line class="svg-edge" x1="690" y1="166" x2="760" y2="234"/><line class="svg-edge" x1="930" y1="166" x2="1010" y2="234"/><line class="svg-edge" x1="250" y1="234" x2="190" y2="302"/><line class="svg-edge" x1="1010" y1="234" x2="950" y2="302"/><rect class="svg-node" x="516" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node" x="256" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="105.92" text-anchor="middle" style="font-size:22px;">689</text><rect class="svg-node" x="767" y="78" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="105.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="136" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="173.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node" x="376" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">702</text><rect class="svg-node" x="647" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">1040</text><rect class="svg-node" x="887" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="173.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node" x="65" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="241.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="216" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="250" y="241.92" text-anchor="middle" style="font-size:22px;">250</text><rect class="svg-node" x="717" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="760" y="241.92" text-anchor="middle" style="font-size:22px;">1500</text><rect class="svg-node" x="967" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="241.92" text-anchor="middle" style="font-size:22px;">3300</text><rect class="svg-node" x="156" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="190" y="309.92" text-anchor="middle" style="font-size:22px;">178</text><rect class="svg-node" x="907" y="282" width="86" height="40" rx="20"/><text class="svg-label" x="950" y="309.92" text-anchor="middle" style="font-size:22px;">2504</text></g>
+<g class="anim-step" data-step="1"><rect class="svg-node-hl" x="516" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-accent" x="550" y="67" text-anchor="middle" style="font-size:16px; font-weight:700;">1</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><rect class="svg-node-hl" x="516" y="10" width="68" height="40" rx="20"/><rect x="516" y="10" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">start at the root: it is visited first, before its subtrees</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710</text></g>
+<g class="anim-step" data-step="2"><rect class="svg-node-hl" x="256" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="105.92" text-anchor="middle" style="font-size:22px;">689</text><text class="f-accent" x="290" y="135" text-anchor="middle" style="font-size:16px; font-weight:700;">2</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><rect class="svg-node-hl" x="256" y="78" width="68" height="40" rx="20"/><rect x="256" y="78" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="290" y="105.92" text-anchor="middle" style="font-size:22px;">689</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">then the left subtree of 710 · its root comes first: visit 689</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689</text></g>
+<g class="anim-step" data-step="3"><rect class="svg-node-hl" x="136" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="173.92" text-anchor="middle" style="font-size:22px;">143</text><text class="f-accent" x="170" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">3</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><rect class="svg-node-hl" x="136" y="146" width="68" height="40" rx="20"/><rect x="136" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="170" y="173.92" text-anchor="middle" style="font-size:22px;">143</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the same rule one step down: visit 143, then go left</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143</text></g>
+<g class="anim-step" data-step="4"><rect class="svg-node-hl" x="65" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="241.92" text-anchor="middle" style="font-size:22px;">70</text><text class="f-accent" x="90" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">4</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><rect class="svg-node-hl" x="65" y="214" width="50" height="40" rx="20"/><rect x="65" y="214" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="90" y="241.92" text-anchor="middle" style="font-size:22px;">70</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">visit 70 · it has no children, so this subtree is finished</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70</text></g>
+<g class="anim-step" data-step="5"><rect class="svg-node-hl" x="216" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="250" y="241.92" text-anchor="middle" style="font-size:22px;">250</text><text class="f-accent" x="250" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">5</text></g>
+<g class="anim-step" data-step="5" data-step-off="6"><rect class="svg-node-hl" x="216" y="214" width="68" height="40" rx="20"/><rect x="216" y="214" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="250" y="241.92" text-anchor="middle" style="font-size:22px;">250</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">back to 143: its left subtree is finished, now the right one · visit 250</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70 250</text></g>
+<g class="anim-step" data-step="6"><rect class="svg-node-hl" x="156" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="190" y="309.92" text-anchor="middle" style="font-size:22px;">178</text><text class="f-accent" x="190" y="339" text-anchor="middle" style="font-size:16px; font-weight:700;">6</text></g>
+<g class="anim-step" data-step="6" data-step-off="7"><rect class="svg-node-hl" x="156" y="282" width="68" height="40" rx="20"/><rect x="156" y="282" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="190" y="309.92" text-anchor="middle" style="font-size:22px;">178</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">250 has a left child: visit 178</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70 250 178</text></g>
+<g class="anim-step" data-step="7"><rect class="svg-node-hl" x="376" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">702</text><text class="f-accent" x="410" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">7</text></g>
+<g class="anim-step" data-step="7" data-step-off="8"><rect class="svg-node-hl" x="376" y="146" width="68" height="40" rx="20"/><rect x="376" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">702</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the subtree of 143 is finished → back to 689, now its right subtree · visit 702</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70 250 178 702</text></g>
+<g class="anim-step" data-step="8"><rect class="svg-node-hl" x="767" y="78" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="105.92" text-anchor="middle" style="font-size:22px;">2000</text><text class="f-accent" x="810" y="135" text-anchor="middle" style="font-size:16px; font-weight:700;">8</text></g>
+<g class="anim-step" data-step="8" data-step-off="9"><rect class="svg-node-hl" x="767" y="78" width="86" height="40" rx="20"/><rect x="767" y="78" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="810" y="105.92" text-anchor="middle" style="font-size:22px;">2000</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the left subtree of 710 is finished → now its right subtree · visit 2000</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70 250 178 702 2000</text></g>
+<g class="anim-step" data-step="9"><rect class="svg-node-hl" x="647" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">1040</text><text class="f-accent" x="690" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">9</text></g>
+<g class="anim-step" data-step="9" data-step-off="10"><rect class="svg-node-hl" x="647" y="146" width="86" height="40" rx="20"/><rect x="647" y="146" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">1040</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the left subtree of 2000: visit 1040</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70 250 178 702 2000 1040</text></g>
+<g class="anim-step" data-step="10"><rect class="svg-node-hl" x="717" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="760" y="241.92" text-anchor="middle" style="font-size:22px;">1500</text><text class="f-accent" x="760" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">10</text></g>
+<g class="anim-step" data-step="10" data-step-off="11"><rect class="svg-node-hl" x="717" y="214" width="86" height="40" rx="20"/><rect x="717" y="214" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="760" y="241.92" text-anchor="middle" style="font-size:22px;">1500</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">1040 has no left child, so its right subtree is next · visit 1500</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70 250 178 702 2000 1040 1500</text></g>
+<g class="anim-step" data-step="11"><rect class="svg-node-hl" x="887" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="173.92" text-anchor="middle" style="font-size:22px;">2099</text><text class="f-accent" x="930" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">11</text></g>
+<g class="anim-step" data-step="11" data-step-off="12"><rect class="svg-node-hl" x="887" y="146" width="86" height="40" rx="20"/><rect x="887" y="146" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="930" y="173.92" text-anchor="middle" style="font-size:22px;">2099</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">back to 2000, now its right subtree · visit 2099</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70 250 178 702 2000 1040 1500 2099</text></g>
+<g class="anim-step" data-step="12"><rect class="svg-node-hl" x="967" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="241.92" text-anchor="middle" style="font-size:22px;">3300</text><text class="f-accent" x="1010" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">12</text></g>
+<g class="anim-step" data-step="12" data-step-off="13"><rect class="svg-node-hl" x="967" y="214" width="86" height="40" rx="20"/><rect x="967" y="214" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="1010" y="241.92" text-anchor="middle" style="font-size:22px;">3300</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">2099 has no left child → its right subtree · visit 3300</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70 250 178 702 2000 1040 1500 2099 3300</text></g>
+<g class="anim-step" data-step="13"><rect class="svg-node-hl" x="907" y="282" width="86" height="40" rx="20"/><text class="svg-label" x="950" y="309.92" text-anchor="middle" style="font-size:22px;">2504</text><text class="f-accent" x="950" y="339" text-anchor="middle" style="font-size:16px; font-weight:700;">13</text></g>
+<g class="anim-step" data-step="13"><rect class="svg-node-hl" x="907" y="282" width="86" height="40" rx="20"/><rect x="907" y="282" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="950" y="309.92" text-anchor="middle" style="font-size:22px;">2504</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">3300 has a left child: visit 2504 · every node was visited exactly once</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 710 689 143 70 250 178 702 2000 1040 1500 2099 3300 2504</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <p class="muted">Tree from de la Cueva et al. (2020), Fig. 9.8. The small numbers give the order of the visits.</p>
+    </section>
+
+    <section>
+      <span class="kicker">12.2 · Traversals</span>
+      <h2>Inorder: left subtree, then the root, then right</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="550" y1="30" x2="290" y2="98"/><line class="svg-edge" x1="550" y1="30" x2="810" y2="98"/><line class="svg-edge" x1="290" y1="98" x2="170" y2="166"/><line class="svg-edge" x1="290" y1="98" x2="410" y2="166"/><line class="svg-edge" x1="810" y1="98" x2="690" y2="166"/><line class="svg-edge" x1="810" y1="98" x2="930" y2="166"/><line class="svg-edge" x1="170" y1="166" x2="90" y2="234"/><line class="svg-edge" x1="170" y1="166" x2="250" y2="234"/><line class="svg-edge" x1="690" y1="166" x2="760" y2="234"/><line class="svg-edge" x1="930" y1="166" x2="1010" y2="234"/><line class="svg-edge" x1="250" y1="234" x2="190" y2="302"/><line class="svg-edge" x1="1010" y1="234" x2="950" y2="302"/><rect class="svg-node" x="516" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node" x="256" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="105.92" text-anchor="middle" style="font-size:22px;">689</text><rect class="svg-node" x="767" y="78" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="105.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="136" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="173.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node" x="376" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">702</text><rect class="svg-node" x="647" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">1040</text><rect class="svg-node" x="887" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="173.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node" x="65" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="241.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="216" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="250" y="241.92" text-anchor="middle" style="font-size:22px;">250</text><rect class="svg-node" x="717" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="760" y="241.92" text-anchor="middle" style="font-size:22px;">1500</text><rect class="svg-node" x="967" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="241.92" text-anchor="middle" style="font-size:22px;">3300</text><rect class="svg-node" x="156" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="190" y="309.92" text-anchor="middle" style="font-size:22px;">178</text><rect class="svg-node" x="907" y="282" width="86" height="40" rx="20"/><text class="svg-label" x="950" y="309.92" text-anchor="middle" style="font-size:22px;">2504</text></g>
+<g class="anim-step" data-step="1"><rect class="svg-node-hl" x="65" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="241.92" text-anchor="middle" style="font-size:22px;">70</text><text class="f-accent" x="90" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">1</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><rect class="svg-node-hl" x="65" y="214" width="50" height="40" rx="20"/><rect x="65" y="214" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="90" y="241.92" text-anchor="middle" style="font-size:22px;">70</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">go left until there is no left child: 710, 689 and 143 wait · visit 70</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70</text></g>
+<g class="anim-step" data-step="2"><rect class="svg-node-hl" x="136" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="173.92" text-anchor="middle" style="font-size:22px;">143</text><text class="f-accent" x="170" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">2</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><rect class="svg-node-hl" x="136" y="146" width="68" height="40" rx="20"/><rect x="136" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="170" y="173.92" text-anchor="middle" style="font-size:22px;">143</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the left subtree of 143 is finished → visit 143</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143</text></g>
+<g class="anim-step" data-step="3"><rect class="svg-node-hl" x="156" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="190" y="309.92" text-anchor="middle" style="font-size:22px;">178</text><text class="f-accent" x="190" y="339" text-anchor="middle" style="font-size:16px; font-weight:700;">3</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><rect class="svg-node-hl" x="156" y="282" width="68" height="40" rx="20"/><rect x="156" y="282" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="190" y="309.92" text-anchor="middle" style="font-size:22px;">178</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">now the right subtree of 143 · 250 waits for its left subtree: visit 178</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178</text></g>
+<g class="anim-step" data-step="4"><rect class="svg-node-hl" x="216" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="250" y="241.92" text-anchor="middle" style="font-size:22px;">250</text><text class="f-accent" x="250" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">4</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><rect class="svg-node-hl" x="216" y="214" width="68" height="40" rx="20"/><rect x="216" y="214" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="250" y="241.92" text-anchor="middle" style="font-size:22px;">250</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the left subtree of 250 is finished → visit 250</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250</text></g>
+<g class="anim-step" data-step="5"><rect class="svg-node-hl" x="256" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="105.92" text-anchor="middle" style="font-size:22px;">689</text><text class="f-accent" x="290" y="135" text-anchor="middle" style="font-size:16px; font-weight:700;">5</text></g>
+<g class="anim-step" data-step="5" data-step-off="6"><rect class="svg-node-hl" x="256" y="78" width="68" height="40" rx="20"/><rect x="256" y="78" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="290" y="105.92" text-anchor="middle" style="font-size:22px;">689</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the left subtree of 689 is finished → visit 689</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250 689</text></g>
+<g class="anim-step" data-step="6"><rect class="svg-node-hl" x="376" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">702</text><text class="f-accent" x="410" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">6</text></g>
+<g class="anim-step" data-step="6" data-step-off="7"><rect class="svg-node-hl" x="376" y="146" width="68" height="40" rx="20"/><rect x="376" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">702</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">then the right subtree of 689: visit 702</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250 689 702</text></g>
+<g class="anim-step" data-step="7"><rect class="svg-node-hl" x="516" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-accent" x="550" y="67" text-anchor="middle" style="font-size:16px; font-weight:700;">7</text></g>
+<g class="anim-step" data-step="7" data-step-off="8"><rect class="svg-node-hl" x="516" y="10" width="68" height="40" rx="20"/><rect x="516" y="10" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the whole left subtree of the root is finished → only now visit 710</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250 689 702 710</text></g>
+<g class="anim-step" data-step="8"><rect class="svg-node-hl" x="647" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">1040</text><text class="f-accent" x="690" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">8</text></g>
+<g class="anim-step" data-step="8" data-step-off="9"><rect class="svg-node-hl" x="647" y="146" width="86" height="40" rx="20"/><rect x="647" y="146" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">1040</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">right subtree: 2000 waits · 1040 has no left child → visit 1040</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250 689 702 710 1040</text></g>
+<g class="anim-step" data-step="9"><rect class="svg-node-hl" x="717" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="760" y="241.92" text-anchor="middle" style="font-size:22px;">1500</text><text class="f-accent" x="760" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">9</text></g>
+<g class="anim-step" data-step="9" data-step-off="10"><rect class="svg-node-hl" x="717" y="214" width="86" height="40" rx="20"/><rect x="717" y="214" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="760" y="241.92" text-anchor="middle" style="font-size:22px;">1500</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">then the right subtree of 1040: visit 1500</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250 689 702 710 1040 1500</text></g>
+<g class="anim-step" data-step="10"><rect class="svg-node-hl" x="767" y="78" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="105.92" text-anchor="middle" style="font-size:22px;">2000</text><text class="f-accent" x="810" y="135" text-anchor="middle" style="font-size:16px; font-weight:700;">10</text></g>
+<g class="anim-step" data-step="10" data-step-off="11"><rect class="svg-node-hl" x="767" y="78" width="86" height="40" rx="20"/><rect x="767" y="78" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="810" y="105.92" text-anchor="middle" style="font-size:22px;">2000</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the left subtree of 2000 is finished → visit 2000</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250 689 702 710 1040 1500 2000</text></g>
+<g class="anim-step" data-step="11"><rect class="svg-node-hl" x="887" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="173.92" text-anchor="middle" style="font-size:22px;">2099</text><text class="f-accent" x="930" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">11</text></g>
+<g class="anim-step" data-step="11" data-step-off="12"><rect class="svg-node-hl" x="887" y="146" width="86" height="40" rx="20"/><rect x="887" y="146" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="930" y="173.92" text-anchor="middle" style="font-size:22px;">2099</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the right subtree of 2000 · 2099 has no left child → visit 2099</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250 689 702 710 1040 1500 2000 2099</text></g>
+<g class="anim-step" data-step="12"><rect class="svg-node-hl" x="907" y="282" width="86" height="40" rx="20"/><text class="svg-label" x="950" y="309.92" text-anchor="middle" style="font-size:22px;">2504</text><text class="f-accent" x="950" y="339" text-anchor="middle" style="font-size:16px; font-weight:700;">12</text></g>
+<g class="anim-step" data-step="12" data-step-off="13"><rect class="svg-node-hl" x="907" y="282" width="86" height="40" rx="20"/><rect x="907" y="282" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="950" y="309.92" text-anchor="middle" style="font-size:22px;">2504</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">3300 waits for its left subtree: visit 2504</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250 689 702 710 1040 1500 2000 2099 2504</text></g>
+<g class="anim-step" data-step="13"><rect class="svg-node-hl" x="967" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="241.92" text-anchor="middle" style="font-size:22px;">3300</text><text class="f-accent" x="1010" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">13</text></g>
+<g class="anim-step" data-step="13"><rect class="svg-node-hl" x="967" y="214" width="86" height="40" rx="20"/><rect x="967" y="214" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="1010" y="241.92" text-anchor="middle" style="font-size:22px;">3300</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">visit 3300 · look at the output: it came out in ascending order</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 143 178 250 689 702 710 1040 1500 2000 2099 2504 3300</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <p class="muted">Tree from de la Cueva et al. (2020), Fig. 9.8. The small numbers give the order of the visits.</p>
+    </section>
+
+    <section>
+      <span class="kicker">12.2 · Traversals</span>
+      <h2>Postorder: both subtrees first, the root last</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="550" y1="30" x2="290" y2="98"/><line class="svg-edge" x1="550" y1="30" x2="810" y2="98"/><line class="svg-edge" x1="290" y1="98" x2="170" y2="166"/><line class="svg-edge" x1="290" y1="98" x2="410" y2="166"/><line class="svg-edge" x1="810" y1="98" x2="690" y2="166"/><line class="svg-edge" x1="810" y1="98" x2="930" y2="166"/><line class="svg-edge" x1="170" y1="166" x2="90" y2="234"/><line class="svg-edge" x1="170" y1="166" x2="250" y2="234"/><line class="svg-edge" x1="690" y1="166" x2="760" y2="234"/><line class="svg-edge" x1="930" y1="166" x2="1010" y2="234"/><line class="svg-edge" x1="250" y1="234" x2="190" y2="302"/><line class="svg-edge" x1="1010" y1="234" x2="950" y2="302"/><rect class="svg-node" x="516" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node" x="256" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="105.92" text-anchor="middle" style="font-size:22px;">689</text><rect class="svg-node" x="767" y="78" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="105.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="136" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="173.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node" x="376" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">702</text><rect class="svg-node" x="647" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">1040</text><rect class="svg-node" x="887" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="173.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node" x="65" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="241.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="216" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="250" y="241.92" text-anchor="middle" style="font-size:22px;">250</text><rect class="svg-node" x="717" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="760" y="241.92" text-anchor="middle" style="font-size:22px;">1500</text><rect class="svg-node" x="967" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="241.92" text-anchor="middle" style="font-size:22px;">3300</text><rect class="svg-node" x="156" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="190" y="309.92" text-anchor="middle" style="font-size:22px;">178</text><rect class="svg-node" x="907" y="282" width="86" height="40" rx="20"/><text class="svg-label" x="950" y="309.92" text-anchor="middle" style="font-size:22px;">2504</text></g>
+<g class="anim-step" data-step="1"><rect class="svg-node-hl" x="65" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="241.92" text-anchor="middle" style="font-size:22px;">70</text><text class="f-accent" x="90" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">1</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><rect class="svg-node-hl" x="65" y="214" width="50" height="40" rx="20"/><rect x="65" y="214" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="90" y="241.92" text-anchor="middle" style="font-size:22px;">70</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">go down to the leftmost leaf · 70 has no subtrees, so it is visited at once</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70</text></g>
+<g class="anim-step" data-step="2"><rect class="svg-node-hl" x="156" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="190" y="309.92" text-anchor="middle" style="font-size:22px;">178</text><text class="f-accent" x="190" y="339" text-anchor="middle" style="font-size:16px; font-weight:700;">2</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><rect class="svg-node-hl" x="156" y="282" width="68" height="40" rx="20"/><rect x="156" y="282" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="190" y="309.92" text-anchor="middle" style="font-size:22px;">178</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">143 must wait for its right subtree · inside it, 178 is a leaf: visit 178</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178</text></g>
+<g class="anim-step" data-step="3"><rect class="svg-node-hl" x="216" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="250" y="241.92" text-anchor="middle" style="font-size:22px;">250</text><text class="f-accent" x="250" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">3</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><rect class="svg-node-hl" x="216" y="214" width="68" height="40" rx="20"/><rect x="216" y="214" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="250" y="241.92" text-anchor="middle" style="font-size:22px;">250</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">both subtrees of 250 are finished (the right one is empty) → visit 250</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250</text></g>
+<g class="anim-step" data-step="4"><rect class="svg-node-hl" x="136" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="173.92" text-anchor="middle" style="font-size:22px;">143</text><text class="f-accent" x="170" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">4</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><rect class="svg-node-hl" x="136" y="146" width="68" height="40" rx="20"/><rect x="136" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="170" y="173.92" text-anchor="middle" style="font-size:22px;">143</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">both subtrees of 143 are finished → visit 143</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143</text></g>
+<g class="anim-step" data-step="5"><rect class="svg-node-hl" x="376" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">702</text><text class="f-accent" x="410" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">5</text></g>
+<g class="anim-step" data-step="5" data-step-off="6"><rect class="svg-node-hl" x="376" y="146" width="68" height="40" rx="20"/><rect x="376" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">702</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">689 must wait for its right subtree: visit 702</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143 702</text></g>
+<g class="anim-step" data-step="6"><rect class="svg-node-hl" x="256" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="105.92" text-anchor="middle" style="font-size:22px;">689</text><text class="f-accent" x="290" y="135" text-anchor="middle" style="font-size:16px; font-weight:700;">6</text></g>
+<g class="anim-step" data-step="6" data-step-off="7"><rect class="svg-node-hl" x="256" y="78" width="68" height="40" rx="20"/><rect x="256" y="78" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="290" y="105.92" text-anchor="middle" style="font-size:22px;">689</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">both subtrees of 689 are finished → visit 689</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143 702 689</text></g>
+<g class="anim-step" data-step="7"><rect class="svg-node-hl" x="717" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="760" y="241.92" text-anchor="middle" style="font-size:22px;">1500</text><text class="f-accent" x="760" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">7</text></g>
+<g class="anim-step" data-step="7" data-step-off="8"><rect class="svg-node-hl" x="717" y="214" width="86" height="40" rx="20"/><rect x="717" y="214" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="760" y="241.92" text-anchor="middle" style="font-size:22px;">1500</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the root must wait for its whole right subtree · deepest first: visit 1500</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143 702 689 1500</text></g>
+<g class="anim-step" data-step="8"><rect class="svg-node-hl" x="647" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">1040</text><text class="f-accent" x="690" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">8</text></g>
+<g class="anim-step" data-step="8" data-step-off="9"><rect class="svg-node-hl" x="647" y="146" width="86" height="40" rx="20"/><rect x="647" y="146" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">1040</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">both subtrees of 1040 are finished → visit 1040</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143 702 689 1500 1040</text></g>
+<g class="anim-step" data-step="9"><rect class="svg-node-hl" x="907" y="282" width="86" height="40" rx="20"/><text class="svg-label" x="950" y="309.92" text-anchor="middle" style="font-size:22px;">2504</text><text class="f-accent" x="950" y="339" text-anchor="middle" style="font-size:16px; font-weight:700;">9</text></g>
+<g class="anim-step" data-step="9" data-step-off="10"><rect class="svg-node-hl" x="907" y="282" width="86" height="40" rx="20"/><rect x="907" y="282" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="950" y="309.92" text-anchor="middle" style="font-size:22px;">2504</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">2000 must wait for its right subtree · deepest first: visit 2504</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143 702 689 1500 1040 2504</text></g>
+<g class="anim-step" data-step="10"><rect class="svg-node-hl" x="967" y="214" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="241.92" text-anchor="middle" style="font-size:22px;">3300</text><text class="f-accent" x="1010" y="271" text-anchor="middle" style="font-size:16px; font-weight:700;">10</text></g>
+<g class="anim-step" data-step="10" data-step-off="11"><rect class="svg-node-hl" x="967" y="214" width="86" height="40" rx="20"/><rect x="967" y="214" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="1010" y="241.92" text-anchor="middle" style="font-size:22px;">3300</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">both subtrees of 3300 are finished → visit 3300</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143 702 689 1500 1040 2504 3300</text></g>
+<g class="anim-step" data-step="11"><rect class="svg-node-hl" x="887" y="146" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="173.92" text-anchor="middle" style="font-size:22px;">2099</text><text class="f-accent" x="930" y="203" text-anchor="middle" style="font-size:16px; font-weight:700;">11</text></g>
+<g class="anim-step" data-step="11" data-step-off="12"><rect class="svg-node-hl" x="887" y="146" width="86" height="40" rx="20"/><rect x="887" y="146" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="930" y="173.92" text-anchor="middle" style="font-size:22px;">2099</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">both subtrees of 2099 are finished → visit 2099</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143 702 689 1500 1040 2504 3300 2099</text></g>
+<g class="anim-step" data-step="12"><rect class="svg-node-hl" x="767" y="78" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="105.92" text-anchor="middle" style="font-size:22px;">2000</text><text class="f-accent" x="810" y="135" text-anchor="middle" style="font-size:16px; font-weight:700;">12</text></g>
+<g class="anim-step" data-step="12" data-step-off="13"><rect class="svg-node-hl" x="767" y="78" width="86" height="40" rx="20"/><rect x="767" y="78" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="810" y="105.92" text-anchor="middle" style="font-size:22px;">2000</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">both subtrees of 2000 are finished → visit 2000</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143 702 689 1500 1040 2504 3300 2099 2000</text></g>
+<g class="anim-step" data-step="13"><rect class="svg-node-hl" x="516" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-accent" x="550" y="67" text-anchor="middle" style="font-size:16px; font-weight:700;">13</text></g>
+<g class="anim-step" data-step="13"><rect class="svg-node-hl" x="516" y="10" width="68" height="40" rx="20"/><rect x="516" y="10" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-accent" x="40" y="370" style="font-size:22px; font-weight:700;">the root is last · every child was visited before its parent</text><text class="svg-label" x="40" y="406" style="font-size:20px; font-family: var(--font-mono);">output: 70 178 250 143 702 689 1500 1040 2504 3300 2099 2000 710</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <p class="muted">Tree from de la Cueva et al. (2020), Fig. 9.8. The small numbers give the order of the visits.</p>
+    </section>
+
+    <section>
+      <span class="kicker">12.2 · Traversals</span>
+      <h2>Three lines of recursion; only the visit moves</h2>
+      <pre data-title="bst.hpp"><code class="language-cpp" data-trim data-line-numbers="1-6|2|3|4|5">
+void inorder(Node* n) const {
+    if (n == nullptr) return;        // empty subtree: nothing to do
+    inorder(n-&gt;left);                // 1. the left subtree
+    std::cout &lt;&lt; n-&gt;info &lt;&lt; " ";     // 2. the root
+    inorder(n-&gt;right);               // 3. the right subtree
+}
+      </code></pre>
+      <ul>
+        <li class="fragment">This is inorder. Line 4 first gives preorder; line 4 last gives postorder.</li>
+        <li class="fragment">Postorder with <code>delete n</code> instead of the print frees a whole tree.</li>
+      </ul>
+      <div class="box-key fragment">Every traversal visits each node once: O(n).</div>
+    </section>
+
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="a">
+        <p class="quiz-question">A binary tree has root 5. Its left child is 3, with children 1 and 4; its right child is 8. Which traversal prints <em>1 4 3 8 5</em>?</p>
+        <button class="quiz-option" data-opt="a">Postorder: each node comes after both of its subtrees.</button>
+        <button class="quiz-option" data-opt="b">Inorder: each node comes between its two subtrees.</button>
+        <button class="quiz-option" data-opt="c">Preorder: each node comes before both of its subtrees.</button>
+        <div class="quiz-explain">
+          <strong>A.</strong> In postorder the root 5 is last, and 3 comes right after its children 1 and 4.
+          Inorder prints 1 3 4 5 8, with the root between its subtrees.
+          Preorder prints 5 3 1 4 8, with the root first.
+        </div>
+      </div>
+    </section>
+
+    <section class="divider">
+      <h2>12.3 Search and insertion</h2>
+    </section>
+
+    <section>
+      <span class="kicker">12.3 · Search and insertion</span>
+      <h2>Smaller to the left, greater to the right</h2>
+      <ul>
+        <li class="fragment">A <span class="term" data-term="bst">binary search tree</span> (BST) is a binary tree with an order rule: at every node, all the values in its left <span class="term" data-term="subtree">subtree</span> are smaller than the node, and all the values in its right subtree are greater.</li>
+        <li class="fragment">That is why inorder printed 70, 143, 178, … in ascending order: left subtree, root, right subtree is "smaller, me, greater".</li>
+        <li class="fragment">In our examples, values do not repeat.</li>
+      </ul>
+      <div class="box-key fragment">At each node, the order rule tells you which subtree you can ignore.</div>
+    </section>
+
+    <section>
+      <span class="kicker">12.3 · Search and insertion</span>
+      <h2>The rule covers whole subtrees, not only children</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="550" y1="40" x2="290" y2="125"/><line class="svg-edge" x1="550" y1="40" x2="810" y2="125"/><line class="svg-edge" x1="290" y1="125" x2="170" y2="210"/><line class="svg-edge" x1="290" y1="125" x2="410" y2="210"/><line class="svg-edge" x1="810" y1="125" x2="690" y2="210"/><line class="svg-edge" x1="810" y1="125" x2="930" y2="210"/><line class="svg-edge" x1="170" y1="210" x2="90" y2="295"/><line class="svg-edge" x1="930" y1="210" x2="1010" y2="295"/><rect class="svg-node" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node" x="256" y="105" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="132.92" text-anchor="middle" style="font-size:22px;">689</text><rect class="svg-node" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="136" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="217.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node" x="376" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="217.92" text-anchor="middle" style="font-size:22px;">702</text><rect class="svg-node" x="647" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text><rect class="svg-node" x="887" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="217.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node" x="65" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="302.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="967" y="275" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="302.92" text-anchor="middle" style="font-size:22px;">3300</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><rect class="svg-node-hl" x="256" y="105" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="132.92" text-anchor="middle" style="font-size:22px;">689</text><rect class="svg-node-hl" x="136" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="217.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node-hl" x="376" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="217.92" text-anchor="middle" style="font-size:22px;">702</text><rect class="svg-node-hl" x="65" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="302.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="767" y="105" width="86" height="40" rx="20"/><rect x="767" y="105" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="647" y="190" width="86" height="40" rx="20"/><rect x="647" y="190" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text><rect class="svg-node" x="887" y="190" width="86" height="40" rx="20"/><rect x="887" y="190" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="930" y="217.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node" x="967" y="275" width="86" height="40" rx="20"/><rect x="967" y="275" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="1010" y="302.92" text-anchor="middle" style="font-size:22px;">3300</text><rect class="svg-node" x="516" y="20" width="68" height="40" rx="20"/><rect x="516" y="20" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-accent" x="170" y="70" text-anchor="middle" style="font-size:20px; font-weight:700;">all smaller than 710</text><text class="f-ok" x="930" y="70" text-anchor="middle" style="font-size:20px; font-weight:700;">all greater than 710</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">At 710: everything in the left subtree is smaller, everything in the right subtree is greater</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">four nodes on each side, not only the two children</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><rect class="svg-node-hl" x="647" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text><rect class="svg-node" x="887" y="190" width="86" height="40" rx="20"/><rect x="887" y="190" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="930" y="217.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node" x="967" y="275" width="86" height="40" rx="20"/><rect x="967" y="275" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="1010" y="302.92" text-anchor="middle" style="font-size:22px;">3300</text><rect class="svg-node" x="767" y="105" width="86" height="40" rx="20"/><rect x="767" y="105" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">The same rule at 2000: 1040 is smaller · 2099 and 3300 are greater</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">and at every other node: each subtree is a binary search tree too</text></g>
+<g class="anim-step" data-step="3"><rect class="svg-node" x="376" y="190" width="68" height="40" rx="20"/><rect x="376" y="190" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="410" y="217.92" text-anchor="middle" style="font-size:22px;">720</text><rect class="svg-node" x="516" y="20" width="68" height="40" rx="20"/><rect x="516" y="20" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-accent"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-err" x="40" y="372" style="font-size:24px; font-weight:600;">Change 702 to 720: fine for its parent (720 &gt; 689), but 720 is in the left subtree of 710</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">not a BST · comparing each node only with its children is not enough</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <p class="muted">Tree from de la Cueva et al. (2020), Fig. 9.4.</p>
+    </section>
+
+    <section>
+      <span class="kicker">12.3 · Search and insertion</span>
+      <h2>Each comparison discards a whole subtree</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="550" y1="40" x2="290" y2="125"/><line class="svg-edge" x1="550" y1="40" x2="810" y2="125"/><line class="svg-edge" x1="290" y1="125" x2="170" y2="210"/><line class="svg-edge" x1="290" y1="125" x2="410" y2="210"/><line class="svg-edge" x1="810" y1="125" x2="690" y2="210"/><line class="svg-edge" x1="810" y1="125" x2="930" y2="210"/><line class="svg-edge" x1="170" y1="210" x2="90" y2="295"/><line class="svg-edge" x1="930" y1="210" x2="1010" y2="295"/><rect class="svg-node" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node" x="256" y="105" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="132.92" text-anchor="middle" style="font-size:22px;">689</text><rect class="svg-node" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="136" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="217.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node" x="376" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="217.92" text-anchor="middle" style="font-size:22px;">702</text><rect class="svg-node" x="647" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text><rect class="svg-node" x="887" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="217.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node" x="65" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="302.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="967" y="275" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="302.92" text-anchor="middle" style="font-size:22px;">3300</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><rect class="svg-node-hl" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">search(1040) · 1040 &gt; 710 → go right</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">the whole left subtree is discarded: 4 nodes you never look at</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><rect class="svg-node-hl" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node-hl" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">1040 &lt; 2000 → go left</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">discarded now: 2099 and 3300</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><rect class="svg-node-hl" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node-hl" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node-hl" x="647" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">1040 = 1040 → found</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">3 nodes visited out of 9</text></g>
+<g class="anim-step" data-step="4"><line class="svg-edge s-ink-faint" x1="690" y1="210" x2="620" y2="295" stroke-dasharray="6 6"/><rect class="svg-edge s-ink-faint" x="586" y="275" width="68" height="40" rx="20" stroke-dasharray="6 6"/><text class="f-ink-faint" x="620" y="302" text-anchor="middle" style="font-size:20px; font-weight:600;">null</text><rect class="svg-node-hl" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node-hl" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node-hl" x="647" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">search(800) · 800 &gt; 710, 800 &lt; 2000, 800 &lt; 1040 → that left link is null</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">not in the tree: the search ends exactly where 800 would be</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">12.3 · Search and insertion</span>
+      <h2>Search: one comparison, one step down</h2>
+      <pre data-title="bst.hpp"><code class="language-cpp" data-trim data-line-numbers="1-9|4|5-6|7|9">
+// struct Node { int info; Node* left; Node* right; };
+// class BST, private member: Node* root = nullptr;
+Node* search(Node* n, int x) const {          // private, recursive
+    if (n == nullptr) return nullptr;         // fell off: not found
+    if (x &lt; n-&gt;info) return search(n-&gt;left, x);
+    if (x &gt; n-&gt;info) return search(n-&gt;right, x);
+    return n;                                 // equal: found
+}
+Node* search(int x) const { return search(root, x); }   // public
+      </code></pre>
+      <ul>
+        <li class="fragment">The public method takes only the value; the private one also carries the root of the subtree it is looking at.</li>
+        <li class="fragment">It returns a pointer to the node, so the caller can use what is stored there.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">12.3 · Search and insertion</span>
+      <h2>Insert = search until you fall off the tree</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="550" y1="40" x2="290" y2="125"/><line class="svg-edge" x1="550" y1="40" x2="810" y2="125"/><line class="svg-edge" x1="290" y1="125" x2="170" y2="210"/><line class="svg-edge" x1="290" y1="125" x2="410" y2="210"/><line class="svg-edge" x1="810" y1="125" x2="690" y2="210"/><line class="svg-edge" x1="810" y1="125" x2="930" y2="210"/><line class="svg-edge" x1="170" y1="210" x2="90" y2="295"/><line class="svg-edge" x1="930" y1="210" x2="1010" y2="295"/><rect class="svg-node" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node" x="256" y="105" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="132.92" text-anchor="middle" style="font-size:22px;">689</text><rect class="svg-node" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="136" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="217.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node" x="376" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="217.92" text-anchor="middle" style="font-size:22px;">702</text><rect class="svg-node" x="647" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text><rect class="svg-node" x="887" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="217.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node" x="65" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="302.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="967" y="275" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="302.92" text-anchor="middle" style="font-size:22px;">3300</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><rect class="svg-node-hl" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">insert(1500) · 1500 &gt; 710 → go right</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><rect class="svg-node-hl" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node-hl" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">1500 &lt; 2000 → go left</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><line class="svg-edge s-ink-faint" x1="690" y1="210" x2="760" y2="295" stroke-dasharray="6 6"/><rect class="svg-edge s-ink-faint" x="726" y="275" width="68" height="40" rx="20" stroke-dasharray="6 6"/><text class="f-ink-faint" x="760" y="302" text-anchor="middle" style="font-size:20px; font-weight:600;">null</text><rect class="svg-node-hl" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node-hl" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node-hl" x="647" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">1500 &gt; 1040 → go right · that link is null</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">this is the only place where 1500 can go</text></g>
+<g class="anim-step" data-step="4"><line class="svg-edge" x1="690" y1="210" x2="760" y2="295"/><rect class="svg-node" x="647" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text><rect class="svg-node-hl" x="717" y="275" width="86" height="40" rx="20"/><text class="svg-label" x="760" y="302.92" text-anchor="middle" style="font-size:22px;">1500</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">The new node hangs from that link</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">a new value always enters as a leaf · no other node moves</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">12.3 · Search and insertion</span>
+      <h2>Insert: the null link becomes the new node</h2>
+      <pre data-title="bst.hpp"><code class="language-cpp" data-trim data-line-numbers="1-10|1|2-5|6-7|8">
+bool insert(Node*&amp; n, int x) {            // n: a reference to a link
+    if (n == nullptr) {                   // free spot found
+        n = new Node{x, nullptr, nullptr};
+        return true;
+    }
+    if (x &lt; n-&gt;info) return insert(n-&gt;left, x);
+    if (x &gt; n-&gt;info) return insert(n-&gt;right, x);
+    return false;                         // repeated value: rejected
+}
+bool insert(int x) { return insert(root, x); }   // public
+      </code></pre>
+      <ul>
+        <li class="fragment"><code>n</code> is not a copy: it is the tree's own pointer (<code>root</code>, or some node's <code>left</code> or <code>right</code>), so <code>n = new Node</code> connects the new node to the tree. Without the <code>&amp;</code>, the tree would not change.</li>
+      </ul>
+      <aside class="notes">
+        <p><strong>Why Node*&amp;:</strong> a pointer is a slip of paper with an address on it; the node is the house.</p>
+        <ul>
+          <li>By value = a <strong>photocopy</strong>: good enough to go to the house and paint it (n-&gt;info = 5). If you write a different address on the photocopy (n = new Node), the original does not change.</li>
+          <li>By reference = the <strong>original slip</strong>.</li>
+          <li>Key case: an empty tree. root says "no address", and insert has to write the address of the new node there.</li>
+          <li>Question for the class: will the function write a new address on the caller's slip? Yes &rarr; Node*&amp;. No &rarr; Node*.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="c">
+        <p class="quiz-question">You insert 50, 30, 70 and 60 into an empty BST, in that order. Then you insert <em>65</em>. Where does it go?</p>
+        <button class="quiz-option" data-opt="a">Left child of 70, because 65 is smaller than 70.</button>
+        <button class="quiz-option" data-opt="b">Right child of 30, the first node with a free link.</button>
+        <button class="quiz-option" data-opt="c">Right child of 60, after going right, left and right.</button>
+        <div class="quiz-explain">
+          <strong>C.</strong> 65 &gt; 50 → right; 65 &lt; 70 → left, where 60 already is; 65 &gt; 60 → right, a null link.
+          A stops one step early: the left link of 70 is taken by 60, and insert never replaces a node.
+          B fills the first free link it sees, but 65 is greater than 50, so it can never be in the left subtree of 50.
+        </div>
+      </div>
+    </section>
+
+    <section class="divider">
+      <h2>12.4 Deletion</h2>
+    </section>
+
+    <section>
+      <span class="kicker">12.4 · Deletion</span>
+      <h2>Deletion has three cases</h2>
+      <svg viewBox="0 0 1100 436" style="width:100%; max-height:436px;">
+<g><line class="svg-edge" x1="550" y1="40" x2="290" y2="125"/><line class="svg-edge" x1="550" y1="40" x2="810" y2="125"/><line class="svg-edge" x1="290" y1="125" x2="170" y2="210"/><line class="svg-edge" x1="290" y1="125" x2="410" y2="210"/><line class="svg-edge" x1="810" y1="125" x2="690" y2="210"/><rect class="svg-node" x="516" y="20" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="47.92" text-anchor="middle" style="font-size:22px;">710</text><rect class="svg-node" x="256" y="105" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="132.92" text-anchor="middle" style="font-size:22px;">689</text><rect class="svg-node" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="136" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="217.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node" x="376" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="217.92" text-anchor="middle" style="font-size:22px;">702</text><rect class="svg-node" x="647" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="690" y="217.92" text-anchor="middle" style="font-size:22px;">1040</text></g>
+<g class="anim-step" data-step="0" data-step-off="2"><line class="svg-edge" x1="170" y1="210" x2="90" y2="295"/><rect class="svg-node" x="136" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="217.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node" x="65" y="275" width="50" height="40" rx="20"/><text class="svg-label" x="90" y="302.92" text-anchor="middle" style="font-size:22px;">70</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><rect class="svg-node" x="65" y="275" width="50" height="40" rx="20"/><rect x="65" y="275" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="90" y="302.92" text-anchor="middle" style="font-size:22px;">70</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Case 1 · a leaf: remove(70)</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">delete the node · the left link of 143 becomes null</text></g>
+<g class="anim-step" data-step="0" data-step-off="3"><line class="svg-edge" x1="810" y1="125" x2="930" y2="210"/><line class="svg-edge" x1="930" y1="210" x2="1010" y2="295"/><rect class="svg-node" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="887" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="217.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node" x="967" y="275" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="302.92" text-anchor="middle" style="font-size:22px;">3300</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><rect class="svg-node" x="887" y="190" width="86" height="40" rx="20"/><rect x="887" y="190" width="86" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="930" y="217.92" text-anchor="middle" style="font-size:22px;">2099</text><rect class="svg-node-hl" x="967" y="275" width="86" height="40" rx="20"/><text class="svg-label" x="1010" y="302.92" text-anchor="middle" style="font-size:22px;">3300</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">Case 2 · one child: remove(2099)</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">its only child, 3300, can take its place</text></g>
+<g class="anim-step" data-step="3"><line class="svg-edge" x1="810" y1="125" x2="930" y2="210"/><rect class="svg-node" x="767" y="105" width="86" height="40" rx="20"/><text class="svg-label" x="810" y="132.92" text-anchor="middle" style="font-size:22px;">2000</text><rect class="svg-node" x="887" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="217.92" text-anchor="middle" style="font-size:22px;">3300</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><rect class="svg-node-hl" x="887" y="190" width="86" height="40" rx="20"/><text class="svg-label" x="930" y="217.92" text-anchor="middle" style="font-size:22px;">3300</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">2000 now points to 3300: the node is bypassed, then deleted</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">nothing else in the tree moves</text></g>
+<g class="anim-step" data-step="4"><rect class="svg-node" x="256" y="105" width="68" height="40" rx="20"/><rect x="256" y="105" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="290" y="132.92" text-anchor="middle" style="font-size:22px;">689</text><rect class="svg-node-hl" x="136" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="170" y="217.92" text-anchor="middle" style="font-size:22px;">143</text><rect class="svg-node-hl" x="376" y="190" width="68" height="40" rx="20"/><text class="svg-label" x="410" y="217.92" text-anchor="middle" style="font-size:22px;">702</text><text class="f-accent" x="40" y="346" style="font-size:24px; font-weight:700;">Case 3 · two children: remove(689)</text><text class="f-ink-soft" x="40" y="376" style="font-size:20px; font-weight:600;">two subtrees, but only one link from 710 · the node stays and receives a replacement value</text><rect class="f-ok-bg s-ok" stroke-width="2" x="40" y="388" width="840" height="38" rx="8"/><text class="f-ok" x="56" y="414" style="font-size:22px; font-weight:700;">Which value? One of its two neighbors in sorted order → next slide</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">12.4 · Deletion</span>
+      <h2>What can replace 50? One of its two neighbors</h2>
+      <svg viewBox="0 0 1100 468" style="width:100%; max-height:410px;">
+<g><line class="svg-edge" x1="270" y1="80" x2="130" y2="144"/><line class="svg-edge" x1="270" y1="80" x2="410" y2="144"/><line class="svg-edge" x1="130" y1="144" x2="60" y2="208"/><line class="svg-edge" x1="130" y1="144" x2="200" y2="208"/><line class="svg-edge" x1="410" y1="144" x2="340" y2="208"/><line class="svg-edge" x1="410" y1="144" x2="480" y2="208"/><line class="svg-edge" x1="200" y1="208" x2="160" y2="272"/><line class="svg-edge" x1="200" y1="208" x2="240" y2="272"/><line class="svg-edge" x1="340" y1="208" x2="300" y2="272"/><line class="svg-edge" x1="340" y1="208" x2="380" y2="272"/><line class="svg-edge" x1="240" y1="272" x2="215" y2="336"/><line class="svg-edge" x1="300" y1="272" x2="325" y2="336"/><rect class="svg-node" x="245" y="60" width="50" height="40" rx="20"/><text class="svg-label" x="270" y="87.92" text-anchor="middle" style="font-size:22px;">50</text><rect class="svg-node" x="105" y="124" width="50" height="40" rx="20"/><text class="svg-label" x="130" y="151.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node" x="385" y="124" width="50" height="40" rx="20"/><text class="svg-label" x="410" y="151.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="35" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="60" y="215.92" text-anchor="middle" style="font-size:22px;">20</text><rect class="svg-node" x="175" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="200" y="215.92" text-anchor="middle" style="font-size:22px;">40</text><rect class="svg-node" x="315" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="340" y="215.92" text-anchor="middle" style="font-size:22px;">60</text><rect class="svg-node" x="455" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="480" y="215.92" text-anchor="middle" style="font-size:22px;">80</text><rect class="svg-node" x="135" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="160" y="279.92" text-anchor="middle" style="font-size:22px;">35</text><rect class="svg-node" x="215" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="240" y="279.92" text-anchor="middle" style="font-size:22px;">45</text><rect class="svg-node" x="275" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="300" y="279.92" text-anchor="middle" style="font-size:22px;">55</text><rect class="svg-node" x="355" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="380" y="279.92" text-anchor="middle" style="font-size:22px;">65</text><rect class="svg-node" x="190" y="316" width="50" height="40" rx="20"/><text class="svg-label" x="215" y="343.92" text-anchor="middle" style="font-size:22px;">42</text><rect class="svg-node" x="300" y="316" width="50" height="40" rx="20"/><text class="svg-label" x="325" y="343.92" text-anchor="middle" style="font-size:22px;">57</text><line class="svg-edge" x1="830" y1="80" x2="690" y2="144"/><line class="svg-edge" x1="830" y1="80" x2="970" y2="144"/><line class="svg-edge" x1="690" y1="144" x2="620" y2="208"/><line class="svg-edge" x1="690" y1="144" x2="760" y2="208"/><line class="svg-edge" x1="970" y1="144" x2="900" y2="208"/><line class="svg-edge" x1="970" y1="144" x2="1040" y2="208"/><line class="svg-edge" x1="760" y1="208" x2="720" y2="272"/><line class="svg-edge" x1="760" y1="208" x2="800" y2="272"/><line class="svg-edge" x1="900" y1="208" x2="860" y2="272"/><line class="svg-edge" x1="900" y1="208" x2="940" y2="272"/><line class="svg-edge" x1="800" y1="272" x2="775" y2="336"/><line class="svg-edge" x1="860" y1="272" x2="885" y2="336"/><rect class="svg-node" x="805" y="60" width="50" height="40" rx="20"/><text class="svg-label" x="830" y="87.92" text-anchor="middle" style="font-size:22px;">50</text><rect class="svg-node" x="665" y="124" width="50" height="40" rx="20"/><text class="svg-label" x="690" y="151.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node" x="945" y="124" width="50" height="40" rx="20"/><text class="svg-label" x="970" y="151.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="595" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="620" y="215.92" text-anchor="middle" style="font-size:22px;">20</text><rect class="svg-node" x="735" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="760" y="215.92" text-anchor="middle" style="font-size:22px;">40</text><rect class="svg-node" x="875" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="900" y="215.92" text-anchor="middle" style="font-size:22px;">60</text><rect class="svg-node" x="1015" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="1040" y="215.92" text-anchor="middle" style="font-size:22px;">80</text><rect class="svg-node" x="695" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="720" y="279.92" text-anchor="middle" style="font-size:22px;">35</text><rect class="svg-node" x="775" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="800" y="279.92" text-anchor="middle" style="font-size:22px;">45</text><rect class="svg-node" x="835" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="860" y="279.92" text-anchor="middle" style="font-size:22px;">55</text><rect class="svg-node" x="915" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="940" y="279.92" text-anchor="middle" style="font-size:22px;">65</text><rect class="svg-node" x="750" y="316" width="50" height="40" rx="20"/><text class="svg-label" x="775" y="343.92" text-anchor="middle" style="font-size:22px;">42</text><rect class="svg-node" x="860" y="316" width="50" height="40" rx="20"/><text class="svg-label" x="885" y="343.92" text-anchor="middle" style="font-size:22px;">57</text><rect class="svg-node" x="245" y="60" width="50" height="40" rx="20"/><rect x="245" y="60" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="270" y="87.92" text-anchor="middle" style="font-size:22px;">50</text><rect class="svg-node" x="805" y="60" width="50" height="40" rx="20"/><rect x="805" y="60" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="830" y="87.92" text-anchor="middle" style="font-size:22px;">50</text><line class="s-line" stroke-width="2" x1="550" y1="10" x2="550" y2="416"/><text class="svg-label" x="270" y="34" text-anchor="middle" style="font-size:24px; font-weight:700;">Left once, then right to the end</text><text class="svg-label" x="830" y="34" text-anchor="middle" style="font-size:24px; font-weight:700;">Right once, then left to the end</text></g>
+<g class="anim-step" data-step="1"><rect class="svg-node-hl" x="105" y="124" width="50" height="40" rx="20"/><text class="svg-label" x="130" y="151.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node-hl" x="175" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="200" y="215.92" text-anchor="middle" style="font-size:22px;">40</text><rect class="f-ok-bg s-ok" stroke-width="4" x="215" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="240" y="279.92" text-anchor="middle" style="font-size:22px;">45</text><text class="f-ok" x="270" y="384" text-anchor="middle" style="font-size:21px; font-weight:700;">45: the largest value smaller than 50</text><text class="f-ink-soft" x="270" y="410" text-anchor="middle" style="font-size:19px; font-weight:600;">the predecessor · the choice of de la Cueva</text></g>
+<g class="anim-step" data-step="2"><rect class="svg-node-hl" x="945" y="124" width="50" height="40" rx="20"/><text class="svg-label" x="970" y="151.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node-hl" x="875" y="188" width="50" height="40" rx="20"/><text class="svg-label" x="900" y="215.92" text-anchor="middle" style="font-size:22px;">60</text><rect class="f-ok-bg s-ok" stroke-width="4" x="835" y="252" width="50" height="40" rx="20"/><text class="svg-label" x="860" y="279.92" text-anchor="middle" style="font-size:22px;">55</text><text class="f-ok" x="830" y="384" text-anchor="middle" style="font-size:21px; font-weight:700;">55: the smallest value greater than 50</text><text class="f-ink-soft" x="830" y="410" text-anchor="middle" style="font-size:19px; font-weight:600;">the successor · the choice of Weiss</text></g>
+<g class="anim-step" data-step="3"><text class="svg-label" x="550" y="452" text-anchor="middle" style="font-size:21px; font-family: var(--font-mono); font-weight:700;">inorder:  20  30  35  40  42  <tspan class="f-ok">45</tspan>  <tspan class="f-err">50</tspan>  <tspan class="f-ok">55</tspan>  57  60  65  70  80</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <ul>
+        <li class="fragment">The <span class="term" data-term="predecessor">predecessor</span> has no right child and the <span class="term" data-term="successor">successor</span> has no left child: removing either is an easy case. We follow Weiss.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">12.4 · Deletion</span>
+      <h2>Deleting 50: copy the successor, then delete it</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="270" y1="98" x2="130" y2="166"/><line class="svg-edge" x1="270" y1="98" x2="410" y2="166"/><line class="svg-edge" x1="830" y1="98" x2="690" y2="166"/><line class="svg-edge" x1="830" y1="98" x2="970" y2="166"/><line class="svg-edge" x1="410" y1="166" x2="330" y2="234"/><line class="svg-edge" x1="410" y1="166" x2="490" y2="234"/><line class="svg-edge" x1="690" y1="166" x2="770" y2="234"/><line class="svg-edge" x1="490" y1="234" x2="440" y2="302"/><rect class="svg-node" x="245" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="270" y="105.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node" x="805" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="830" y="105.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="105" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="130" y="173.92" text-anchor="middle" style="font-size:22px;">20</text><rect class="svg-node" x="385" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="410" y="173.92" text-anchor="middle" style="font-size:22px;">40</text><rect class="svg-node" x="665" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">60</text><rect class="svg-node" x="945" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="970" y="173.92" text-anchor="middle" style="font-size:22px;">80</text><rect class="svg-node" x="305" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="330" y="241.92" text-anchor="middle" style="font-size:22px;">35</text><rect class="svg-node" x="465" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="490" y="241.92" text-anchor="middle" style="font-size:22px;">45</text><rect class="svg-node" x="745" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="770" y="241.92" text-anchor="middle" style="font-size:22px;">65</text><rect class="svg-node" x="415" y="282" width="50" height="40" rx="20"/><text class="svg-label" x="440" y="309.92" text-anchor="middle" style="font-size:22px;">42</text></g>
+<g class="anim-step" data-step="0" data-step-off="1"><line class="svg-edge" x1="550" y1="30" x2="270" y2="98"/><line class="svg-edge" x1="550" y1="30" x2="830" y2="98"/><line class="svg-edge" x1="690" y1="166" x2="610" y2="234"/><line class="svg-edge" x1="610" y1="234" x2="660" y2="302"/><rect class="svg-node" x="245" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="270" y="105.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node" x="805" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="830" y="105.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="665" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">60</text><rect class="svg-node" x="525" y="10" width="50" height="40" rx="20"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">50</text><rect class="svg-node" x="585" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="610" y="241.92" text-anchor="middle" style="font-size:22px;">55</text><rect class="svg-node" x="635" y="282" width="50" height="40" rx="20"/><text class="svg-label" x="660" y="309.92" text-anchor="middle" style="font-size:22px;">57</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><line class="svg-edge" x1="550" y1="30" x2="270" y2="98"/><line class="svg-edge" x1="550" y1="30" x2="830" y2="98"/><line class="svg-edge" x1="690" y1="166" x2="610" y2="234"/><line class="svg-edge" x1="610" y1="234" x2="660" y2="302"/><rect class="svg-node" x="245" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="270" y="105.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node" x="805" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="830" y="105.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="665" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">60</text><rect class="svg-node" x="525" y="10" width="50" height="40" rx="20"/><rect x="525" y="10" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">50</text><rect class="svg-node" x="585" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="610" y="241.92" text-anchor="middle" style="font-size:22px;">55</text><rect class="svg-node" x="635" y="282" width="50" height="40" rx="20"/><text class="svg-label" x="660" y="309.92" text-anchor="middle" style="font-size:22px;">57</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">remove(50) · 50 has two children</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">the node stays: it receives a replacement value, and the node that held that value is deleted</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><line class="svg-edge" x1="550" y1="30" x2="270" y2="98"/><line class="svg-edge" x1="550" y1="30" x2="830" y2="98"/><line class="svg-edge" x1="690" y1="166" x2="610" y2="234"/><line class="svg-edge" x1="610" y1="234" x2="660" y2="302"/><rect class="svg-node" x="245" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="270" y="105.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node-hl" x="805" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="830" y="105.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node-hl" x="665" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">60</text><rect class="svg-node" x="525" y="10" width="50" height="40" rx="20"/><rect x="525" y="10" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">50</text><rect class="f-ok-bg s-ok" stroke-width="4" x="585" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="610" y="241.92" text-anchor="middle" style="font-size:22px;">55</text><rect class="svg-node" x="635" y="282" width="50" height="40" rx="20"/><text class="svg-label" x="660" y="309.92" text-anchor="middle" style="font-size:22px;">57</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">findMin on the right subtree: right once, then left to the end → 55</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">55 is the smallest value greater than 50: the successor</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><line class="svg-edge" x1="550" y1="30" x2="270" y2="98"/><line class="svg-edge" x1="550" y1="30" x2="830" y2="98"/><line class="svg-edge" x1="690" y1="166" x2="610" y2="234"/><line class="svg-edge" x1="610" y1="234" x2="660" y2="302"/><rect class="svg-node" x="245" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="270" y="105.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node" x="805" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="830" y="105.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="665" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">60</text><rect class="f-ok-bg s-ok" stroke-width="4" x="525" y="10" width="50" height="40" rx="20"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">55</text><rect class="svg-node" x="585" y="214" width="50" height="40" rx="20"/><rect x="585" y="214" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="610" y="241.92" text-anchor="middle" style="font-size:22px;">55</text><rect class="svg-node" x="635" y="282" width="50" height="40" rx="20"/><text class="svg-label" x="660" y="309.92" text-anchor="middle" style="font-size:22px;">57</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">Copy 55 into the root</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">55 now appears twice · remove(55) runs on the right subtree</text></g>
+<g class="anim-step" data-step="4"><line class="svg-edge" x1="550" y1="30" x2="270" y2="98"/><line class="svg-edge" x1="550" y1="30" x2="830" y2="98"/><line class="svg-edge" x1="690" y1="166" x2="610" y2="234"/><rect class="svg-node" x="245" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="270" y="105.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node" x="805" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="830" y="105.92" text-anchor="middle" style="font-size:22px;">70</text><rect class="svg-node" x="665" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="690" y="173.92" text-anchor="middle" style="font-size:22px;">60</text><rect class="svg-node" x="525" y="10" width="50" height="40" rx="20"/><text class="svg-label" x="550" y="37.92" text-anchor="middle" style="font-size:22px;">55</text><rect class="svg-node-hl" x="585" y="214" width="50" height="40" rx="20"/><text class="svg-label" x="610" y="241.92" text-anchor="middle" style="font-size:22px;">57</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">The old node has one child: 60 now points to 57, and the node is deleted</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">inorder: 20 30 35 40 42 45 55 57 60 65 70 80 · still in order</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">12.4 · Deletion</span>
+      <h2>Remove: find the node, then pick the case</h2>
+      <pre data-title="bst.hpp"><code class="language-cpp" data-trim data-line-numbers="1-14|2-4|5-8|9-12">
+bool remove(Node*&amp; n, int x) {
+    if (n == nullptr) return false;                  // not found
+    if (x &lt; n-&gt;info) return remove(n-&gt;left, x);
+    if (x &gt; n-&gt;info) return remove(n-&gt;right, x);
+    if (n-&gt;left != nullptr &amp;&amp; n-&gt;right != nullptr) { // two children
+        n-&gt;info = findMin(n-&gt;right)-&gt;info;           // copy the successor
+        return remove(n-&gt;right, n-&gt;info);            // delete it below
+    }
+    Node* old = n;                                   // leaf or one child
+    if (n-&gt;left != nullptr) n = n-&gt;left;             // the left child moves up
+    else n = n-&gt;right;                               // the right child, or nullptr
+    delete old;
+    return true;
+}
+      </code></pre>
+      <ul>
+        <li class="fragment">Line 11 also covers a leaf: there <code>n-&gt;right</code> is null, so the link becomes null.</li>
+      </ul>
+      <aside class="notes">
+        <ul>
+          <li>Where is the new? In insert: every node of the tree was created there.</li>
+          <li>The BST class creates the nodes, so the BST class frees them: one delete for each new.</li>
+          <li>Without delete old, the node is out of the tree but still uses memory: a leak.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section>
+      <span class="kicker">12.4 · Deletion</span>
+      <h2>findMin: keep going left</h2>
+      <pre data-title="bst.hpp"><code class="language-cpp" data-trim>
+Node* findMin(Node* n) const {                   // n is not null
+    while (n-&gt;left != nullptr) n = n-&gt;left;      // go left to the end
+    return n;                                    // smallest value of the subtree
+}
+      </code></pre>
+      <ul>
+        <li class="fragment">Called on the right subtree, it returns the successor. The second <code>remove</code> then deletes that value from the right subtree: a leaf or a one-child case.</li>
+        <li class="fragment">The price: two walks down the same path. Weiss accepts it to keep the code short.</li>
+        <li class="fragment">Without <code>delete old</code> the node leaks: C++ has no garbage collector.</li>
+      </ul>
+      <aside class="notes">
+        <ul>
+          <li>Two walks: only when the node has two children (lines 6 and 7 of remove).</li>
+          <li>Walk 1: findMin reads the successor. Walk 2: remove goes down the same path to delete it. Example: 70, 60, 55, twice.</li>
+          <li>Still O(height). Weiss keeps it for simplicity; a removeMin method would do it in one pass.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="b">
+        <p class="quiz-question">A BST is built by inserting 50, 30, 70, 20, 40, 60 and 80. You call <code>remove(50)</code> with the code of this session. Which value ends up <em>in the root</em>?</p>
+        <button class="quiz-option" data-opt="a">40: the largest value of the left subtree.</button>
+        <button class="quiz-option" data-opt="b">60: the smallest value of the right subtree.</button>
+        <button class="quiz-option" data-opt="c">70: the right child moves up and takes its place.</button>
+        <div class="quiz-explain">
+          <strong>B.</strong> 50 has two children, so the code copies <code>findMin</code> of the right subtree: right once to 70, then left to the end, 60.
+          A is the mirror rule, the predecessor: it also leaves a valid BST, but it is not what this code does.
+          C would need 70 to adopt 30 as its left child, but 70 already has 60 there.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">The cost</span>
+      <h2>Same seven keys, two very different trees</h2>
+      <svg viewBox="0 0 1100 320" style="width:100%; max-height:245px;">
+<g><line class="svg-edge" x1="270" y1="44" x2="150" y2="124"/><line class="svg-edge" x1="270" y1="44" x2="390" y2="124"/><line class="svg-edge" x1="150" y1="124" x2="90" y2="204"/><line class="svg-edge" x1="150" y1="124" x2="210" y2="204"/><line class="svg-edge" x1="390" y1="124" x2="330" y2="204"/><line class="svg-edge" x1="390" y1="124" x2="450" y2="204"/><rect class="svg-node" x="247" y="24" width="46" height="40" rx="20"/><text class="svg-label" x="270" y="51.92" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node" x="127" y="104" width="46" height="40" rx="20"/><text class="svg-label" x="150" y="131.92" text-anchor="middle" style="font-size:22px;">3</text><rect class="svg-node" x="367" y="104" width="46" height="40" rx="20"/><text class="svg-label" x="390" y="131.92" text-anchor="middle" style="font-size:22px;">8</text><rect class="svg-node" x="67" y="184" width="46" height="40" rx="20"/><text class="svg-label" x="90" y="211.92" text-anchor="middle" style="font-size:22px;">1</text><rect class="svg-node" x="187" y="184" width="46" height="40" rx="20"/><text class="svg-label" x="210" y="211.92" text-anchor="middle" style="font-size:22px;">5</text><rect class="svg-node" x="307" y="184" width="46" height="40" rx="20"/><text class="svg-label" x="330" y="211.92" text-anchor="middle" style="font-size:22px;">7</text><rect class="svg-node" x="427" y="184" width="46" height="40" rx="20"/><text class="svg-label" x="450" y="211.92" text-anchor="middle" style="font-size:22px;">9</text><text class="svg-label" x="270" y="266" text-anchor="middle" style="font-size:22px;">insert 6, 3, 8, 1, 5, 7, 9</text><text class="f-accent" x="270" y="298" text-anchor="middle" style="font-size:22px; font-weight:700;">height 2</text><line class="svg-edge" x1="640" y1="30" x2="694" y2="74"/><line class="svg-edge" x1="694" y1="74" x2="748" y2="118"/><line class="svg-edge" x1="748" y1="118" x2="802" y2="162"/><line class="svg-edge" x1="802" y1="162" x2="856" y2="206"/><line class="svg-edge" x1="856" y1="206" x2="910" y2="250"/><line class="svg-edge" x1="910" y1="250" x2="964" y2="294"/><rect class="svg-node" x="617" y="10" width="46" height="40" rx="20"/><text class="svg-label" x="640" y="37.92" text-anchor="middle" style="font-size:22px;">1</text><rect class="svg-node" x="671" y="54" width="46" height="40" rx="20"/><text class="svg-label" x="694" y="81.92" text-anchor="middle" style="font-size:22px;">3</text><rect class="svg-node" x="725" y="98" width="46" height="40" rx="20"/><text class="svg-label" x="748" y="125.92" text-anchor="middle" style="font-size:22px;">5</text><rect class="svg-node" x="779" y="142" width="46" height="40" rx="20"/><text class="svg-label" x="802" y="169.92" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node" x="833" y="186" width="46" height="40" rx="20"/><text class="svg-label" x="856" y="213.92" text-anchor="middle" style="font-size:22px;">7</text><rect class="svg-node" x="887" y="230" width="46" height="40" rx="20"/><text class="svg-label" x="910" y="257.92" text-anchor="middle" style="font-size:22px;">8</text><rect class="svg-node" x="941" y="274" width="46" height="40" rx="20"/><text class="svg-label" x="964" y="301.92" text-anchor="middle" style="font-size:22px;">9</text><text class="svg-label" x="760" y="38" style="font-size:22px;">insert 1, 3, 5, 6, 7, 8, 9</text><text class="f-err" x="760" y="70" style="font-size:22px; font-weight:700;">height 6</text></g>
+</svg>
+      <ul>
+        <li class="fragment">Search, insert and remove follow one path from the root: at most <em>height + 1</em> nodes. Finding 9 takes 3 comparisons on the left and 7 on the right.</li>
+        <li class="fragment">With n nodes the height can be anything from ⌊log₂ n⌋ to n − 1, and the insertion order decides. Keeping it small is the job of the AVL tree.</li>
+      </ul>
+      <p class="muted">Trees from de la Cueva et al. (2020), Fig. 9.9–9.10.</p>
+    </section>
+
+    <section>
+      <span class="kicker">In-class exercise</span>
+      <h2>Build your own BST</h2>
+      <ul>
+        <li class="fragment"><strong>Implement</strong> a class <code>BST</code> with <code>insert</code>, <code>search</code> and <code>inorder</code>, with the same <code>Node</code> (<code>info</code>, <code>left</code>, <code>right</code>) as in this session. <code>insert</code> returns <code>false</code> for a repeated value.</li>
+        <li class="fragment"><strong>Test 1:</strong> insert 50, 30, 70, 20, 40, 60, 80 → <code>inorder()</code> must print 20 30 40 50 60 70 80, and <code>insert(40)</code> must return <code>false</code>.</li>
+        <li class="fragment"><strong>Test 2:</strong> <code>search(60)</code> returns the node that holds 60 and <code>search(65)</code> returns <code>nullptr</code>. On an empty tree, <code>search</code> returns <code>nullptr</code> and <code>inorder()</code> prints nothing.</li>
+      </ul>
+      <p class="fragment muted">Work on your own. Watch the <code>&amp;</code> in <code>Node*&amp;</code>: without it the tree stays empty.</p>
+    </section>
+
+    <section class="divider">
+      <h2>Next session:<br>AVL Trees</h2>
+    </section>
+
+    <section class="divider">
+      <h2>Extra material · self-study</h2>
+      <p class="muted">Not covered in class: where trees live in AI systems, the STL version of a search tree, and the take-home challenge.</p>
+    </section>
+
+    <section>
+      <span class="kicker kicker-ai">Why it matters today</span>
+      <h2>One path from the root, inside AI systems</h2>
+      <div class="box-ai" data-label="Why it matters today">
+        <ul>
+          <li class="fragment"><strong>Decision trees:</strong> each node compares one feature with a threshold and goes left or right. A prediction is one path from the root, so its cost is the depth of the tree, as in a BST search.</li>
+          <li class="fragment"><strong>Nearest neighbors:</strong> a k-d tree is a binary tree that splits the points along one coordinate axis per node. In few dimensions, it finds the closest point without comparing against all N.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">STL</span>
+      <h2>std::set: sorted keys in O(log n)</h2>
+      <pre><code class="language-cpp" data-trim data-line-numbers="1-6|2-3|4|5-6">
+std::set&lt;int&gt; s = {710, 689, 2000, 143};
+s.insert(1500);                              // O(log n)
+if (s.count(689) == 1) std::cout &lt;&lt; "found\n";
+for (int x : s) std::cout &lt;&lt; x &lt;&lt; " ";       // 143 689 710 1500 2000
+auto it = s.lower_bound(700);                // first key &gt;= 700
+std::cout &lt;&lt; *it;                            // 710
+      </code></pre>
+      <ul>
+        <li class="fragment">Search, insertion and removal are O(log n). It is usually implemented as a red-black tree, a BST that keeps itself short.</li>
+        <li class="fragment">Iterating visits the keys in ascending order: an inorder traversal.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">Challenge · at home</span>
+      <h2>Take it home: check a BST, then delete from one</h2>
+      <div class="cols">
+        <div>
+          <h3>LC 98 — Validate Binary Search Tree <span class="muted">[Medium] · required</span></h3>
+          <p>Decide whether a binary tree obeys the order rule at every node. Comparing each node only with its two children is not enough: remember the 720 that broke the rule.</p>
+        </div>
+        <div>
+          <h3>LC 450 — Delete Node in a BST <span class="muted">[Medium] · optional</span></h3>
+          <p>Delete a key and return the root of the tree, which may change. All three cases appear in the tests. Target: O(height).</p>
+        </div>
+      </div>
+      <ul>
+        <li class="fragment">LeetCode gives you its own <code>TreeNode</code>, with <code>val</code> where we wrote <code>info</code>. Use your own functions; no STL container is needed.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">P12</span>
+      <h2>References and further reading</h2>
+      <div class="refs cols">
+        <div>
+          <h3>References</h3>
+          <ul>
+            <li><span class="ref-type">Book</span> Weiss, M. A. <em>Data Structures and Algorithm Analysis in C++</em>, 4th ed., Pearson, 2014. § 4.1–4.3.</li>
+            <li><span class="ref-type">Book</span> de la Cueva Hernández, V. M., González Guerra, L. H. and Salinas Gurrión, E. G. <em>Estructuras de datos y algoritmos fundamentales</em>, Editorial Digital del Tecnológico de Monterrey, Monterrey, Mexico, 2020. § 9.1–9.3.</li>
+            <li><span class="ref-type">Web</span> <a href="https://en.cppreference.com/w/cpp/container/set">cppreference — std::set</a></li>
+            <li><span class="ref-type">Web</span> <a href="https://scikit-learn.org/stable/modules/tree.html">scikit-learn — Decision Trees</a> and <a href="https://scikit-learn.org/stable/modules/neighbors.html">Nearest Neighbors</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Further reading</h3>
+          <ul>
+            <li><span class="ref-type">Book</span> Weiss, 4th ed., § 4.4 <span class="ref-nota">— AVL trees, the topic of the next session.</span></li>
+            <li><span class="ref-type">Book</span> Cormen, T. H., Leiserson, C. E., Rivest, R. L. and Stein, C. <em>Introduction to Algorithms</em>, 3rd ed., MIT Press, 2009. <span class="ref-nota">— Ch. 12, binary search trees with proofs, successor and predecessor.</span></li>
+            <li><span class="ref-type">Web</span> <a href="https://visualgo.net/en/bst">VisuAlgo — Binary search tree</a> <span class="ref-nota">— animate search, insert, remove and the three traversals at your own pace.</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="refs-ia">Note: these slides were generated with the help of artificial intelligence, specifically Claude (Anthropic).</p>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script src="../js/shstyle.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    margin: 0.06,
+    hash: true,
+    progress: true,
+    slideNumber: 'c/t',
+    controls: true,
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    plugins: [ RevealHighlight, RevealNotes ]
+  }).then(() => {
+    SHStyle.init({
+      subtree: {
+        titulo: "Subtree",
+        def: "A node together with all of its descendants. Each child of a node is the root of a subtree, so a tree is a root plus smaller trees. That is why tree algorithms are recursive."
+      },
+      depth: {
+        titulo: "Depth",
+        def: "The length of the path from the root to a node, counted in edges. The root is at depth 0, its children are at depth 1, and so on. Some books call it the level of the node."
+      },
+      height: {
+        titulo: "Height",
+        def: "The length of the longest path from a node down to a leaf, counted in edges: a leaf has height 0, and an empty tree has height −1. The height of a tree is the height of its root. Some books count nodes instead, so there a leaf has height 1."
+      },
+      traversal: {
+        titulo: "Traversal",
+        def: "An operation that visits every node of a tree exactly once. Preorder visits the root before its subtrees, inorder between them, and postorder after them."
+      },
+      bst: {
+        titulo: "Binary search tree (BST)",
+        def: "A binary tree where, at every node, all the values in the left subtree are smaller than the node and all the values in the right subtree are greater. Search, insert and remove follow a single path from the root."
+      },
+      predecessor: {
+        titulo: "Predecessor",
+        def: "The largest value in the tree that is smaller than a given value: the one just before it in inorder. For a node with a left child, it is the rightmost node of the left subtree: go left once, then right until there is no right child."
+      },
+      successor: {
+        titulo: "Successor",
+        def: "The smallest value in the tree that is greater than a given value: the one just after it in inorder. For a node with a right child, it is the leftmost node of the right subtree: go right once, then left until there is no left child."
+      }
+    });
+  });
+</script>
+</body>
+</html>
