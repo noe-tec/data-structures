@@ -338,6 +338,13 @@ void inorder(Node* n) const {
         <li class="fragment">In our examples, values do not repeat.</li>
       </ul>
       <div class="box-key fragment">At each node, the order rule tells you which subtree you can ignore.</div>
+      <aside class="notes">
+        <ul>
+          <li>If a repeated value arrives: our insert finds it, changes nothing and returns false.</li>
+          <li>To accept repeats, keep a counter in each node. The shape of the tree does not change.</li>
+          <li>In C++: std::set rejects repeats, std::multiset accepts them.</li>
+        </ul>
+      </aside>
     </section>
 
     <section>
@@ -489,6 +496,13 @@ bool insert(int x) { return insert(root, x); }   // public
       <ul>
         <li class="fragment">The <span class="term" data-term="predecessor">predecessor</span> has no right child and the <span class="term" data-term="successor">successor</span> has no left child: removing either is an easy case. We follow Weiss.</li>
       </ul>
+      <aside class="notes">
+        <ul>
+          <li>The successor never has two children: we stopped there because it has no left child.</li>
+          <li>If it had one, that child would be smaller, and it would be the successor.</li>
+          <li>So the two-children case runs at most once per removal.</li>
+        </ul>
+      </aside>
     </section>
 
     <section>
@@ -643,11 +657,11 @@ std::cout &lt;&lt; *it;                            // 710
       <h2>Take it home: check a BST, then delete from one</h2>
       <div class="cols">
         <div>
-          <h3>LC 98 — Validate Binary Search Tree <span class="muted">[Medium] · required</span></h3>
+          <h3><a href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank" rel="noopener">LC 98</a> — Validate Binary Search Tree <span class="muted">[Medium] · required</span></h3>
           <p>Decide whether a binary tree obeys the order rule at every node. Comparing each node only with its two children is not enough: remember the 720 that broke the rule.</p>
         </div>
         <div>
-          <h3>LC 450 — Delete Node in a BST <span class="muted">[Medium] · optional</span></h3>
+          <h3><a href="https://leetcode.com/problems/delete-node-in-a-bst/" target="_blank" rel="noopener">LC 450</a> — Delete Node in a BST <span class="muted">[Medium] · optional</span></h3>
           <p>Delete a key and return the root of the tree, which may change. All three cases appear in the tests. Target: O(height).</p>
         </div>
       </div>
@@ -675,6 +689,7 @@ std::cout &lt;&lt; *it;                            // 710
             <li><span class="ref-type">Book</span> Weiss, 4th ed., § 4.4 <span class="ref-nota">— AVL trees, the topic of the next session.</span></li>
             <li><span class="ref-type">Book</span> Cormen, T. H., Leiserson, C. E., Rivest, R. L. and Stein, C. <em>Introduction to Algorithms</em>, 3rd ed., MIT Press, 2009. <span class="ref-nota">— Ch. 12, binary search trees with proofs, successor and predecessor.</span></li>
             <li><span class="ref-type">Web</span> <a href="https://visualgo.net/en/bst">VisuAlgo — Binary search tree</a> <span class="ref-nota">— animate search, insert, remove and the three traversals at your own pace.</span></li>
+            <li><span class="ref-type">Web</span> <a href="https://pythontutor.com/visualize.html">Python Tutor — C++ mode</a> <span class="ref-nota">— paste the insert code and watch each pointer and each new node, step by step.</span></li>
           </ul>
         </div>
       </div>
