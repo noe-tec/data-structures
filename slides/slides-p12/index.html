@@ -654,19 +654,19 @@ std::cout &lt;&lt; *it;                            // 710
 
     <section>
       <span class="kicker">Challenge · at home</span>
-      <h2>Take it home: check a BST, then delete from one</h2>
+      <h2>Take it home: find a depth, then read level by level</h2>
       <div class="cols">
         <div>
-          <h3><a href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank" rel="noopener">LC 98</a> — Validate Binary Search Tree <span class="muted">[Medium] · required</span></h3>
-          <p>Decide whether a binary tree obeys the order rule at every node. Comparing each node only with its two children is not enough: remember the 720 that broke the rule.</p>
+          <h3><a href="https://leetcode.com/problems/cousins-in-binary-tree/" target="_blank" rel="noopener">LC 993</a> — Cousins in Binary Tree <span class="muted">[Easy] · optional</span></h3>
+          <p>Cousins: same depth, different parents. Find the depth of a value by counting the steps from the root. The tree is not a BST, so search both sides.</p>
         </div>
         <div>
-          <h3><a href="https://leetcode.com/problems/delete-node-in-a-bst/" target="_blank" rel="noopener">LC 450</a> — Delete Node in a BST <span class="muted">[Medium] · optional</span></h3>
-          <p>Delete a key and return the root of the tree, which may change. All three cases appear in the tests. Target: O(height).</p>
+          <h3><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank" rel="noopener">LC 102</a> — Binary Tree Level Order Traversal <span class="muted">[Medium] · optional</span></h3>
+          <p>Return the values level by level, top to bottom and left to right. Recursion alone will not do it: remember the queue from P11.</p>
         </div>
       </div>
       <ul>
-        <li class="fragment">LeetCode gives you its own <code>TreeNode</code>, with <code>val</code> where we wrote <code>info</code>. Use your own functions; no STL container is needed.</li>
+        <li class="fragment">LeetCode's <code>TreeNode</code> has <code>val</code> where we wrote <code>info</code>. For LC 102, use <code>std::queue</code> and <code>std::vector</code>.</li>
       </ul>
     </section>
 
