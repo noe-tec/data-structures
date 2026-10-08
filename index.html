@@ -5,93 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Data Structures — Class materials</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: #24303c;
-         background: #f7f9fb; line-height: 1.5; }
-  .wrap { max-width: 800px; margin: 0 auto; padding: 6vh 5vw 10vh 5vw; }
-  header { border-bottom: 3px solid #1a63a9; padding-bottom: 2vh;
-           margin-bottom: 2vh; }
-  h1 { font-size: 2rem; color: #16324f; }
-  header p { color: #6b7885; font-size: .95rem; margin-top: .3rem; }
-  h2 { font-size: 1.05rem; color: #1a63a9; margin: 2.6rem 0 .8rem 0;
-       text-transform: uppercase; letter-spacing: .06em; }
-  h2 span { color: #9aa7b4; font-weight: 400; text-transform: none;
-            letter-spacing: 0; }
-  ul { list-style: none; }
-  li { background: #fff; border: 1px solid #dfe6ec; border-radius: 8px;
-       margin-bottom: .7rem; }
-  li a { display: block; padding: 1rem 1.2rem; text-decoration: none;
-         color: #16324f; }
-  li a:hover { background: #eef5fc; border-radius: 8px; }
-  .name { font-weight: 600; font-size: 1.05rem; }
-  .desc { color: #6b7885; font-size: .9rem; margin-top: .15rem; }
-
+  :root { --ink: #1f2933; --soft: #6b7682; --link: #1a63a9; --bg: #ffffff; }
+  @media (prefers-color-scheme: dark) { :root { --ink: #e4e7eb; --soft: #9aa5b1; --link: #8ab4f8; --bg: #15171c; } }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: "Segoe UI", -apple-system, Roboto, Arial, sans-serif; line-height: 1.6; }
+  main { max-width: 640px; margin: 0 auto; padding: 40px 20px 60px; }
+  h1 { font-size: 1.6rem; margin: 0; }
+  .sub { color: var(--soft); margin: 2px 0 0; }
+  h2 { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--soft);
+       margin: 36px 0 6px; font-weight: 600; }
+  h3 { font-size: 1rem; margin: 16px 0 2px; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { padding: 2px 0; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
-<div class="wrap">
+<main>
+  <h1>Data Structures</h1>
+  <p class="sub">Class materials</p>
 
-  <header>
-    <h1>Data Structures</h1>
-    <p>Class materials &middot; algorithms, analysis and implementations</p>
-  </header>
+  <h2>Visualizations</h2>
 
-  <h2>01 &middot; Fundamentals <span>&mdash; analysis, search, sorting</span></h2>
+  <h3>Sorting</h3>
   <ul>
-    <li><a href="01-fundamentals/pages/sorting-walkthrough.html">
-      <div class="name">Step by step &mdash; Bubble vs Selection</div>
-      <div class="desc">Advance one comparison at a time and watch the counters.</div>
-    </a></li>
-    <li><a href="01-fundamentals/pages/advanced-sorting-walkthrough.html">
-      <div class="name">Step by step &mdash; Merge sort &amp; Quicksort</div>
-      <div class="desc">Divide, merge and partition one step at a time.</div>
-    </a></li>
-    <li><a href="01-fundamentals/pages/merge-sort-recursion-tree.html">
-      <div class="name">Merge sort &mdash; recursion tree, step by step</div>
-      <div class="desc">The call stack as a tree: dive left first, merge back up, one call at a time.</div>
-    </a></li>
-    <li><a href="01-fundamentals/pages/quicksort-recursion-tree-lomuto-book.html">
-      <div class="name">Quicksort (book&rsquo;s algorithm) &mdash; full partition detail</div>
-      <div class="desc">Every comparison of the partition itself, zone by zone, using the book&rsquo;s own example array.</div>
-    </a></li>
-    <li><a href="01-fundamentals/pages/quicksort-recursion-tree-lomuto-firstpivot-full.html">
-      <div class="name">Quicksort (first-element pivot) &mdash; full partition detail</div>
-      <div class="desc">Same full comparison-by-comparison detail as the book version, but on the array used throughout this course.</div>
-    </a></li>
-    <li><a href="01-fundamentals/pages/stability-visualization.html">
-      <div class="name">Why stability matters</div>
-      <div class="desc">The 3-card example and a log-file case, side by side.</div>
-    </a></li>
+    <li><a href="01-fundamentals/pages/sorting-walkthrough.html">Bubble vs Selection, step by step</a></li>
+    <li><a href="01-fundamentals/pages/advanced-sorting-walkthrough.html">Merge sort &amp; Quicksort, step by step</a></li>
+    <li><a href="01-fundamentals/pages/merge-sort-recursion-tree.html">Merge sort: recursion tree</a></li>
+    <li><a href="01-fundamentals/pages/quicksort-recursion-tree-lomuto-book.html">Quicksort, book&rsquo;s algorithm: full partition</a></li>
+    <li><a href="01-fundamentals/pages/quicksort-recursion-tree-lomuto-firstpivot-full.html">Quicksort, first-element pivot: full partition</a></li>
+    <li><a href="01-fundamentals/pages/stability-visualization.html">Why stability matters</a></li>
   </ul>
 
-  <h2>03 &middot; Trees <span>&mdash; search trees, recursion, balance</span></h2>
+  <h3>Trees</h3>
   <ul>
-    <li><a href="03-trees/pages/bst-height-trace.html">
-      <div class="name">Step by step &mdash; BST height</div>
-      <div class="desc">Each call waits for its two subtrees: the code, the call stack and the tree, one line at a time.</div>
-    </a></li>
-    <li><a href="03-trees/pages/avl-insert-trace.html">
-      <div class="name">Step by step &mdash; AVL insert</div>
-      <div class="desc">insert(180) with a zig-zag: two rotations on the way back up, with every call and variable.</div>
-    </a></li>
+    <li><a href="03-trees/pages/bst-height-trace.html">BST height, step by step</a></li>
+    <li><a href="03-trees/pages/avl-insert-trace.html">AVL insert, step by step</a></li>
   </ul>
 
-  <h2>Slides <span>&mdash; class presentations</span></h2>
+  <h2>Slides</h2>
   <ul>
-    <li><a href="slides/slides-p11/index.html">
-      <div class="name">P11 &mdash; Stacks, Queues, Deques and Priority Queues</div>
-      <div class="desc">Array and linked-list implementations, the circular buffer, and choosing a structure by its access pattern.</div>
-    </a></li>
-    <li><a href="slides/slides-p12/index.html">
-      <div class="name">P12 &mdash; Trees and Binary Search Trees</div>
-      <div class="desc">Tree vocabulary, the three traversals, and BST search, insertion and deletion, step by step.</div>
-    </a></li>
-    <li><a href="slides/slides-p13/index.html">
-      <div class="name">P13 &mdash; AVL Trees</div>
-      <div class="desc">Balance factor, the four rotations, and insertion that repairs the tree on the way back up.</div>
-    </a></li>
+    <li><a href="slides/slides-p11/index.html">P11 &middot; Stacks, Queues, Deques and Priority Queues</a></li>
+    <li><a href="slides/slides-p12/index.html">P12 &middot; Trees and Binary Search Trees</a></li>
+    <li><a href="slides/slides-p13/index.html">P13 &middot; AVL Trees</a></li>
   </ul>
-
-</div>
+</main>
 </body>
 </html>
