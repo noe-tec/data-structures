@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BST remove, step by step</title>
+<script>try{if(localStorage.getItem('shstyle-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  /* Same colors as the class slides (shstyle) */
+  :root {
+    --c-bg: #ffffff; --c-ink: #16181d; --c-ink-soft: #4b5260; --c-ink-faint: #aab0bb;
+    --c-accent: #0b57d0; --c-accent-bg: #e8f0fe; --c-accent-soft: #9dc0f0;
+    --c-ok: #146c2e; --c-ok-bg: #e6f4ea; --c-err: #b3261e; --c-err-bg: #fce8e6;
+    --c-line: #d7dbe2; --c-surface-1: #f0f1f4; --c-surface-2: #eceff3;
+    --c-code-panel: #14161d; --c-code-head: #1f232d; --c-code-head-ink: #8b93a5; --c-code-ink: #e8eaf0;
+    --c-code-cur: rgba(56, 139, 253, 0.30); --c-code-wait: rgba(255, 255, 255, 0.07);
+    --c-shadow: rgba(20, 22, 29, 0.14);
+    --font-sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --c-bg: #15171c; --c-ink: #e6e8ee; --c-ink-soft: #a7adba; --c-ink-faint: #6b7280;
+    --c-accent: #8ab4f8; --c-accent-bg: #1d2a44; --c-accent-soft: #3b5b8f;
+    --c-ok: #6dd58c; --c-ok-bg: #16301f; --c-err: #f2b8b5; --c-err-bg: #3b1d1b;
+    --c-line: #3a3f4b; --c-surface-1: #20232b; --c-surface-2: #252932;
+    --c-code-panel: #0e1014; --c-code-head: #1a1d25;
+    --c-shadow: rgba(0, 0, 0, 0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: var(--c-bg); color: var(--c-ink); padding: 12px 18px 30px; }
+  .app { display: grid; grid-template-columns: minmax(560px, 610px) 1fr; gap: 18px; align-items: start; }
+  .codecol { position: sticky; top: 12px; height: calc(100vh - 24px); }
+  .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; margin-bottom: 10px; }
+  h1 { font-size: 24px; letter-spacing: -0.02em; }
+  .sub { color: var(--c-ink-soft); margin-top: 2px; font-size: 14px; }
+  .cols { display: grid; grid-template-columns: minmax(340px, 0.85fr) minmax(420px, 1.15fr); gap: 16px; align-items: start; }
+  @media (max-width: 1500px) { .cols { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } .codecol { position: static; height: auto; } }
+  button, input, select { font-family: inherit; font-size: 15px; }
+  button { border: 2px solid var(--c-accent); background: var(--c-bg); color: var(--c-accent); border-radius: 8px;
+           padding: 6px 12px; font-weight: 600; cursor: pointer; }
+  button.primary { background: var(--c-accent); color: var(--c-bg); }
+  button:disabled { opacity: .4; cursor: default; }
+  input[type=number] { width: 90px; padding: 6px 8px; border: 2px solid var(--c-line); border-radius: 8px;
+                       background: var(--c-bg); color: var(--c-ink); }
+  select { padding: 6px; border: 2px solid var(--c-line); border-radius: 8px; background: var(--c-bg); color: var(--c-ink); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .bar .sep { width: 1px; height: 28px; background: var(--c-line); margin: 0 6px; }
+  .bar .count { color: var(--c-ink-soft); font-weight: 600; min-width: 120px; }
+  .theme { border-color: var(--c-line); color: var(--c-ink-soft); }
+  .msg { border-left: 6px solid var(--c-accent); background: var(--c-accent-bg); border-radius: 8px;
+         padding: 10px 16px; font-size: 18px; line-height: 1.45; min-height: 56px; margin-bottom: 14px; }
+  .msg code { font-family: var(--font-mono); font-size: 16px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--c-accent); margin-bottom: 6px; }
+
+  /* code */
+  .code { background: var(--c-code-panel); border-radius: 12px; box-shadow: 0 6px 20px var(--c-shadow); overflow: hidden;
+          height: 100%; display: flex; flex-direction: column; }
+  .code .head { background: var(--c-code-head); color: var(--c-code-head-ink); font-family: var(--font-mono); font-size: 13px;
+                padding: 8px 14px; }
+  .code pre { font-family: var(--font-mono); font-size: 14px; line-height: 1.5; color: var(--c-code-ink); padding: 8px 0;
+              flex: 1; overflow: auto; position: relative; }
+  .ln { display: flex; flex-wrap: wrap; align-items: center; padding: 0 10px 0 0; border-left: 4px solid transparent; min-height: 21.7px; }
+  .ln .chips { margin-left: auto; display: flex; gap: 4px; padding-left: 8px; }
+  .ln .no { width: 36px; text-align: right; color: #5c6370; padding-right: 12px; flex: none; user-select: none; }
+  .ln .tx { white-space: pre; flex: 1; }
+  .ln.cur { background: var(--c-code-cur); border-left-color: #58a6ff; }
+  .ln.cur .no { color: #e8eaf0; font-weight: 700; }
+  .ln.wait { background: var(--c-code-wait); border-left-color: #6e7681; }
+  .chip { font-family: var(--font-sans); font-size: 11px; font-weight: 700; border-radius: 6px; padding: 1px 6px;
+          white-space: nowrap; }
+  .chip.c { background: #58a6ff; color: #0e1014; }
+  .chip.w { background: #30363d; color: #c9d1d9; }
+  .k { color: #ff7b72; } .t { color: #ffa657; } .f { color: #d2a8ff; } .n { color: #79c0ff; }
+
+  /* stack */
+  .obj { border: 2px dashed var(--c-line); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; font-size: 15px; }
+  .obj b { font-family: var(--font-mono); }
+  .stackhint { font-size: 13px; color: var(--c-ink-soft); margin: 2px 0 6px; }
+  .frame { border: 2px solid var(--c-line); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; background: var(--c-bg); }
+  .frame.top { border-color: var(--c-accent); background: var(--c-accent-bg); }
+  .frame .sig { font-family: var(--font-mono); font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; gap: 8px; }
+  .pill { font-family: var(--font-sans); font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 8px; white-space: nowrap; }
+  .pill.run { background: var(--c-accent); color: var(--c-bg); }
+  .pill.wait { background: var(--c-surface-2); color: var(--c-ink-soft); }
+  .vars { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 6px 0 4px; font-family: var(--font-mono); font-size: 14px; }
+  .vars .nm { color: var(--c-ink-soft); }
+  .vars .val.chg { color: var(--c-accent); font-weight: 700; }
+  .meta { font-size: 13px; color: var(--c-ink-soft); line-height: 1.5; }
+  .meta b { color: var(--c-ink); }
+  .meta .ret { color: var(--c-ok); font-weight: 700; }
+  .empty { color: var(--c-ink-soft); font-style: italic; padding: 10px 2px; }
+
+  /* tree */
+  .treebox { border: 2px solid var(--c-line); border-radius: 12px; padding: 8px; overflow-x: auto; }
+  .treebox svg { display: block; margin: 0 auto; }
+  .legend { font-size: 13px; color: var(--c-ink-soft); margin-top: 6px; line-height: 1.5; }
+  .legend summary { cursor: pointer; font-weight: 600; color: var(--c-accent); }
+  svg .edge { stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .edge.ghost { stroke: var(--c-ink-faint); stroke-dasharray: 6 5; }
+  svg .edge.via { stroke: var(--c-accent); stroke-dasharray: 8 5; }
+  svg .nd rect { fill: var(--c-bg); stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .nd.cur rect { fill: var(--c-accent-bg); stroke: var(--c-accent); stroke-width: 4; }
+  svg .nd.wait rect { stroke: var(--c-accent-soft); stroke-width: 4; }
+  svg .nd.loose rect { stroke-dasharray: 6 4; }
+  svg .nd text.v { fill: var(--c-ink); font-weight: 700; font-size: 17px; }
+  svg text.lb, svg text.tag, svg text.cap { paint-order: stroke; stroke: var(--c-bg); stroke-width: 5px; stroke-linejoin: round; }
+  svg text.lb { fill: var(--c-ink-soft); font-size: 12.5px; font-weight: 600; }
+  svg text.tag { fill: var(--c-accent); font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+  svg .slot rect { fill: var(--c-bg); stroke: var(--c-ink-faint); stroke-width: 2; stroke-dasharray: 5 4; }
+  svg .slot text { fill: var(--c-ink-faint); font-family: var(--font-mono); font-size: 12px; }
+  svg text.cap { fill: var(--c-ink-soft); font-size: 12.5px; font-weight: 600; }
+  kbd { font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--c-line); border-radius: 4px; padding: 0 4px; }
+  svg .edge.ref { stroke: var(--c-accent); stroke-width: 5; }
+  svg .edge.refghost { stroke: var(--c-accent); stroke-width: 3; stroke-dasharray: 6 5; }
+  svg text.reflb { fill: var(--c-accent); font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+                   paint-order: stroke; stroke: var(--c-bg); stroke-width: 5px; stroke-linejoin: round; }
+  svg .nd.dead rect { stroke: var(--c-err); stroke-dasharray: 5 4; fill: var(--c-err-bg); }
+  svg .nd.dead text.v { fill: var(--c-err); text-decoration: line-through; }
+  svg text.was { fill: var(--c-err); font-size: 12.5px; font-weight: 700; paint-order: stroke; stroke: var(--c-bg); stroke-width: 5px; }
+  svg text.cap.err { fill: var(--c-err); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="codecol">
+    <div class="code">
+      <div class="head">struct Node { int info; Node* left; Node* right; };<br>class BST · private: Node* root; · the public remove and its private helpers</div>
+      <pre id="code"></pre>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>BST remove, step by step</h1>
+        <p class="sub" id="sub"></p>
+      </div>
+      <div class="bar">
+        <select id="scen" title="Which removal">
+          <option value="132" selected>remove(132): two children</option>
+          <option value="167">remove(167): one child</option>
+          <option value="52">remove(52): a leaf</option>
+          <option value="100">remove(100): not in the tree</option>
+        </select>
+        <button id="first" title="First step (Home)">|◀</button>
+        <button id="back" title="Back (←)">◀ Back</button>
+        <button class="primary" id="next" title="Next (→ or space)">Next ▶</button>
+        <button id="last" title="Last step (End)">▶|</button>
+        <button id="play">Play</button>
+        <select id="speed" title="Speed"><option value="1600">slow</option><option value="900" selected>normal</option><option value="450">fast</option></select>
+        <span class="count" id="count"></span>
+        <button id="restart" title="Start again with the class tree">Restart</button>
+        <button class="theme" id="theme" title="Light / dark (D)">Dark mode</button>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="cols">
+      <section class="panel">
+        <h2>Call stack</h2>
+        <div class="obj" id="obj"></div>
+        <div class="stackhint">Top: the call that is running. Below: calls waiting for an answer.</div>
+        <div id="stack"></div>
+      </section>
+      <section class="panel tree">
+        <h2>Tree in memory</h2>
+        <div class="treebox"><svg id="tree"></svg></div>
+        <details class="legend">
+          <summary>How to read the tree</summary>
+          In <code>remove(Node*&amp; n, int x)</code>, <code>n</code> is a <b>reference to a link</b>: another name for
+          <code>root</code> or for the <code>left</code>/<code>right</code> field of a parent. The thick blue link marked
+          <b style="color:var(--c-accent)">n</b> is the one the running call can change; <b style="color:var(--c-accent)">root (n)</b> means n is <code>root</code> itself.
+          Labels above a node, like <b style="color:var(--c-accent)">n</b> in <code>findMin</code> or <b style="color:var(--c-accent)">old</b>, are plain pointers.
+          Blue fill: the node of the running call · blue ring: nodes of waiting calls.
+          <b style="color:var(--c-err)">was 132</b>: the value of that node was overwritten.
+          Dashed blue: a node already unlinked, only reachable through a variable · red: deleted.
+        </details>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+// ------------------------------------------------------------------ the code (same as P12, Weiss)
+const CODE = [
+  'bool remove(int x) { return remove(root, x); }   // public',
+  'bool remove(Node*& n, int x) {        // n: a reference to a link',
+  '    if (n == nullptr) return false;   // not found',
+  '    if (x < n->info) return remove(n->left, x);',
+  '    if (x > n->info) return remove(n->right, x);',
+  '    if (n->left != nullptr && n->right != nullptr) {',
+  '        n->info = findMin(n->right)->info;  // copy the successor',
+  '        return remove(n->right, n->info);   // delete it below',
+  '    }',
+  '    Node* old = n;                    // leaf or one child',
+  '    if (n->left != nullptr) n = n->left;',
+  '    else n = n->right;                // right child, or nullptr',
+  '    delete old;',
+  '    return true;',
+  '}',
+  'Node* findMin(Node* n) const {        // n is not null',
+  '    while (n->left != nullptr) n = n->left;',
+  '    return n;                         // the smallest value',
+  '}',
+];
+
+function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function colorize(line) {
+  let out = '', rest = line;
+  const ci = rest.indexOf('//');
+  let comment = '';
+  if (ci >= 0) { comment = rest.slice(ci); rest = rest.slice(0, ci); }
+  const tokens = rest.split(/(\b[A-Za-z_]\w*\b|-?\b\d+\b)/);
+  for (const tk of tokens) {
+    if (/^(int|bool|void|return|if|else|while|delete|nullptr|const|true|false)$/.test(tk)) out += `<span class="k">${tk}</span>`;
+    else if (tk === 'Node') out += `<span class="t">${tk}</span>`;
+    else if (/^(remove|findMin)$/.test(tk)) out += `<span class="f">${tk}</span>`;
+    else if (/^-?\d+$/.test(tk)) out += `<span class="n">${tk}</span>`;
+    else out += esc(tk);
+  }
+  if (comment) out += `<span style="color:#8b949e">${esc(comment)}</span>`;
+  return out;
+}
+
+// ------------------------------------------------------------------ the tree in memory
+let nextId = 1;
+const mk = (info) => ({ id: nextId++, info, left: null, right: null, dead: false });
+let root = null;
+let was = {};          // id -> value the node held before n->info was overwritten
+// a link is root (owner null) or the left/right field of a node; Node*& n is a reference to one of them
+const getL = (L) => (L.owner ? L.owner[L.side] : root);
+const setL = (L, v) => { if (L.owner) L.owner[L.side] = v; else root = v; };
+const linkName = (L) => (L.owner ? `${L.owner.info}→${L.side}` : 'root');
+
+// ------------------------------------------------------------------ the tracer: runs the C++ logic and records every step
+let steps = [];
+let frames = [];
+
+function showVar(v) {
+  if (v.kind === 'ref') { const t = getL(v.ref); return (t ? '→ ' + t.info : 'nullptr') + `  (the link ${linkName(v.ref)})`; }
+  if (v.kind === 'ptr') return v.val === null ? 'nullptr' : v.val.dead ? 'dangling: that node was deleted' : '→ ' + v.val.info;
+  return v.val === undefined ? '?' : String(v.val);
+}
+function label(f, sp) {   // remove(n → 132, x = 132)
+  const eq = sp ? ' = ' : '=', ar = sp ? ' → ' : '→';
+  const parts = f.vars.slice(0, f.nargs).map((v) => {
+    if (v.kind === 'int') return v.name + eq + v.val;
+    const t = v.kind === 'ref' ? getL(v.ref) : v.val;
+    return t ? v.name + ar + t.info : v.name + eq + 'nullptr';
+  });
+  return `${f.name}(${parts.join(', ')})`;
+}
+
+function snap(line, msg, extra) {
+  if (frames.length) frames[frames.length - 1].line = line;
+  const nodes = {};
+  const visit = (n) => { if (!n || nodes[n.id]) return;
+    nodes[n.id] = { id: n.id, info: n.info, left: n.left && n.left.id, right: n.right && n.right.id, dead: n.dead };
+    visit(n.left); visit(n.right); };
+  visit(root);
+  const loose = [];
+  for (const f of frames) for (const v of f.vars)
+    if (v.kind === 'ptr' && v.val && !nodes[v.val.id]) { loose.push({ id: v.val.id, by: v.name }); visit(v.val); }
+  steps.push({
+    line, msg, root: root && root.id, nodes, loose, was: Object.assign({}, was), x: extra,
+    frames: frames.map((f) => ({
+      sig: f.sig, name: f.name, line: f.line, back: f.back, call: label(f, false), lab: label(f, true),
+      vars: f.vars.map((v) => ({ name: v.name, kind: v.kind, show: showVar(v),
+        link: v.kind === 'ref' ? { owner: v.ref.owner ? v.ref.owner.id : null, side: v.ref.side } : null,
+        id: v.kind === 'ref' ? (getL(v.ref) ? getL(v.ref).id : null) : v.kind === 'ptr' && v.val ? v.val.id : null })),
+      ret: f.ret,
+    })),
+  });
+}
+function push(f) { frames.push(Object.assign({ line: 0, ret: null }, f)); }
+function pop() { frames.pop(); }
+const caller = () => frames[frames.length - 1];
+const lab = () => label(caller(), true);
+
+function findMin(n, back) {
+  push({ name: 'findMin', sig: 'Node* findMin(Node* n) const', back, nargs: 1, vars: [{ name: 'n', kind: 'ptr', val: n }] });
+  snap(16, `New frame: <code>findMin</code> with <code>n → ${n.info}</code>. Here <code>n</code> is a plain pointer, a copy: ` +
+           `moving it does not change the tree.`);
+  while (n.left !== null) {
+    const from = n.info;
+    n = n.left; caller().vars[0].val = n;
+    snap(17, `${from}->left is not nullptr: <code>n = n->left</code>, now <code>n → ${n.info}</code>.`);
+  }
+  snap(17, `${n.info}->left is nullptr: the loop ends. Nothing is smaller in this subtree.`);
+  caller().ret = '→ ' + n.info;
+  snap(18, `<code>return n</code>: ${n.info} goes back to ${back.text}.`);
+  pop(); return n;
+}
+
+function removeRec(L, x, back) {
+  push({ name: 'remove', sig: 'bool remove(Node*& n, int x)', back, nargs: 2,
+         vars: [{ name: 'n', kind: 'ref', ref: L }, { name: 'x', kind: 'int', val: x }] });
+  const n = getL(L);
+  snap(2, `New frame: <code>remove</code> with <code>x = ${x}</code>. Its <code>n</code> is a reference to the link ` +
+          `<b>${linkName(L)}</b>${n ? `, which points to ${n.info}` : ', which is nullptr'}: if this call changes <code>n</code>, it changes that link.`);
+  if (n === null) {
+    caller().ret = 'false';
+    snap(3, `<code>n == nullptr</code>: the search fell off the tree, so ${x} is not in it. Return false to ${back.text}.`);
+    pop(); return false;
+  }
+  snap(3, `<code>n == nullptr</code>? No.`);
+  if (x < n.info) {
+    snap(4, `${x} &lt; ${n.info}? Yes: call <code>remove(n->left, x)</code>. Its <code>n</code> will be the link ${n.info}→left. ` +
+            `This call waits at line 4.`);
+    const r = removeRec({ owner: n, side: 'left' }, x, { text: `${lab()} at line 4, which returns it` });
+    caller().ret = String(r);
+    snap(4, `Back in <code>${lab()}</code>: it returns ${r} to ${back.text}.`);
+    pop(); return r;
+  }
+  snap(4, `${x} &lt; ${n.info}? No.`);
+  if (x > n.info) {
+    snap(5, `${x} &gt; ${n.info}? Yes: call <code>remove(n->right, x)</code>. Its <code>n</code> will be the link ${n.info}→right. ` +
+            `This call waits at line 5.`);
+    const r = removeRec({ owner: n, side: 'right' }, x, { text: `${lab()} at line 5, which returns it` });
+    caller().ret = String(r);
+    snap(5, `Back in <code>${lab()}</code>: it returns ${r} to ${back.text}.`);
+    pop(); return r;
+  }
+  snap(5, `${x} &gt; ${n.info}? No: <code>n</code> points to ${x}, the node to remove.`);
+  if (n.left !== null && n.right !== null) {
+    snap(6, `Two children (${n.left.info} and ${n.right.info}): ${n.info} cannot simply be unlinked. ` +
+            `Its successor, the smallest value on its right, will take its place.`);
+    snap(7, `Call <code>findMin(n->right)</code> to find the successor. This call waits at line 7.`);
+    const m = findMin(n.right, { text: `${lab()} at line 7, which reads its info` });
+    const before = n.info;
+    n.info = m.info; if (was[n.id] === undefined) was[n.id] = before;
+    snap(7, `Back in <code>${lab()}</code>: <code>n->info = ${m.info}</code>. The node stays where it is, with the same children; ` +
+            `only its value changes from ${before} to ${m.info}. Now ${m.info} appears twice.`);
+    snap(8, `Delete the old ${m.info} from the right subtree: call <code>remove(n->right, ${m.info})</code>. ` +
+            `That node has no left child, so it will be the easy case. This call waits at line 8.`);
+    const r = removeRec({ owner: n, side: 'right' }, n.info, { text: `${lab()} at line 8, which returns it` });
+    caller().ret = String(r);
+    snap(8, `Back in <code>${lab()}</code>: it returns ${r} to ${back.text}.`);
+    pop(); return r;
+  }
+  const kind = n.left === null && n.right === null ? 'a leaf' : 'a node with one child';
+  snap(6, `Two children? No: ${n.info} is ${kind}, so it can be unlinked directly.`);
+  caller().vars.push({ name: 'old', kind: 'ptr', val: n });
+  snap(10, `<code>Node* old = n</code>: keep the address of ${n.info}, to delete it after it is unlinked.`);
+  if (n.left !== null) {
+    setL(L, n.left);
+    snap(11, `<code>n->left</code> is not nullptr: <code>n = n->left</code>. Since <code>n</code> is a reference, this writes the link ` +
+             `${linkName(L)} itself: it now points to ${n.left.info}. ${n.info} is out of the tree.`);
+  } else {
+    snap(11, `<code>n->left != nullptr</code>? No.`);
+    setL(L, n.right);
+    snap(12, `<code>n = n->right</code>. Since <code>n</code> is a reference, this writes the link ${linkName(L)} itself: it is now ` +
+             `${n.right ? `${n.right.info}, which moves up` : 'nullptr'}. ${n.info} is out of the tree.`);
+  }
+  n.dead = true;
+  snap(13, `<code>delete old</code>: the memory of ${n.info} is freed. <code>old</code> still holds that address, but it must not be used.`);
+  caller().ret = 'true';
+  snap(14, `<code>return true</code> to ${back.text}.`);
+  pop(); return true;
+}
+
+function trace(x) {
+  steps = []; frames = []; was = {};
+  push({ name: 'remove', sig: 'bool remove(int x)', back: { text: 'your program' }, nargs: 1, vars: [{ name: 'x', kind: 'int', val: x }] });
+  snap(1, `Your program calls <code>remove(${x})</code>. The public method calls the private one with <code>root</code>, ` +
+          `passed by reference: the private call can change <code>root</code> itself.`);
+  const r = removeRec({ owner: null, side: null }, x, { text: `<code>remove(int x)</code> at line 1, which returns it` });
+  caller().ret = String(r);
+  snap(1, `Back in the public <code>remove</code>: it returns ${r} to your program.`);
+  pop();
+  snap(0, r ? `Done. ${x} is gone and the tree is still a BST: inorder it reads ${inorder(root).join(' ')}.`
+            : `Done. ${x} was not in the tree, so nothing changed.`);
+  return r;
+}
+const inorder = (n) => (n ? [...inorder(n.left), n.info, ...inorder(n.right)] : []);
+
+function bstInsert(n, x) {
+  if (n === null) return mk(x);
+  if (x < n.info) n.left = bstInsert(n.left, x); else if (x > n.info) n.right = bstInsert(n.right, x);
+  return n;
+}
+function build(keys) { nextId = 1; root = null; for (const k of keys) root = bstInsert(root, k); }
+const CLASS = [132, 89, 256, 52, 167, 402, 190];
+
+// ------------------------------------------------------------------ drawing
+const $ = (id) => document.getElementById(id);
+let cur = 0;
+
+function drawCode(s) {
+  const top = s.frames.length ? s.frames.length - 1 : -1;
+  const waits = {};
+  s.frames.forEach((f, i) => { if (i < top) (waits[f.line] = waits[f.line] || []).push(f); });
+  let html = '';
+  CODE.forEach((text, i) => {
+    const no = i + 1;
+    let cls = 'ln', chips = '';
+    if (top >= 0 && s.frames[top].line === no) { cls += ' cur'; chips += `<span class="chip c">${s.frames[top].call} · running</span>`; }
+    else if (waits[no]) cls += ' wait';
+    if (waits[no]) chips += waits[no].map((f) => `<span class="chip w">${f.call}</span>`).join('');
+    html += `<div class="${cls}"><span class="no">${no}</span><span class="tx">${colorize(text)}</span>` +
+            (chips ? `<span class="chips">${chips}</span>` : '') + '</div>';
+  });
+  const pre = $('code');
+  pre.innerHTML = html;
+  const curEl = pre.querySelector('.ln.cur');
+  if (curEl && (curEl.offsetTop < pre.scrollTop || curEl.offsetTop + curEl.offsetHeight > pre.scrollTop + pre.clientHeight))
+    pre.scrollTop = Math.max(0, curEl.offsetTop - pre.clientHeight / 3);
+}
+
+function drawStack(s, prev) {
+  $('obj').innerHTML = `BST object · <b>root</b> <b>${s.root ? '→ ' + s.nodes[s.root].info : '= nullptr'}</b>`;
+  if (!s.frames.length) { $('stack').innerHTML = '<div class="empty">The stack is empty.</div>'; return; }
+  let html = '';
+  for (let i = s.frames.length - 1; i >= 0; i--) {
+    const f = s.frames[i], top = i === s.frames.length - 1;
+    const pf = prev && prev.frames[i] && prev.frames[i].sig === f.sig && prev.frames.length >= i + 1 ? prev.frames[i] : null;
+    const vars = f.vars.map((v) => {
+      const pv = pf && pf.vars.find((w) => w.name === v.name);
+      const changed = pf && (!pv || pv.show !== v.show);
+      return `<span class="nm">${v.name}</span><span class="val${changed ? ' chg' : ''}">${esc(v.show)}</span>`;
+    }).join('');
+    html += `<div class="frame${top ? ' top' : ''}">
+      <div class="sig"><span>${esc(f.sig)}</span><span class="pill ${top ? 'run' : 'wait'}">${top ? 'running' : 'waiting'}</span></div>
+      <div class="vars">${vars}</div>
+      <div class="meta">${top ? 'Running' : 'Waiting at'} <b>line ${f.line}</b>: <code>${esc(CODE[f.line - 1].split('//')[0].trim())}</code><br>
+      Returns to: ${f.back.text}${f.ret !== null ? `<br><span class="ret">Returns ${esc(f.ret)}</span>` : ''}</div></div>`;
+  }
+  $('stack').innerHTML = html;
+}
+
+function drawTree(s) {
+  const svg = $('tree');
+  const pos = {};
+  let col = 0;
+  const DX = 66, DY = 92, X0 = 90, Y0 = 50;
+  const lay = (id, d) => { if (id == null || pos[id]) return; const n = s.nodes[id];
+    lay(n.left, d + 1); pos[id] = { x: X0 + col * DX, y: Y0 + d * DY }; col++; lay(n.right, d + 1); };
+  lay(s.root, 0);
+  let maxX = X0, maxY = Y0;
+  for (const id in pos) { maxX = Math.max(maxX, pos[id].x); maxY = Math.max(maxY, pos[id].y); }
+  // unlinked nodes, only reachable through a variable: to the right of the tree
+  const looseIds = new Set();
+  const top = s.frames[s.frames.length - 1];
+  const topRef = top && top.vars.find((v) => v.kind === 'ref');
+  const free = (x, y) => Object.values(pos).every((q) => Math.abs(q.x - x) > 56 || Math.abs(q.y - y) > 56);
+  s.loose.forEach((L, i) => { if (pos[L.id]) return;
+    const nd = s.nodes[L.id];
+    const kid = [['left', nd.left], ['right', nd.right]].find(([, c]) => c != null && pos[c]);
+    let q = null;
+    if (kid) {                     // beside and below the child it still points to
+      const c = pos[kid[1]];
+      q = { x: c.x + (kid[0] === 'right' ? -DX * 0.9 : DX * 0.9), y: c.y + DY * 0.8 };
+    } else if (topRef && topRef.link.owner !== null && pos[topRef.link.owner]) {   // where it used to hang
+      const o = pos[topRef.link.owner];
+      // below the empty link it leaves behind, which shows nullptr
+      q = { x: Math.max(125, o.x + (topRef.link.side === 'left' ? -DX * 0.6 : DX * 0.6)), y: o.y + DY * 1.7 };
+    }
+    if (!q || !free(q.x, q.y)) q = { x: maxX + DX * (1.5 + 1.6 * i), y: Y0 + DY };
+    pos[L.id] = q; looseIds.add(L.id); });
+  const curIds = new Set(), waitIds = new Set(), tags = {};
+  const addTag = (id, t) => { (tags[id] = tags[id] || []).push(t); };
+  s.frames.forEach((f, i) => {
+    const isTop = i === s.frames.length - 1;
+    const main = f.vars.find((v) => v.name === 'n');
+    if (main && main.id) (isTop ? curIds : waitIds).add(main.id);
+    if (isTop) f.vars.forEach((v) => { if (v.kind === 'ptr' && v.id) addTag(v.id, v.name); });
+  });
+  // the link that the reference n of the running call names
+  let refEdge = null, slot = null, rootIsN = false;
+  const ref = topRef;
+  if (ref) {
+    if (ref.link.owner === null) rootIsN = true;
+    else if (pos[ref.link.owner]) {
+      const p = pos[ref.link.owner];
+      if (ref.id && pos[ref.id]) refEdge = { a: ref.link.owner, b: ref.id };
+      else slot = { x: p.x + (ref.link.side === 'left' ? -DX * 0.6 : DX * 0.6), y: p.y + DY * 0.85, pid: ref.link.owner };
+    }
+  }
+  if (s.root) addTag(s.root, rootIsN ? 'root (n)' : 'root');
+  if (slot) { maxX = Math.max(maxX, slot.x); maxY = Math.max(maxY, slot.y); }
+  for (const id in pos) { maxX = Math.max(maxX, pos[id].x); maxY = Math.max(maxY, pos[id].y); }
+  const W = (v) => (String(v).length <= 2 ? 46 : 58);
+  const width = Math.max(420, maxX + (looseIds.size ? 150 : 70)), height = maxY + 70;
+  let g = `<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">` +
+          `<path d="M0,0 L10,5 L0,10 z" style="fill: var(--c-accent)"/></marker></defs>`;
+  for (const id in pos) { const n = s.nodes[id];
+    for (const [side, c] of [['left', n.left], ['right', n.right]]) {
+      if (c == null || !pos[c]) continue;
+      if (looseIds.has(+id)) {   // an unlinked node still points at its child (not once it is deleted)
+        if (n.dead) continue;
+        const w = W(n.info), x1 = pos[id].x + (side === 'right' ? w / 2 : -w / 2), y1 = pos[id].y;
+        const wc = W(s.nodes[c].info);
+        const x2 = pos[c].x + (x1 < pos[c].x ? -wc / 2 + 6 : wc / 2 - 6), y2 = pos[c].y + (pos[c].y < y1 ? 12 : -12);
+        g += `<line class="edge via" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#arr)"/>`;
+        g += `<text class="tag" x="${x1 + (side === 'right' ? 6 : -6)}" y="${y1 - 8}" text-anchor="${side === 'right' ? 'start' : 'end'}">${side}</text>`;
+        continue;
+      }
+      const isRef = refEdge && refEdge.a === +id && refEdge.b === c;
+      g += `<line class="edge${isRef ? ' ref' : ''}" x1="${pos[id].x}" y1="${pos[id].y}" x2="${pos[c].x}" y2="${pos[c].y}"/>`;
+      if (isRef) {
+        const mx = (pos[id].x + pos[c].x) / 2, my = (pos[id].y + pos[c].y) / 2;
+        const right = pos[c].x > pos[id].x;
+        g += `<text class="reflb" x="${mx + (right ? 10 : -10)}" y="${my - 6}" text-anchor="${right ? 'start' : 'end'}">n</text>`;
+      }
+    } }
+  if (slot) {
+    const p = pos[slot.pid];
+    g += `<line class="edge refghost" x1="${p.x}" y1="${p.y}" x2="${slot.x}" y2="${slot.y}"/>`;
+    const mx = (p.x + slot.x) / 2, my = (p.y + slot.y) / 2, right = slot.x > p.x;
+    g += `<text class="reflb" x="${mx + (right ? 10 : -10)}" y="${my - 4}" text-anchor="${right ? 'start' : 'end'}">n</text>`;
+  }
+  for (const id of looseIds) {
+    const n = s.nodes[id], by = s.loose.find((L) => L.id === id).by;
+    g += n.dead ? `<text class="cap err" x="${pos[id].x}" y="${pos[id].y + 44}" text-anchor="middle">deleted: memory freed</text>`
+                : `<text class="cap" x="${pos[id].x}" y="${pos[id].y + 44}" text-anchor="middle">unlinked: only reachable through ${by}</text>`;
+  }
+  for (const id in pos) {
+    const n = s.nodes[id], p = pos[id], w = W(n.info);
+    let cls = 'nd';
+    if (n.dead) cls += ' dead';
+    else if (curIds.has(+id)) cls += ' cur'; else if (waitIds.has(+id)) cls += ' wait';
+    if (looseIds.has(+id) && !n.dead) cls += ' loose';
+    g += `<g class="${cls}"><rect x="${p.x - w / 2}" y="${p.y - 17}" width="${w}" height="34" rx="17"/>` +
+         `<text class="v" x="${p.x}" y="${p.y + 6}" text-anchor="middle">${n.info}</text></g>`;
+    if (s.was[id] !== undefined) g += `<text class="was" x="${p.x}" y="${p.y + 34}" text-anchor="middle">was ${s.was[id]}</text>`;
+    if (tags[id]) g += `<text class="tag" x="${p.x}" y="${p.y - 25}" text-anchor="middle">${tags[id].join(', ')}</text>`;
+  }
+  if (slot) g += `<g class="slot"><rect x="${slot.x - 30}" y="${slot.y - 14}" width="60" height="28" rx="14"/>` +
+                 `<text x="${slot.x}" y="${slot.y + 4}" text-anchor="middle">nullptr</text></g>`;
+  if (!s.root && !looseIds.size) g += `<text class="cap" x="20" y="40">empty tree: root = nullptr</text>`;
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.innerHTML = g;
+}
+
+function show(i) {
+  if (!steps.length) return;
+  cur = Math.max(0, Math.min(i, steps.length - 1));
+  const s = steps[cur];
+  $('msg').innerHTML = s.msg;
+  drawCode(s); drawStack(s, cur > 0 ? steps[cur - 1] : null); drawTree(s);
+  $('count').textContent = `Step ${cur + 1} of ${steps.length}`;
+  $('back').disabled = $('first').disabled = cur === 0;
+  $('next').disabled = $('last').disabled = cur === steps.length - 1;
+}
+
+// ------------------------------------------------------------------ controls
+let timer = null;
+function stop() { if (timer) { clearInterval(timer); timer = null; $('play').textContent = 'Play'; } }
+const SUBS = {
+  132: 'remove(132) from the class tree: two children, so the successor 167 takes its place.',
+  167: 'remove(167) from the class tree: one child, so 190 moves up into its link.',
+  52: 'remove(52) from the class tree: a leaf, so its link becomes nullptr.',
+  100: 'remove(100) from the class tree: the search falls off the tree and nothing changes.',
+};
+function run() {
+  stop();
+  const x = +$('scen').value;
+  build(CLASS); trace(x);
+  $('sub').textContent = SUBS[x] + ' The code, the call stack with its variables, and the tree in memory.';
+  show(0);
+}
+$('scen').onchange = run;
+$('restart').onclick = run;
+$('next').onclick = () => { stop(); show(cur + 1); };
+$('back').onclick = () => { stop(); show(cur - 1); };
+$('first').onclick = () => { stop(); show(0); };
+$('last').onclick = () => { stop(); show(steps.length - 1); };
+$('play').onclick = () => {
+  if (timer) return stop();
+  if (cur >= steps.length - 1) show(0);
+  $('play').textContent = 'Pause';
+  timer = setInterval(() => { if (cur >= steps.length - 1) stop(); else show(cur + 1); }, +$('speed').value);
+};
+document.addEventListener('keydown', (e) => {
+  if (e.target && e.target.tagName === 'SELECT') return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); $('next').click(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); $('back').click(); }
+  else if (e.key === 'Home') $('first').click();
+  else if (e.key === 'End') $('last').click();
+  else if (e.key === 'd' || e.key === 'D') $('theme').click();
+});
+function setTheme(t) {
+  if (t === 'dark') document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem('shstyle-theme', t); } catch (e) {}
+  $('theme').textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
+}
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+$('theme').textContent = document.documentElement.dataset.theme === 'dark' ? 'Light mode' : 'Dark mode';
+
+// for automated checks: remove x from a BST built from keys; returns the result and the tree in preorder
+window.bstTest = {
+  remove(keys, x) {
+    build(keys); const r = trace(x);
+    const pre = (n) => (n ? [n.info, ...pre(n.left), ...pre(n.right)] : []);
+    const out = { r, pre: pre(root).join(' '), steps: steps.length, depth: Math.max(...steps.map((s) => s.frames.length)) };
+    run(); return out;
+  },
+};
+
+run();
+</script>
+</body>
+</html>
