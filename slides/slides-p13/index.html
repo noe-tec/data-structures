@@ -334,6 +334,329 @@ void insert(int x) { root = insert(root, x); }   // public
 
     <section>
       <span class="kicker">13.3 · Insertion</span>
+      <h2>Insert 180 again: the zig-zag, line by line</h2>
+      <div class="cols" style="gap: 0.7em; align-items: center;">
+        <div style="flex: 1.06;"><pre style="font-size: 0.76em; line-height: 1.33;"><code class="language-cpp" data-trim data-line-numbers="1">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="6-7">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="4-5">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="6-7">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="4-5">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="2-3">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="9,13-14,20">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="9,13-14">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="15">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="16">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="17">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="5">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code><code class="fragment language-cpp" data-trim data-line-numbers="9,13-14,20">
+AVLNode* insert(AVLNode* n, int x) {
+    if (n == nullptr)
+        return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info)
+        n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info)
+        n-&gt;right = insert(n-&gt;right, x);
+    else return n;
+    return rebalance(n);
+}
+
+AVLNode* rebalance(AVLNode* n) {
+    update(n);
+    if (bf(n) == 2) {
+        if (bf(n-&gt;right) &lt; 0)
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    // bf(n) == -2: the mirror case
+    return n;
+}
+      </code></pre></div>
+        <div><svg viewBox="0 0 560 396" style="width:100%;">
+<g class="anim-step" data-step="0" data-step-off="1"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = 2 · BF = −1</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><rect class="svg-node" x="246" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="306" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="382" y="241" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">insert(root, 180) starts at the root</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">the same tree as before, a different key</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = 2 · BF = −1</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><rect class="svg-node" x="246" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="306" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="382" y="241" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">n = 132 · 180 &gt; 132, so go right</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">line 7 calls insert again and waits for its answer</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = 2 · BF = −1</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><rect class="svg-node" x="246" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="306" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="382" y="241" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">n = 256 · 180 &lt; 256, so go left</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">line 5 calls insert again · two calls are waiting</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = 2 · BF = −1</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><rect class="svg-node-hl" x="246" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="306" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="382" y="241" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">n = 167 · 180 &gt; 167, so go right</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">line 7 again · three calls are waiting</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = 2 · BF = −1</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><rect class="svg-node-hl" x="246" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node-hl" x="306" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="382" y="241" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">n = 190 · 180 &lt; 190, so go left</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">this time line 5: the path bends at 190</text></g>
+<g class="anim-step" data-step="5" data-step-off="6"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><line class="svg-edge" x1="340" y1="234" x2="290" y2="302"/><rect class="svg-node-hl" x="246" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node-hl" x="306" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node-hl" x="256" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="309.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="382" y="241" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="332" y="309" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">n is null: create the node and return it</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">the call for 190 stores it in 190-&gt;left (line 5)</text></g>
+<g class="anim-step" data-step="6" data-step-off="7"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><line class="svg-edge" x1="340" y1="234" x2="290" y2="302"/><rect class="svg-node-hl" x="246" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="306" y="214" width="68" height="40" rx="20"/><rect x="306" y="214" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="256" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="309.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ok" x="382" y="241" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="332" y="309" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">Back in 190: rebalance(190)</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">update: h = 1 · BF = −1, not −2 → return 190 as it is</text></g>
+<g class="anim-step" data-step="7" data-step-off="8"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><line class="svg-edge" x1="340" y1="234" x2="290" y2="302"/><rect class="svg-node" x="246" y="146" width="68" height="40" rx="20"/><rect x="246" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="306" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="256" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="309.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-err" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 2 · BF = +2</text><text class="f-ink-soft" x="382" y="241" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="332" y="309" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">Back in 167: update gives h = 2</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">bf(167) == 2 is true: 167 is right-heavy</text></g>
+<g class="anim-step" data-step="8" data-step-off="9"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><line class="svg-edge" x1="340" y1="234" x2="290" y2="302"/><rect class="svg-node" x="246" y="146" width="68" height="40" rx="20"/><rect x="246" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="306" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="256" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="290" y="309.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-err" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 2 · BF = +2</text><text class="f-accent" x="382" y="241" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="332" y="309" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">bf(190) = −1 &lt; 0 is true</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">opposite signs: a zig-zag, so the child rotates first</text></g>
+<g class="anim-step" data-step="9" data-step-off="10"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><line class="svg-edge" x1="280" y1="166" x2="340" y2="234"/><line class="svg-edge" x1="340" y1="234" x2="400" y2="302"/><rect class="svg-node" x="246" y="146" width="68" height="40" rx="20"/><rect x="246" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="306" y="214" width="68" height="40" rx="20"/><rect x="306" y="214" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="340" y="241.92" text-anchor="middle" style="font-size:22px;">180</text><rect class="svg-node" x="366" y="282" width="68" height="40" rx="20"/><text class="svg-label" x="400" y="309.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-err" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 2 · BF = +2</text><text class="f-ink-soft" x="382" y="241" style="font-size:18px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="442" y="309" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">167-&gt;right = rotateRight(190)</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">180 rises above 190 · the path is now a straight line</text></g>
+<g class="anim-step" data-step="10" data-step-off="11"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><line class="svg-edge" x1="280" y1="166" x2="215" y2="234"/><line class="svg-edge" x1="280" y1="166" x2="345" y2="234"/><rect class="svg-node" x="181" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="215" y="241.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="311" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="345" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="246" y="146" width="68" height="40" rx="20"/><rect x="246" y="146" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 1 · BF = 0</text><text class="f-ink-soft" x="173" y="241" text-anchor="end" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="387" y="241" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">return rotateLeft(167)</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">180 is the new root of this subtree: the value returned</text></g>
+<g class="anim-step" data-step="11" data-step-off="12"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><line class="s-accent" stroke-width="6" x1="328" y1="119" x2="302" y2="145"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node-hl" x="196" y="10" width="68" height="40" rx="20"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="316" y="78" width="68" height="40" rx="20"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="272" y="37" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="392" y="105" style="font-size:18px; font-weight:700;">h = ? · BF = ?</text><line class="svg-edge" x1="280" y1="166" x2="215" y2="234"/><line class="svg-edge" x1="280" y1="166" x2="345" y2="234"/><rect class="svg-node" x="181" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="215" y="241.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="311" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="345" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="246" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 1 · BF = 0</text><text class="f-ink-soft" x="173" y="241" text-anchor="end" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="387" y="241" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">Back in 256: line 5 stores the answer</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">the left link of 256 now points to 180, not to 167</text></g>
+<g class="anim-step" data-step="12"><line class="svg-edge" x1="230" y1="30" x2="95" y2="98"/><line class="svg-edge" x1="230" y1="30" x2="350" y2="98"/><line class="svg-edge" x1="95" y1="98" x2="45" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="455" y2="166"/><line class="svg-edge" x1="350" y1="98" x2="280" y2="166"/><rect class="svg-node" x="70" y="78" width="50" height="40" rx="20"/><text class="svg-label" x="95" y="105.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="20" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="45" y="173.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="421" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="455" y="173.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node" x="196" y="10" width="68" height="40" rx="20"/><rect x="196" y="10" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="230" y="37.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node" x="316" y="78" width="68" height="40" rx="20"/><rect x="316" y="78" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="350" y="105.92" text-anchor="middle" style="font-size:22px;">256</text><text class="f-ink-soft" x="128" y="105" style="font-size:18px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="22" y="206" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="455" y="206" text-anchor="middle" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ok" x="272" y="37" style="font-size:18px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ok" x="392" y="105" style="font-size:18px; font-weight:700;">h = 2 · BF = −1</text><line class="svg-edge" x1="280" y1="166" x2="215" y2="234"/><line class="svg-edge" x1="280" y1="166" x2="345" y2="234"/><rect class="svg-node" x="181" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="215" y="241.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="311" y="214" width="68" height="40" rx="20"/><text class="svg-label" x="345" y="241.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="246" y="146" width="68" height="40" rx="20"/><text class="svg-label" x="280" y="173.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-ink-soft" x="238" y="173" text-anchor="end" style="font-size:18px; font-weight:700;">h = 1 · BF = 0</text><text class="f-ink-soft" x="173" y="241" text-anchor="end" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="387" y="241" style="font-size:18px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="8" y="356" style="font-size:21px; font-weight:700;">256, then 132: nothing to fix</text><text class="f-ink-soft" x="8" y="384" style="font-size:17px; font-weight:600;">update, BF = −1 and +1 → return n · the insertion is done</text></g>
+</svg></div>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">13.3 · Insertion</span>
+      <h2>Step by step: code, call stack and tree</h2>
+      <div class="cols">
+        <div><svg class="qr" viewBox="0 0 45 45" style="width:300px; height:300px;" role="img" aria-label="QR code: https://noe-tec.github.io/data-structures/03-trees/pages/avl-insert-trace.html" shape-rendering="crispEdges"><rect width="45" height="45" fill="white"/><path fill="black" d="M4,4h7v1h-7zM12,4h3v1h-3zM16,4h1v1h-1zM19,4h2v1h-2zM22,4h3v1h-3zM27,4h4v1h-4zM32,4h1v1h-1zM34,4h7v1h-7zM4,5h1v1h-1zM10,5h1v1h-1zM12,5h2v1h-2zM15,5h3v1h-3zM20,5h1v1h-1zM24,5h4v1h-4zM29,5h1v1h-1zM32,5h1v1h-1zM34,5h1v1h-1zM40,5h1v1h-1zM4,6h1v1h-1zM6,6h3v1h-3zM10,6h1v1h-1zM13,6h2v1h-2zM17,6h4v1h-4zM23,6h2v1h-2zM28,6h2v1h-2zM32,6h1v1h-1zM34,6h1v1h-1zM36,6h3v1h-3zM40,6h1v1h-1zM4,7h1v1h-1zM6,7h3v1h-3zM10,7h1v1h-1zM12,7h1v1h-1zM16,7h3v1h-3zM20,7h2v1h-2zM24,7h1v1h-1zM28,7h4v1h-4zM34,7h1v1h-1zM36,7h3v1h-3zM40,7h1v1h-1zM4,8h1v1h-1zM6,8h3v1h-3zM10,8h1v1h-1zM13,8h3v1h-3zM18,8h2v1h-2zM22,8h2v1h-2zM25,8h1v1h-1zM28,8h1v1h-1zM30,8h2v1h-2zM34,8h1v1h-1zM36,8h3v1h-3zM40,8h1v1h-1zM4,9h1v1h-1zM10,9h1v1h-1zM13,9h1v1h-1zM15,9h1v1h-1zM17,9h2v1h-2zM20,9h1v1h-1zM22,9h2v1h-2zM28,9h1v1h-1zM30,9h1v1h-1zM34,9h1v1h-1zM40,9h1v1h-1zM4,10h7v1h-7zM12,10h1v1h-1zM14,10h1v1h-1zM16,10h1v1h-1zM18,10h1v1h-1zM20,10h1v1h-1zM22,10h1v1h-1zM24,10h1v1h-1zM26,10h1v1h-1zM28,10h1v1h-1zM30,10h1v1h-1zM32,10h1v1h-1zM34,10h7v1h-7zM12,11h4v1h-4zM17,11h1v1h-1zM19,11h1v1h-1zM21,11h2v1h-2zM26,11h2v1h-2zM30,11h2v1h-2zM4,12h1v1h-1zM6,12h2v1h-2zM9,12h3v1h-3zM16,12h2v1h-2zM20,12h6v1h-6zM27,12h2v1h-2zM30,12h1v1h-1zM32,12h1v1h-1zM34,12h1v1h-1zM37,12h1v1h-1zM39,12h2v1h-2zM5,13h1v1h-1zM14,13h1v1h-1zM19,13h2v1h-2zM22,13h3v1h-3zM26,13h2v1h-2zM32,13h2v1h-2zM35,13h1v1h-1zM38,13h2v1h-2zM6,14h3v1h-3zM10,14h1v1h-1zM12,14h4v1h-4zM18,14h2v1h-2zM21,14h2v1h-2zM24,14h4v1h-4zM29,14h1v1h-1zM32,14h1v1h-1zM34,14h2v1h-2zM37,14h1v1h-1zM12,15h2v1h-2zM15,15h1v1h-1zM17,15h1v1h-1zM19,15h1v1h-1zM22,15h2v1h-2zM27,15h1v1h-1zM29,15h3v1h-3zM34,15h1v1h-1zM36,15h3v1h-3zM4,16h2v1h-2zM9,16h5v1h-5zM15,16h2v1h-2zM18,16h1v1h-1zM21,16h1v1h-1zM23,16h2v1h-2zM26,16h1v1h-1zM28,16h3v1h-3zM33,16h2v1h-2zM36,16h1v1h-1zM38,16h3v1h-3zM4,17h2v1h-2zM8,17h2v1h-2zM12,17h1v1h-1zM16,17h1v1h-1zM19,17h1v1h-1zM23,17h1v1h-1zM28,17h10v1h-10zM39,17h2v1h-2zM6,18h1v1h-1zM8,18h6v1h-6zM16,18h1v1h-1zM18,18h1v1h-1zM22,18h3v1h-3zM29,18h2v1h-2zM36,18h1v1h-1zM38,18h1v1h-1zM4,19h1v1h-1zM7,19h1v1h-1zM12,19h2v1h-2zM16,19h2v1h-2zM22,19h2v1h-2zM25,19h1v1h-1zM27,19h1v1h-1zM31,19h2v1h-2zM34,19h3v1h-3zM39,19h1v1h-1zM5,20h1v1h-1zM9,20h4v1h-4zM15,20h2v1h-2zM20,20h2v1h-2zM24,20h3v1h-3zM28,20h3v1h-3zM37,20h3v1h-3zM5,21h1v1h-1zM8,21h2v1h-2zM14,21h1v1h-1zM17,21h2v1h-2zM20,21h1v1h-1zM24,21h1v1h-1zM27,21h2v1h-2zM31,21h2v1h-2zM34,21h2v1h-2zM37,21h4v1h-4zM4,22h5v1h-5zM10,22h3v1h-3zM15,22h1v1h-1zM19,22h4v1h-4zM25,22h2v1h-2zM31,22h3v1h-3zM35,22h3v1h-3zM39,22h2v1h-2zM7,23h3v1h-3zM11,23h1v1h-1zM13,23h2v1h-2zM16,23h3v1h-3zM21,23h3v1h-3zM27,23h2v1h-2zM31,23h1v1h-1zM34,23h1v1h-1zM36,23h2v1h-2zM39,23h1v1h-1zM5,24h3v1h-3zM10,24h2v1h-2zM15,24h1v1h-1zM18,24h1v1h-1zM21,24h2v1h-2zM24,24h2v1h-2zM30,24h1v1h-1zM32,24h2v1h-2zM35,24h3v1h-3zM40,24h1v1h-1zM7,25h1v1h-1zM13,25h1v1h-1zM15,25h3v1h-3zM20,25h1v1h-1zM23,25h3v1h-3zM27,25h4v1h-4zM32,25h1v1h-1zM37,25h1v1h-1zM39,25h1v1h-1zM5,26h2v1h-2zM8,26h3v1h-3zM12,26h2v1h-2zM15,26h3v1h-3zM20,26h2v1h-2zM25,26h1v1h-1zM27,26h1v1h-1zM33,26h1v1h-1zM35,26h1v1h-1zM39,26h1v1h-1zM4,27h1v1h-1zM6,27h1v1h-1zM9,27h1v1h-1zM11,27h1v1h-1zM14,27h1v1h-1zM16,27h1v1h-1zM18,27h1v1h-1zM23,27h2v1h-2zM26,27h2v1h-2zM29,27h2v1h-2zM33,27h1v1h-1zM36,27h3v1h-3zM6,28h2v1h-2zM10,28h1v1h-1zM12,28h1v1h-1zM18,28h2v1h-2zM22,28h2v1h-2zM26,28h1v1h-1zM28,28h9v1h-9zM38,28h1v1h-1zM40,28h1v1h-1zM8,29h2v1h-2zM11,29h2v1h-2zM14,29h1v1h-1zM16,29h3v1h-3zM20,29h2v1h-2zM23,29h2v1h-2zM28,29h1v1h-1zM30,29h7v1h-7zM39,29h2v1h-2zM5,30h2v1h-2zM8,30h3v1h-3zM13,30h3v1h-3zM17,30h4v1h-4zM22,30h3v1h-3zM26,30h1v1h-1zM28,30h3v1h-3zM33,30h1v1h-1zM39,30h1v1h-1zM4,31h1v1h-1zM6,31h2v1h-2zM9,31h1v1h-1zM11,31h2v1h-2zM15,31h1v1h-1zM18,31h1v1h-1zM20,31h1v1h-1zM22,31h1v1h-1zM24,31h5v1h-5zM31,31h5v1h-5zM10,32h2v1h-2zM13,32h1v1h-1zM16,32h4v1h-4zM22,32h1v1h-1zM24,32h4v1h-4zM29,32h1v1h-1zM32,32h5v1h-5zM38,32h1v1h-1zM40,32h1v1h-1zM12,33h1v1h-1zM16,33h4v1h-4zM21,33h2v1h-2zM27,33h2v1h-2zM31,33h2v1h-2zM36,33h1v1h-1zM38,33h3v1h-3zM4,34h7v1h-7zM12,34h2v1h-2zM15,34h1v1h-1zM18,34h2v1h-2zM21,34h1v1h-1zM24,34h2v1h-2zM32,34h1v1h-1zM34,34h1v1h-1zM36,34h1v1h-1zM38,34h1v1h-1zM40,34h1v1h-1zM4,35h1v1h-1zM10,35h1v1h-1zM12,35h8v1h-8zM24,35h1v1h-1zM26,35h3v1h-3zM31,35h2v1h-2zM36,35h1v1h-1zM40,35h1v1h-1zM4,36h1v1h-1zM6,36h3v1h-3zM10,36h1v1h-1zM13,36h1v1h-1zM15,36h4v1h-4zM22,36h2v1h-2zM25,36h1v1h-1zM28,36h1v1h-1zM30,36h1v1h-1zM32,36h6v1h-6zM39,36h2v1h-2zM4,37h1v1h-1zM6,37h3v1h-3zM10,37h1v1h-1zM12,37h1v1h-1zM14,37h2v1h-2zM17,37h1v1h-1zM19,37h1v1h-1zM22,37h4v1h-4zM27,37h1v1h-1zM29,37h1v1h-1zM34,37h1v1h-1zM36,37h1v1h-1zM40,37h1v1h-1zM4,38h1v1h-1zM6,38h3v1h-3zM10,38h1v1h-1zM12,38h1v1h-1zM14,38h1v1h-1zM16,38h1v1h-1zM20,38h3v1h-3zM26,38h2v1h-2zM30,38h5v1h-5zM36,38h2v1h-2zM4,39h1v1h-1zM10,39h1v1h-1zM14,39h2v1h-2zM17,39h2v1h-2zM20,39h1v1h-1zM22,39h1v1h-1zM26,39h4v1h-4zM33,39h1v1h-1zM35,39h4v1h-4zM4,40h7v1h-7zM12,40h1v1h-1zM14,40h4v1h-4zM19,40h3v1h-3zM26,40h2v1h-2zM29,40h2v1h-2zM33,40h1v1h-1zM36,40h5v1h-5z"/></svg></div>
+        <div>
+          <p><strong>insert(180), one line at a time.</strong> The code, every call on the stack with its variables
+            and where it returns, and the tree in memory, all on one page.</p>
+          <p class="muted">Scan the code or open:<br>
+            <a href="https://noe-tec.github.io/data-structures/03-trees/pages/avl-insert-trace.html">noe-tec.github.io/data-structures/03-trees/pages/avl-insert-trace.html</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">13.3 · Insertion</span>
       <h2>Sorted input, balanced tree</h2>
       <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
 <g class="anim-step" data-step="0" data-step-off="1"><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><rect class="svg-node" x="521" y="20" width="58" height="50" rx="25"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">1</text><rect class="svg-node-hl" x="731" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">3</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">insert 1, then 3</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">BF(1) = +1: allowed</text></g>

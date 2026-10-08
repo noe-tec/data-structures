@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AVL insert, step by step</title>
+<script>try{if(localStorage.getItem('shstyle-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  /* Same colors as the class slides (shstyle) */
+  :root {
+    --c-bg: #ffffff; --c-ink: #16181d; --c-ink-soft: #4b5260; --c-ink-faint: #aab0bb;
+    --c-accent: #0b57d0; --c-accent-bg: #e8f0fe; --c-accent-soft: #9dc0f0;
+    --c-ok: #146c2e; --c-ok-bg: #e6f4ea; --c-err: #b3261e; --c-err-bg: #fce8e6;
+    --c-line: #d7dbe2; --c-surface-1: #f0f1f4; --c-surface-2: #eceff3;
+    --c-code-panel: #14161d; --c-code-head: #1f232d; --c-code-head-ink: #8b93a5; --c-code-ink: #e8eaf0;
+    --c-code-cur: rgba(56, 139, 253, 0.30); --c-code-wait: rgba(255, 255, 255, 0.07);
+    --c-shadow: rgba(20, 22, 29, 0.14);
+    --font-sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --c-bg: #15171c; --c-ink: #e6e8ee; --c-ink-soft: #a7adba; --c-ink-faint: #6b7280;
+    --c-accent: #8ab4f8; --c-accent-bg: #1d2a44; --c-accent-soft: #3b5b8f;
+    --c-ok: #6dd58c; --c-ok-bg: #16301f; --c-err: #f2b8b5; --c-err-bg: #3b1d1b;
+    --c-line: #3a3f4b; --c-surface-1: #20232b; --c-surface-2: #252932;
+    --c-code-panel: #0e1014; --c-code-head: #1a1d25;
+    --c-shadow: rgba(0, 0, 0, 0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: var(--c-bg); color: var(--c-ink); padding: 12px 18px 30px; }
+  .app { display: grid; grid-template-columns: minmax(560px, 610px) 1fr; gap: 18px; align-items: start; }
+  .codecol { position: sticky; top: 12px; height: calc(100vh - 24px); }
+  .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; margin-bottom: 10px; }
+  h1 { font-size: 24px; letter-spacing: -0.02em; }
+  .sub { color: var(--c-ink-soft); margin-top: 2px; font-size: 14px; }
+  .cols { display: grid; grid-template-columns: minmax(340px, 0.85fr) minmax(420px, 1.15fr); gap: 16px; align-items: start; }
+  @media (max-width: 1500px) { .cols { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } .codecol { position: static; height: auto; } }
+  button, input, select { font-family: inherit; font-size: 15px; }
+  button { border: 2px solid var(--c-accent); background: var(--c-bg); color: var(--c-accent); border-radius: 8px;
+           padding: 6px 12px; font-weight: 600; cursor: pointer; }
+  button.primary { background: var(--c-accent); color: var(--c-bg); }
+  button:disabled { opacity: .4; cursor: default; }
+  input[type=number] { width: 90px; padding: 6px 8px; border: 2px solid var(--c-line); border-radius: 8px;
+                       background: var(--c-bg); color: var(--c-ink); }
+  select { padding: 6px; border: 2px solid var(--c-line); border-radius: 8px; background: var(--c-bg); color: var(--c-ink); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .bar .sep { width: 1px; height: 28px; background: var(--c-line); margin: 0 6px; }
+  .bar .count { color: var(--c-ink-soft); font-weight: 600; min-width: 120px; }
+  .theme { border-color: var(--c-line); color: var(--c-ink-soft); }
+  .msg { border-left: 6px solid var(--c-accent); background: var(--c-accent-bg); border-radius: 8px;
+         padding: 10px 16px; font-size: 18px; line-height: 1.45; min-height: 56px; margin-bottom: 14px; }
+  .msg code { font-family: var(--font-mono); font-size: 16px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--c-accent); margin-bottom: 6px; }
+
+  /* code */
+  .code { background: var(--c-code-panel); border-radius: 12px; box-shadow: 0 6px 20px var(--c-shadow); overflow: hidden;
+          height: 100%; display: flex; flex-direction: column; }
+  .code .head { background: var(--c-code-head); color: var(--c-code-head-ink); font-family: var(--font-mono); font-size: 13px;
+                padding: 8px 14px; }
+  .code pre { font-family: var(--font-mono); font-size: 14px; line-height: 1.5; color: var(--c-code-ink); padding: 8px 0;
+              flex: 1; overflow: auto; position: relative; }
+  .ln { display: flex; flex-wrap: wrap; align-items: center; padding: 0 10px 0 0; border-left: 4px solid transparent; min-height: 21.7px; }
+  .ln .chips { margin-left: auto; display: flex; gap: 4px; padding-left: 8px; }
+  .ln .no { width: 36px; text-align: right; color: #5c6370; padding-right: 12px; flex: none; user-select: none; }
+  .ln .tx { white-space: pre; flex: 1; }
+  .ln.cur { background: var(--c-code-cur); border-left-color: #58a6ff; }
+  .ln.cur .no { color: #e8eaf0; font-weight: 700; }
+  .ln.wait { background: var(--c-code-wait); border-left-color: #6e7681; }
+  .chip { font-family: var(--font-sans); font-size: 11px; font-weight: 700; border-radius: 6px; padding: 1px 6px;
+          white-space: nowrap; }
+  .chip.c { background: #58a6ff; color: #0e1014; }
+  .chip.w { background: #30363d; color: #c9d1d9; }
+  .k { color: #ff7b72; } .t { color: #ffa657; } .f { color: #d2a8ff; } .n { color: #79c0ff; }
+
+  /* stack */
+  .obj { border: 2px dashed var(--c-line); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; font-size: 15px; }
+  .obj b { font-family: var(--font-mono); }
+  .stackhint { font-size: 13px; color: var(--c-ink-soft); margin: 2px 0 6px; }
+  .frame { border: 2px solid var(--c-line); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; background: var(--c-bg); }
+  .frame.top { border-color: var(--c-accent); background: var(--c-accent-bg); }
+  .frame .sig { font-family: var(--font-mono); font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; gap: 8px; }
+  .pill { font-family: var(--font-sans); font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 8px; white-space: nowrap; }
+  .pill.run { background: var(--c-accent); color: var(--c-bg); }
+  .pill.wait { background: var(--c-surface-2); color: var(--c-ink-soft); }
+  .vars { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 6px 0 4px; font-family: var(--font-mono); font-size: 14px; }
+  .vars .nm { color: var(--c-ink-soft); }
+  .vars .val.chg { color: var(--c-accent); font-weight: 700; }
+  .meta { font-size: 13px; color: var(--c-ink-soft); line-height: 1.5; }
+  .meta b { color: var(--c-ink); }
+  .meta .ret { color: var(--c-ok); font-weight: 700; }
+  .empty { color: var(--c-ink-soft); font-style: italic; padding: 10px 2px; }
+
+  /* tree */
+  .treebox { border: 2px solid var(--c-line); border-radius: 12px; padding: 8px; overflow-x: auto; }
+  .treebox svg { display: block; margin: 0 auto; }
+  .legend { font-size: 13px; color: var(--c-ink-soft); margin-top: 6px; line-height: 1.5; }
+  .legend summary { cursor: pointer; font-weight: 600; color: var(--c-accent); }
+  svg .edge { stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .edge.ghost { stroke: var(--c-ink-faint); stroke-dasharray: 6 5; }
+  svg .edge.via { stroke: var(--c-accent); stroke-dasharray: 8 5; }
+  svg .nd rect { fill: var(--c-bg); stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .nd.cur rect { fill: var(--c-accent-bg); stroke: var(--c-accent); stroke-width: 4; }
+  svg .nd.wait rect { stroke: var(--c-accent-soft); stroke-width: 4; }
+  svg .nd.bad rect { stroke: var(--c-err); stroke-width: 4; }
+  svg .nd.loose rect { stroke-dasharray: 6 4; }
+  svg .nd text.v { fill: var(--c-ink); font-weight: 700; font-size: 17px; }
+  svg text.lb, svg text.tag, svg text.cap { paint-order: stroke; stroke: var(--c-bg); stroke-width: 5px; stroke-linejoin: round; }
+  svg text.lb { fill: var(--c-ink-soft); font-size: 12.5px; font-weight: 600; }
+  svg text.lb.bad { fill: var(--c-err); font-weight: 700; }
+  svg text.lb.old { fill: var(--c-err); font-style: italic; }
+  svg text.tag { fill: var(--c-accent); font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+  svg .slot rect { fill: none; stroke: var(--c-ink-faint); stroke-width: 2; stroke-dasharray: 5 4; }
+  svg .slot text { fill: var(--c-ink-faint); font-family: var(--font-mono); font-size: 12px; }
+  svg text.cap { fill: var(--c-ink-soft); font-size: 12.5px; font-weight: 600; }
+  kbd { font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--c-line); border-radius: 4px; padding: 0 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="codecol">
+    <div class="code">
+      <div class="head">struct AVLNode { int info; int height; AVLNode* left; AVLNode* right; };<br>class AVL · private: AVLNode* root; · the public insert and its private helpers</div>
+      <pre id="code"></pre>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>AVL insert, step by step</h1>
+        <p class="sub">insert(180) into the class tree: the code, the call stack with its variables, and the tree in memory.</p>
+      </div>
+      <div class="bar">
+        <button id="first" title="First step (Home)">|◀</button>
+        <button id="back" title="Back (←)">◀ Back</button>
+        <button class="primary" id="next" title="Next (→ or space)">Next ▶</button>
+        <button id="last" title="Last step (End)">▶|</button>
+        <button id="play">Play</button>
+        <select id="speed" title="Speed"><option value="1600">slow</option><option value="900" selected>normal</option><option value="450">fast</option></select>
+        <span class="count" id="count"></span>
+        <button id="restart" title="Start again with the class tree">Restart</button>
+        <button class="theme" id="theme" title="Light / dark (D)">Dark mode</button>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="cols">
+      <section class="panel">
+        <h2>Call stack</h2>
+        <div class="obj" id="obj"></div>
+        <div class="stackhint">Top: the call that is running. Below: calls waiting for an answer.</div>
+        <div id="stack"></div>
+      </section>
+      <section class="panel tree">
+        <h2>Tree in memory</h2>
+        <div class="treebox"><svg id="tree"></svg></div>
+        <details class="legend">
+          <summary>How to read the tree</summary>
+          Each node shows its stored <b>h</b> (height) and <b>bf</b> = height(right) − height(left).
+          <b style="color:var(--c-err)">h … old</b>: the stored height is out of date until <code>update</code> runs on that node.
+          <b>bf ?</b> = not computed yet: bf is never stored in a node, and the program has not called <code>bf</code>
+          on this node since the tree changed.
+          Blue fill: the node of the running call · blue ring: nodes of waiting calls · red ring: bf = ±2.
+          Labels like <b style="color:var(--c-accent)">n</b> or <b style="color:var(--c-accent)">a</b> show where the variables of the running call point.
+          Dashed blue: nodes that, at that moment, are only reachable through a variable.
+        </details>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+// ------------------------------------------------------------------ the code (same as the slides and avl.h)
+const CODE = [
+  'void insert(int x) { root = insert(root, x); }   // public',
+  'AVLNode* insert(AVLNode* n, int x) {',
+  '    if (n == nullptr) return new AVLNode{x, 0, nullptr, nullptr};',
+  '    if (x < n->info) n->left = insert(n->left, x);',
+  '    else if (x > n->info) n->right = insert(n->right, x);',
+  '    else return n;',
+  '    return rebalance(n);',
+  '}',
+  'AVLNode* rebalance(AVLNode* n) {',
+  '    update(n);',
+  '    if (bf(n) == 2) {',
+  '        if (bf(n->right) < 0)',
+  '            n->right = rotateRight(n->right);',
+  '        return rotateLeft(n);',
+  '    }',
+  '    if (bf(n) == -2) {',
+  '        if (bf(n->left) > 0)',
+  '            n->left = rotateLeft(n->left);',
+  '        return rotateRight(n);',
+  '    }',
+  '    return n;',
+  '}',
+  'AVLNode* rotateLeft(AVLNode* a) {',
+  '    AVLNode* b = a->right;',
+  '    a->right = b->left;',
+  '    b->left = a;',
+  '    update(a);',
+  '    update(b);',
+  '    return b;',
+  '}',
+  'AVLNode* rotateRight(AVLNode* a) {',
+  '    AVLNode* b = a->left;',
+  '    a->left = b->right;',
+  '    b->right = a;',
+  '    update(a);',
+  '    update(b);',
+  '    return b;',
+  '}',
+  'int height(AVLNode* n) { return n == nullptr ? -1 : n->height; }',
+  'int bf(AVLNode* n) { return height(n->right) - height(n->left); }',
+  'void update(AVLNode* n) {',
+  '    n->height = 1 + std::max(height(n->left), height(n->right));',
+  '}',
+];
+const KW = /\b(int|void|return|if|else|new|nullptr)\b/g;
+
+function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function colorize(line) {
+  let out = '', rest = line, m;
+  const ci = rest.indexOf('//');
+  let comment = '';
+  if (ci >= 0) { comment = rest.slice(ci); rest = rest.slice(0, ci); }
+  const tokens = rest.split(/(\b[A-Za-z_]\w*\b|-?\b\d+\b)/);
+  for (const tk of tokens) {
+    if (/^(int|void|return|if|else|new|nullptr)$/.test(tk)) out += `<span class="k">${tk}</span>`;
+    else if (tk === 'AVLNode') out += `<span class="t">${tk}</span>`;
+    else if (/^(height|bf|update|rotateLeft|rotateRight|rebalance|insert|max)$/.test(tk)) out += `<span class="f">${tk}</span>`;
+    else if (/^-?\d+$/.test(tk)) out += `<span class="n">${tk}</span>`;
+    else out += esc(tk);
+  }
+  if (comment) out += `<span style="color:#8b949e">${esc(comment)}</span>`;
+  return out;
+}
+
+// ------------------------------------------------------------------ the tree in memory
+let nextId = 1;
+const mk = (info) => ({ id: nextId++, info, height: 0, left: null, right: null });
+const ht = (n) => (n === null ? -1 : n.height);
+const bfOf = (n) => ht(n.right) - ht(n.left);
+// bf is never stored in a node: it exists only when the code calls bf(n).
+// bfSeen[id] remembers the subtree as it was when the last call bf(n) ran; once anything below n changes,
+// that bf is no longer known and the page shows "bf ?" until the code calls bf(n) again.
+let bfSeen = {};
+const sub = (n) => (n ? `${n.id}:${n.height}(${sub(n.left)},${sub(n.right)})` : '-');
+const sig = (n) => sub(n.left) + '|' + sub(n.right);
+function bfCall(n) { bfSeen[n.id] = sig(n); return bfOf(n); }
+function seeAll(n) { if (!n) return; bfSeen[n.id] = sig(n); seeAll(n.left); seeAll(n.right); }
+let root = null;
+
+// ------------------------------------------------------------------ the tracer: runs the C++ logic and records every step
+let steps = [];
+let frames = [];
+const P = (v) => (v === null ? 'nullptr' : v === undefined ? '?' : '→ ' + v.info);
+const sgn = (v) => (v > 0 ? '+' + v : String(v));
+
+function snap(line, msg) {
+  if (frames.length) frames[frames.length - 1].line = line;
+  // copy every node that can be reached from root or from a variable of any frame
+  const nodes = {};
+  const seen = new Set();
+  const visit = (n) => { if (!n || seen.has(n.id)) return; seen.add(n.id);
+    nodes[n.id] = { id: n.id, info: n.info, height: n.height, left: n.left && n.left.id, right: n.right && n.right.id };
+    visit(n.left); visit(n.right); };
+  visit(root);
+  const extra = [];
+  for (const f of frames) {
+    for (const v of f.vars) if (v.ptr && v.val) { if (!seen.has(v.val.id)) extra.push({ id: v.val.id, by: v.name }); visit(v.val); }
+    if (f.ret && f.ret.val && f.ret.val !== null && typeof f.ret.val === 'object') {
+      if (!seen.has(f.ret.val.id)) extra.push({ id: f.ret.val.id, by: 'returned' }); visit(f.ret.val); }
+  }
+  const known = [];
+  const check = (n) => { if (!n || check.done.has(n.id)) return; check.done.add(n.id);
+    if (bfSeen[n.id] === sig(n)) known.push(n.id); check(n.left); check(n.right); };
+  check.done = new Set();
+  check(root);
+  for (const f of frames) { for (const v of f.vars) if (v.ptr && v.val) check(v.val);
+    if (f.ret && f.ret.val && typeof f.ret.val === 'object') check(f.ret.val); }
+  steps.push({
+    line, msg,
+    root: root && root.id,
+    nodes, extra, known,
+    frames: frames.map((f) => ({
+      sig: f.sig, name: f.name, line: f.line, back: f.back, call: `${f.name}(${args(f, false)})`,
+      vars: f.vars.map((v) => ({ name: v.name, ptr: v.ptr, show: v.ptr ? P(v.val) : String(v.val), id: v.ptr && v.val ? v.val.id : null })),
+      ret: f.ret ? (typeof f.ret.val === 'object' ? P(f.ret.val) : f.ret.val) : null,
+    })),
+  });
+}
+function push(f) { frames.push(Object.assign({ line: 0, ret: null }, f)); }
+function pop() { frames.pop(); }
+function setv(name, val) { const f = frames[frames.length - 1]; f.vars.find((v) => v.name === name).val = val; }
+function args(f, sp) {    // the arguments of a call, as in insert(n → 132, x = 180)
+  const eq = sp ? ' = ' : '=', ar = sp ? ' → ' : '→';
+  return f.vars.slice(0, f.nargs).map((v) => (v.ptr ? (v.val ? v.name + ar + v.val.info : v.name + eq + 'nullptr')
+                                                    : v.name + eq + v.val)).join(', ');
+}
+function label(f) { return `${f.name}(${args(f, true)})`; }
+function caller() { return frames[frames.length - 1]; }
+
+function updateNode(n, line, who) {
+  const l = ht(n.left), r = ht(n.right);
+  n.height = 1 + Math.max(l, r);
+  snap(line, `<code>update(${who})</code> on ${n.info}: height(left) = ${l}, height(right) = ${r}, so ` +
+             `<code>${n.info}->height = 1 + max(${l}, ${r}) = ${n.height}</code>.`);
+}
+
+function rotateLeft(a, back) {
+  push({ name: 'rotateLeft', sig: 'AVLNode* rotateLeft(AVLNode* a)', back, nargs: 1,
+         vars: [{ name: 'a', ptr: true, val: a }, { name: 'b', ptr: true, val: undefined }] });
+  snap(23, `New frame: <code>rotateLeft</code> with <code>a → ${a.info}</code>. Its local <code>b</code> has no value yet.`);
+  const b = a.right; setv('b', b);
+  snap(24, `<code>b = a->right</code>: b points to ${b.info}, the child that will rise.`);
+  a.right = b.left;
+  snap(25, `<code>a->right = b->left</code>: ${a.info} adopts ${b.left ? b.left.info : 'nullptr'} (the middle subtree). ` +
+          `For a moment ${b.info} is only reachable through the variable <code>b</code>.`);
+  b.left = a;
+  snap(26, `<code>b->left = a</code>: ${a.info} goes down to the left of ${b.info}.`);
+  updateNode(a, 27, 'a'); updateNode(b, 28, 'b');
+  frames[frames.length - 1].ret = { val: b };
+  snap(29, `<code>return b</code>: ${b.info} is the new root of this subtree. It goes back to ${back.text}.`);
+  pop(); return b;
+}
+function rotateRight(a, back) {
+  push({ name: 'rotateRight', sig: 'AVLNode* rotateRight(AVLNode* a)', back, nargs: 1,
+         vars: [{ name: 'a', ptr: true, val: a }, { name: 'b', ptr: true, val: undefined }] });
+  snap(31, `New frame: <code>rotateRight</code> with <code>a → ${a.info}</code>. Its local <code>b</code> has no value yet.`);
+  const b = a.left; setv('b', b);
+  snap(32, `<code>b = a->left</code>: b points to ${b.info}, the child that will rise.`);
+  a.left = b.right;
+  snap(33, `<code>a->left = b->right</code>: ${a.info} adopts ${b.right ? b.right.info : 'nullptr'} (the middle subtree). ` +
+           `For a moment ${b.info} is only reachable through the variable <code>b</code>.`);
+  b.right = a;
+  snap(34, `<code>b->right = a</code>: ${a.info} goes down to the right of ${b.info}.`);
+  updateNode(a, 35, 'a'); updateNode(b, 36, 'b');
+  frames[frames.length - 1].ret = { val: b };
+  snap(37, `<code>return b</code>: ${b.info} is the new root of this subtree. It goes back to ${back.text}.`);
+  pop(); return b;
+}
+
+function rebalance(n, back) {
+  push({ name: 'rebalance', sig: 'AVLNode* rebalance(AVLNode* n)', back, nargs: 1, vars: [{ name: 'n', ptr: true, val: n }] });
+  snap(9, `New frame: <code>rebalance</code> with <code>n → ${n.info}</code>.`);
+  updateNode(n, 10, 'n');
+  const b = bfCall(n);
+  if (b === 2) {
+    snap(11, `<code>bf(n)</code> = ${ht(n.right)} − (${ht(n.left)}) = ${sgn(b)}. It is 2: ${n.info} is right-heavy.`);
+    const c = bfCall(n.right);
+    if (c < 0) {
+      snap(12, `<code>bf(n->right)</code> = ${sgn(c)} &lt; 0: the child leans the other way. A zig-zag: rotate the child first.`);
+      const me = caller();
+      const r1 = rotateRight(n.right, { text: `${label(me)} at line 13, stored in <code>n->right</code>`, line: 13 });
+      n.right = r1;
+      snap(13, `Back in <code>${label(caller())}</code>: <code>n->right = ${r1.info}</code>. The path is now a straight line.`);
+    } else {
+      snap(12, `<code>bf(n->right)</code> = ${sgn(c)}, not negative: same direction, one rotation is enough.`);
+    }
+    snap(14, `<code>return rotateLeft(n)</code>: call the rotation and return whatever it returns.`);
+    const r2 = rotateLeft(n, { text: `${label(caller())} at line 14, which returns it`, line: 14 });
+    caller().ret = { val: r2 };
+    snap(14, `Back in <code>${label(caller())}</code>: it returns ${r2.info} to ${back.text}.`);
+    pop(); return r2;
+  }
+  snap(11, `<code>bf(n)</code> = ${ht(n.right)} − (${ht(n.left)}) = ${sgn(b)}. Is it 2? No.`);
+  if (b === -2) {
+    snap(16, `Is it −2? Yes: ${n.info} is left-heavy.`);
+    const c = bfCall(n.left);
+    if (c > 0) {
+      snap(17, `<code>bf(n->left)</code> = ${sgn(c)} &gt; 0: the child leans the other way. A zig-zag: rotate the child first.`);
+      const r1 = rotateLeft(n.left, { text: `${label(caller())} at line 18, stored in <code>n->left</code>`, line: 18 });
+      n.left = r1;
+      snap(18, `Back in <code>${label(caller())}</code>: <code>n->left = ${r1.info}</code>. The path is now a straight line.`);
+    } else {
+      snap(17, `<code>bf(n->left)</code> = ${sgn(c)}, not positive: same direction, one rotation is enough.`);
+    }
+    snap(19, `<code>return rotateRight(n)</code>: call the rotation and return whatever it returns.`);
+    const r2 = rotateRight(n, { text: `${label(caller())} at line 19, which returns it`, line: 19 });
+    caller().ret = { val: r2 };
+    snap(19, `Back in <code>${label(caller())}</code>: it returns ${r2.info} to ${back.text}.`);
+    pop(); return r2;
+  }
+  snap(16, `Is it −2? No. ${n.info} is balanced (bf = ${sgn(b)}).`);
+  caller().ret = { val: n };
+  snap(21, `<code>return n</code>: nothing to fix, ${n.info} goes back to ${back.text}.`);
+  pop(); return n;
+}
+
+function insertRec(n, x, back) {
+  push({ name: 'insert', sig: 'AVLNode* insert(AVLNode* n, int x)', back, nargs: 2,
+         vars: [{ name: 'n', ptr: true, val: n }, { name: 'x', ptr: false, val: x }] });
+  snap(2, n ? `New frame: <code>insert</code> with <code>n → ${n.info}</code> and <code>x = ${x}</code>.`
+             : `New frame: <code>insert</code> with <code>n = nullptr</code>: there is no node here.`);
+  if (n === null) {
+    const node = mk(x);
+    caller().ret = { val: node };
+    snap(3, `<code>n == nullptr</code>: create the node ${x} (height 0, no children) and return it to ${back.text}.`);
+    pop(); return node;
+  }
+  snap(3, `<code>n == nullptr</code>? No.`);
+  if (x < n.info) {
+    snap(4, `${x} &lt; ${n.info}? Yes: call <code>insert(n->left, ${x})</code>. This call waits at line 4 for the answer.`);
+    const r = insertRec(n.left, x, { text: `${label(caller())} at line 4, stored in <code>n->left</code>`, line: 4 });
+    n.left = r;
+    snap(4, `Back in <code>${label(caller())}</code>: <code>n->left = ${r.info}</code>.`);
+  } else {
+    snap(4, `${x} &lt; ${n.info}? No.`);
+    if (x > n.info) {
+      snap(5, `${x} &gt; ${n.info}? Yes: call <code>insert(n->right, ${x})</code>. This call waits at line 5 for the answer.`);
+      const r = insertRec(n.right, x, { text: `${label(caller())} at line 5, stored in <code>n->right</code>`, line: 5 });
+      n.right = r;
+      snap(5, `Back in <code>${label(caller())}</code>: <code>n->right = ${r.info}</code>.`);
+    } else {
+      snap(5, `${x} &gt; ${n.info}? No.`);
+      caller().ret = { val: n };
+      snap(6, `${x} is already in the tree: <code>return n</code> without changes.`);
+      pop(); return n;
+    }
+  }
+  snap(7, `On the way back up: <code>return rebalance(n)</code> for ${n.info}.`);
+  const r = rebalance(n, { text: `${label(caller())} at line 7, which returns it`, line: 7 });
+  caller().ret = { val: r };
+  snap(7, `<code>insert</code> for ${n.info} returns ${r.info} to ${back.text}.`);
+  pop(); return r;
+}
+
+function trace(x) {
+  steps = []; frames = []; bfSeen = {};
+  push({ name: 'insert', sig: 'void insert(int x)', back: { text: 'your program' }, nargs: 1, vars: [{ name: 'x', ptr: false, val: x }] });
+  snap(1, `Your program calls <code>insert(${x})</code>. The public method calls the private one with the root. ` +
+          `In memory each node stores its height, but no bf: every bf shows <b>?</b> until the code computes it.`);
+  const r = insertRec(root, x, { text: `<code>insert(int x)</code> at line 1, stored in <code>root</code>`, line: 1 });
+  root = r;
+  snap(1, `Back in the public <code>insert</code>: <code>root = ${r.info}</code>.`);
+  pop();
+  snap(0, `Done. The stack is empty again. The tree has ${count(root)} nodes and height ${ht(root)}. ` +
+          `Only the heights are stored; a bf shows only where the code called <code>bf</code> during this insertion.`);
+}
+const count = (n) => (n ? 1 + count(n.left) + count(n.right) : 0);
+
+// plain insertion with rebalancing and no trace: builds the class tree
+function quietInsert(n, x) {
+  if (n === null) return mk(x);
+  if (x < n.info) n.left = quietInsert(n.left, x); else if (x > n.info) n.right = quietInsert(n.right, x); else return n;
+  n.height = 1 + Math.max(ht(n.left), ht(n.right));
+  return n;   // the class tree is already balanced, no rotation needed
+}
+function classTree() { nextId = 1; root = null; for (const x of [132, 89, 256, 52, 167, 402, 190]) root = quietInsert(root, x); }
+
+// ------------------------------------------------------------------ drawing
+const $ = (id) => document.getElementById(id);
+let cur = 0;
+
+function drawCode(s) {
+  const top = s.frames.length ? s.frames.length - 1 : -1;
+  const waits = {};
+  s.frames.forEach((f, i) => { if (i < top) (waits[f.line] = waits[f.line] || []).push(f); });
+  let html = '';
+  CODE.forEach((text, i) => {
+    const no = i + 1;
+    let cls = 'ln', chips = '';
+    if (top >= 0 && s.frames[top].line === no) { cls += ' cur'; chips += `<span class="chip c">${shortName(s.frames[top])} · running</span>`; }
+    else if (waits[no]) cls += ' wait';
+    if (waits[no]) chips += waits[no].map((f) => `<span class="chip w">${shortName(f)}</span>`).join('');
+    html += `<div class="${cls}"><span class="no">${no}</span><span class="tx">${colorize(text)}</span>` +
+            (chips ? `<span class="chips">${chips}</span>` : '') + '</div>';
+  });
+  const pre = $('code');
+  pre.innerHTML = html;
+  const curEl = pre.querySelector('.ln.cur');
+  if (curEl && (curEl.offsetTop < pre.scrollTop || curEl.offsetTop + curEl.offsetHeight > pre.scrollTop + pre.clientHeight))
+    pre.scrollTop = Math.max(0, curEl.offsetTop - pre.clientHeight / 3);
+}
+function shortName(f) { return f.call; }
+
+function drawStack(s, prev) {
+  $('obj').innerHTML = `AVL object · <b>root</b> <b>${s.root ? '→ ' + s.nodes[s.root].info : '= nullptr'}</b>`;
+  if (!s.frames.length) { $('stack').innerHTML = '<div class="empty">The stack is empty.</div>'; return; }
+  let html = '';
+  for (let i = s.frames.length - 1; i >= 0; i--) {
+    const f = s.frames[i], top = i === s.frames.length - 1;
+    const pf = prev && prev.frames[i] && prev.frames[i].sig === f.sig ? prev.frames[i] : null;
+    const vars = f.vars.map((v) => {
+      const changed = pf && pf.vars.find((w) => w.name === v.name && w.show !== v.show);
+      return `<span class="nm">${v.name}</span><span class="val${changed ? ' chg' : ''}">${v.show}</span>`;
+    }).join('');
+    html += `<div class="frame${top ? ' top' : ''}">
+      <div class="sig"><span>${esc(f.sig)}</span><span class="pill ${top ? 'run' : 'wait'}">${top ? 'running' : 'waiting'}</span></div>
+      <div class="vars">${vars}</div>
+      <div class="meta">${top ? 'Running' : 'Waiting at'} <b>line ${f.line}</b>: <code>${esc(CODE[f.line - 1].trim())}</code><br>
+      Returns to: ${f.back.text}${f.ret ? `<br><span class="ret">Returns ${f.ret}</span>` : ''}</div></div>`;
+  }
+  $('stack').innerHTML = html;
+}
+
+function drawTree(s) {
+  const svg = $('tree');
+  const pos = {};
+  let col = 0;
+  const DX = 66, DY = 92, X0 = 40, Y0 = 46;
+  const lay = (id, d) => { if (id == null || pos[id]) return; const n = s.nodes[id];
+    lay(n.left, d + 1); pos[id] = { x: X0 + col * DX, y: Y0 + d * DY }; col++; lay(n.right, d + 1); };
+  lay(s.root, 0);
+  const reach = new Set(Object.keys(pos).map(Number));
+  // nodes that only a variable can reach (in the middle of a rotation, or a new node on its way back)
+  // a call with n == nullptr: draw the empty slot it stands for
+  let slot = null;
+  const top = s.frames[s.frames.length - 1];
+  if (top && top.name === 'insert' && top.vars[0].ptr && top.vars[0].show === 'nullptr' && s.frames.length >= 2) {
+    const parent = s.frames[s.frames.length - 2];
+    const pid = parent.vars[0].id;
+    if (pid && pos[pid]) slot = { x: pos[pid].x + (parent.line === 4 ? -DX * 0.55 : DX * 0.55), y: pos[pid].y + DY, pid };
+  }
+  const loose = [];
+  for (const e of s.extra) {
+    if (pos[e.id]) continue;
+    if (slot && e.by === 'returned' && s.nodes[e.id].left == null && s.nodes[e.id].right == null) {
+      pos[e.id] = { x: slot.x, y: slot.y }; slot.filled = e.id;         // the new node, not linked yet
+      loose.push({ id: e.id, by: e.by, atSlot: true }); continue;
+    }
+    const nd = s.nodes[e.id];
+    const kids = [['left', nd.left], ['right', nd.right]].filter(([, c]) => c != null);
+    if (kids.length === 1 && pos[kids[0][1]]) {
+      const [side, c] = kids[0];
+      const x = pos[c].x + (side === 'right' ? -DX * 0.8 : DX * 0.8), y = pos[c].y + DY;
+      const free = Object.values(pos).every((q) => Math.abs(q.x - x) > 60 || Math.abs(q.y - y) > 60);
+      if (free) { pos[e.id] = { x, y }; loose.push({ id: e.id, by: e.by, below: true }); continue; }
+    }
+    col += 0.6; const c0 = col; lay(e.id, 1); loose.push({ id: e.id, by: e.by, x: X0 + c0 * DX });
+  }
+  const trueH = {};
+  const th = (id) => { if (id == null) return -1; if (trueH[id] !== undefined) return trueH[id];
+    const n = s.nodes[id]; return (trueH[id] = 1 + Math.max(th(n.left), th(n.right))); };
+  const H = (id) => (id == null ? -1 : s.nodes[id].height);
+  // which frame variables point to which node
+  const tags = {}, curIds = new Set(), waitIds = new Set();
+  s.frames.forEach((f, i) => {
+    const isTop = i === s.frames.length - 1;
+    f.vars.forEach((v) => { if (v.id) {
+      if (isTop) (tags[v.id] = tags[v.id] || []).push(v.name);
+      (isTop ? curIds : waitIds).add(v.id);
+    } });
+  });
+  if (s.root) (tags[s.root] = tags[s.root] || []).unshift('root');
+  const W = (v) => (String(v).length <= 2 ? 46 : 58);
+  let maxX = 0, maxY = 0;
+  for (const id in pos) { maxX = Math.max(maxX, pos[id].x); maxY = Math.max(maxY, pos[id].y); }
+  if (slot) { maxX = Math.max(maxX, slot.x); maxY = Math.max(maxY, slot.y); }
+  const width = Math.max(420, maxX + (loose.length ? 300 : 70)), height = maxY + (loose.some((L) => L.below) ? 90 : 70);
+  let g = '';
+  const looseIds = new Set();
+  const markLoose = (id) => { if (id == null || looseIds.has(id) || reach.has(id)) return; looseIds.add(id);
+    markLoose(s.nodes[id].left); markLoose(s.nodes[id].right); };
+  for (const L of loose) markLoose(L.id);
+  g += `<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">` +
+       `<path d="M0,0 L10,5 L0,10 z" style="fill: var(--c-accent)"/></marker></defs>`;
+  for (const id in pos) { const n = s.nodes[id];
+    for (const [side, c] of [['left', n.left], ['right', n.right]]) {
+      if (c == null || !pos[c]) continue;
+      if (!looseIds.has(+id)) {
+        g += `<line class="edge" x1="${pos[id].x}" y1="${pos[id].y}" x2="${pos[c].x}" y2="${pos[c].y}"/>`;
+        continue;
+      }
+      const w = W(n.info), x1 = pos[id].x + (side === 'right' ? w / 2 : -w / 2), y1 = pos[id].y;
+      // end at the corner of the child that faces the arrow, away from the labels under the child
+      const wc = W(s.nodes[c].info);
+      const x2 = pos[c].x + (x1 < pos[c].x ? -wc / 2 + 6 : wc / 2 - 6), y2 = pos[c].y + (pos[c].y < y1 ? 12 : -12);
+      g += `<line class="edge via" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#arr)"/>`;
+      g += `<text class="tag" x="${x1 + (side === 'right' ? 6 : -6)}" y="${y1 - 8}" text-anchor="${side === 'right' ? 'start' : 'end'}">` +
+           `${side}</text>`;
+    } }
+  if (slot) g += `<line class="edge ghost" x1="${pos[slot.pid].x}" y1="${pos[slot.pid].y}" x2="${slot.x}" y2="${slot.y}"/>`;
+  for (const L of loose) g += L.atSlot
+      ? `<text class="cap" x="${pos[L.id].x + 40}" y="${pos[L.id].y + 6}">new node, being returned · not linked yet</text>`
+      : `<text class="cap" x="${pos[L.id].x}" y="${pos[L.id].y + (L.below ? 66 : -44)}" text-anchor="middle">` +
+        `only reachable through ${L.by === 'returned' ? 'the return value' : L.by}</text>`;
+  for (const id in pos) {
+    const n = s.nodes[id], p = pos[id], w = W(n.info);
+    const b = H(n.right) - H(n.left);
+    const old = n.height !== th(+id);
+    const known = s.known.includes(+id);
+    const bad = known && Math.abs(b) >= 2;
+    let cls = 'nd';
+    if (curIds.has(+id)) cls += ' cur'; else if (waitIds.has(+id)) cls += ' wait';
+    if (bad) cls += ' bad';
+    if (looseIds.has(+id)) cls += ' loose';
+    g += `<g class="${cls}"><rect x="${p.x - w / 2}" y="${p.y - 17}" width="${w}" height="34" rx="17"/>` +
+         `<text class="v" x="${p.x}" y="${p.y + 6}" text-anchor="middle">${n.info}</text></g>`;
+    g += `<text class="lb${old ? ' old' : ''}" x="${p.x}" y="${p.y + 33}" text-anchor="middle">h ${n.height}${old ? ' old' : ''}</text>`;
+    g += `<text class="lb${bad ? ' bad' : ''}" x="${p.x}" y="${p.y + 48}" text-anchor="middle">bf ${known ? sgn(b) : '?'}</text>`;
+    if (tags[id]) g += `<text class="tag" x="${p.x}" y="${p.y - 24}" text-anchor="middle">${tags[id].join(', ')}</text>`;
+  }
+  if (slot && !slot.filled) g += `<g class="slot"><rect x="${slot.x - 30}" y="${slot.y - 15}" width="60" height="30" rx="15"/>` +
+                 `<text x="${slot.x}" y="${slot.y + 4}" text-anchor="middle">nullptr</text></g>` +
+                 `<text class="tag" x="${slot.x}" y="${slot.y - 22}" text-anchor="middle">n</text>`;
+  if (!s.root && !loose.length) g += `<text class="cap" x="20" y="40">empty tree: root = nullptr</text>`;
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.innerHTML = g;
+}
+
+function show(i) {
+  if (!steps.length) return;
+  cur = Math.max(0, Math.min(i, steps.length - 1));
+  const s = steps[cur];
+  $('msg').innerHTML = s.msg;
+  drawCode(s); drawStack(s, cur > 0 ? steps[cur - 1] : null); drawTree(s);
+  $('count').textContent = `Step ${cur + 1} of ${steps.length}`;
+  $('back').disabled = $('first').disabled = cur === 0;
+  $('next').disabled = $('last').disabled = cur === steps.length - 1;
+}
+function idle(msg) {     // no insertion running: show the tree as it is
+  steps = []; frames = []; bfSeen = {};
+  snap(0, msg);
+  show(0);
+}
+
+// ------------------------------------------------------------------ controls
+let timer = null;
+function stop() { if (timer) { clearInterval(timer); timer = null; $('play').textContent = 'Play'; } }
+function run(x) {
+  stop();
+  if (!Number.isInteger(x)) return;
+  trace(x); show(0);
+}
+$('restart').onclick = () => { classTree(); run(180); };
+$('next').onclick = () => { stop(); show(cur + 1); };
+$('back').onclick = () => { stop(); show(cur - 1); };
+$('first').onclick = () => { stop(); show(0); };
+$('last').onclick = () => { stop(); show(steps.length - 1); };
+$('play').onclick = () => {
+  if (timer) return stop();
+  if (cur >= steps.length - 1) show(0);
+  $('play').textContent = 'Pause';
+  timer = setInterval(() => { if (cur >= steps.length - 1) stop(); else show(cur + 1); }, +$('speed').value);
+};
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); $('next').click(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); $('back').click(); }
+  else if (e.key === 'Home') $('first').click();
+  else if (e.key === 'End') $('last').click();
+  else if (e.key === 'd' || e.key === 'D') $('theme').click();
+});
+function setTheme(t) {
+  if (t === 'dark') document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem('shstyle-theme', t); } catch (e) {}
+  $('theme').textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
+}
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+$('theme').textContent = document.documentElement.dataset.theme === 'dark' ? 'Light mode' : 'Dark mode';
+
+// for automated checks: insert keys without drawing and read the tree back
+window.avlTest = {
+  run(keys) { nextId = 1; root = null; let n = 0; for (const k of keys) { trace(k); n += steps.length; } return { pre: pre(root), steps: n }; },
+};
+const pre = (n) => (n ? `${n.info}[h${n.height},bf${bfOf(n)}] ` + pre(n.left) + pre(n.right) : '');
+
+classTree();
+run(180);
+</script>
+</body>
+</html>
