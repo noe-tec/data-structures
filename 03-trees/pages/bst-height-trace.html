@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BST height, step by step</title>
+<script>try{if(localStorage.getItem('shstyle-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  /* Same colors as the class slides (shstyle) */
+  :root {
+    --c-bg: #ffffff; --c-ink: #16181d; --c-ink-soft: #4b5260; --c-ink-faint: #aab0bb;
+    --c-accent: #0b57d0; --c-accent-bg: #e8f0fe; --c-accent-soft: #9dc0f0;
+    --c-ok: #146c2e; --c-ok-bg: #e6f4ea; --c-err: #b3261e; --c-err-bg: #fce8e6;
+    --c-line: #d7dbe2; --c-surface-1: #f0f1f4; --c-surface-2: #eceff3;
+    --c-code-panel: #14161d; --c-code-head: #1f232d; --c-code-head-ink: #8b93a5; --c-code-ink: #e8eaf0;
+    --c-code-cur: rgba(56, 139, 253, 0.30); --c-code-wait: rgba(255, 255, 255, 0.07);
+    --c-shadow: rgba(20, 22, 29, 0.14);
+    --font-sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --c-bg: #15171c; --c-ink: #e6e8ee; --c-ink-soft: #a7adba; --c-ink-faint: #6b7280;
+    --c-accent: #8ab4f8; --c-accent-bg: #1d2a44; --c-accent-soft: #3b5b8f;
+    --c-ok: #6dd58c; --c-ok-bg: #16301f; --c-err: #f2b8b5; --c-err-bg: #3b1d1b;
+    --c-line: #3a3f4b; --c-surface-1: #20232b; --c-surface-2: #252932;
+    --c-code-panel: #0e1014; --c-code-head: #1a1d25;
+    --c-shadow: rgba(0, 0, 0, 0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: var(--c-bg); color: var(--c-ink); padding: 12px 18px 30px; }
+  .app { display: grid; grid-template-columns: minmax(560px, 610px) 1fr; gap: 18px; align-items: start; }
+  .codecol { position: sticky; top: 12px; height: calc(100vh - 24px); }
+  .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; margin-bottom: 10px; }
+  h1 { font-size: 24px; letter-spacing: -0.02em; }
+  .sub { color: var(--c-ink-soft); margin-top: 2px; font-size: 14px; }
+  .cols { display: grid; grid-template-columns: minmax(340px, 0.85fr) minmax(420px, 1.15fr); gap: 16px; align-items: start; }
+  @media (max-width: 1500px) { .cols { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } .codecol { position: static; height: auto; } }
+  button, input, select { font-family: inherit; font-size: 15px; }
+  button { border: 2px solid var(--c-accent); background: var(--c-bg); color: var(--c-accent); border-radius: 8px;
+           padding: 6px 12px; font-weight: 600; cursor: pointer; }
+  button.primary { background: var(--c-accent); color: var(--c-bg); }
+  button:disabled { opacity: .4; cursor: default; }
+  input[type=number] { width: 90px; padding: 6px 8px; border: 2px solid var(--c-line); border-radius: 8px;
+                       background: var(--c-bg); color: var(--c-ink); }
+  select { padding: 6px; border: 2px solid var(--c-line); border-radius: 8px; background: var(--c-bg); color: var(--c-ink); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .bar .sep { width: 1px; height: 28px; background: var(--c-line); margin: 0 6px; }
+  .bar .count { color: var(--c-ink-soft); font-weight: 600; min-width: 120px; }
+  .theme { border-color: var(--c-line); color: var(--c-ink-soft); }
+  .msg { border-left: 6px solid var(--c-accent); background: var(--c-accent-bg); border-radius: 8px;
+         padding: 10px 16px; font-size: 18px; line-height: 1.45; min-height: 56px; margin-bottom: 14px; }
+  .msg code { font-family: var(--font-mono); font-size: 16px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--c-accent); margin-bottom: 6px; }
+
+  /* code */
+  .code { background: var(--c-code-panel); border-radius: 12px; box-shadow: 0 6px 20px var(--c-shadow); overflow: hidden;
+          height: 100%; display: flex; flex-direction: column; }
+  .code .head { background: var(--c-code-head); color: var(--c-code-head-ink); font-family: var(--font-mono); font-size: 13px;
+                padding: 8px 14px; }
+  .code pre { font-family: var(--font-mono); font-size: 14px; line-height: 1.5; color: var(--c-code-ink); padding: 8px 0;
+              flex: 1; overflow: auto; position: relative; }
+  .ln { display: flex; flex-wrap: wrap; align-items: center; padding: 0 10px 0 0; border-left: 4px solid transparent; min-height: 21.7px; }
+  .ln .chips { margin-left: auto; display: flex; gap: 4px; padding-left: 8px; }
+  .ln .no { width: 36px; text-align: right; color: #5c6370; padding-right: 12px; flex: none; user-select: none; }
+  .ln .tx { white-space: pre; flex: 1; }
+  .ln.cur { background: var(--c-code-cur); border-left-color: #58a6ff; }
+  .ln.cur .no { color: #e8eaf0; font-weight: 700; }
+  .ln.wait { background: var(--c-code-wait); border-left-color: #6e7681; }
+  .chip { font-family: var(--font-sans); font-size: 11px; font-weight: 700; border-radius: 6px; padding: 1px 6px;
+          white-space: nowrap; }
+  .chip.c { background: #58a6ff; color: #0e1014; }
+  .chip.w { background: #30363d; color: #c9d1d9; }
+  .k { color: #ff7b72; } .t { color: #ffa657; } .f { color: #d2a8ff; } .n { color: #79c0ff; }
+
+  /* stack */
+  .obj { border: 2px dashed var(--c-line); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; font-size: 15px; }
+  .obj b { font-family: var(--font-mono); }
+  .stackhint { font-size: 13px; color: var(--c-ink-soft); margin: 2px 0 6px; }
+  .frame { border: 2px solid var(--c-line); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; background: var(--c-bg); }
+  .frame.top { border-color: var(--c-accent); background: var(--c-accent-bg); }
+  .frame .sig { font-family: var(--font-mono); font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; gap: 8px; }
+  .pill { font-family: var(--font-sans); font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 8px; white-space: nowrap; }
+  .pill.run { background: var(--c-accent); color: var(--c-bg); }
+  .pill.wait { background: var(--c-surface-2); color: var(--c-ink-soft); }
+  .vars { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 6px 0 4px; font-family: var(--font-mono); font-size: 14px; }
+  .vars .nm { color: var(--c-ink-soft); }
+  .vars .val.chg { color: var(--c-accent); font-weight: 700; }
+  .meta { font-size: 13px; color: var(--c-ink-soft); line-height: 1.5; }
+  .meta b { color: var(--c-ink); }
+  .meta .ret { color: var(--c-ok); font-weight: 700; }
+  .empty { color: var(--c-ink-soft); font-style: italic; padding: 10px 2px; }
+
+  /* tree */
+  .treebox { border: 2px solid var(--c-line); border-radius: 12px; padding: 8px; overflow-x: auto; }
+  .treebox svg { display: block; margin: 0 auto; }
+  .legend { font-size: 13px; color: var(--c-ink-soft); margin-top: 6px; line-height: 1.5; }
+  .legend summary { cursor: pointer; font-weight: 600; color: var(--c-accent); }
+  svg .edge { stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .edge.ghost { stroke: var(--c-ink-faint); stroke-dasharray: 6 5; }
+  svg .nd rect { fill: var(--c-bg); stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .nd.cur rect { fill: var(--c-accent-bg); stroke: var(--c-accent); stroke-width: 4; }
+  svg .nd.wait rect { stroke: var(--c-accent-soft); stroke-width: 4; }
+  svg .nd text.v { fill: var(--c-ink); font-weight: 700; font-size: 17px; }
+  svg text.lb, svg text.tag, svg text.cap { paint-order: stroke; stroke: var(--c-bg); stroke-width: 5px; stroke-linejoin: round; }
+  svg text.lb { fill: var(--c-ink-soft); font-size: 12.5px; font-weight: 600; }
+  svg text.lb.done { fill: var(--c-ok); font-weight: 700; }
+  svg text.tag { fill: var(--c-accent); font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+  svg .slot rect { fill: var(--c-bg); stroke: var(--c-ink-faint); stroke-width: 2; stroke-dasharray: 5 4; }
+  svg .slot text { fill: var(--c-ink-faint); font-family: var(--font-mono); font-size: 12px; }
+  svg text.cap { fill: var(--c-ink-soft); font-size: 12.5px; font-weight: 600; }
+  kbd { font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--c-line); border-radius: 4px; padding: 0 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="codecol">
+    <div class="code">
+      <div class="head">struct Node { int info; Node* left; Node* right; };<br>class BST · private: Node* root; · the public height and its private helper</div>
+      <pre id="code"></pre>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>BST height, step by step</h1>
+        <p class="sub">height() of the class tree: the code, the call stack with its variables, and the tree in memory.</p>
+      </div>
+      <div class="bar">
+        <button id="first" title="First step (Home)">|◀</button>
+        <button id="back" title="Back (←)">◀ Back</button>
+        <button class="primary" id="next" title="Next (→ or space)">Next ▶</button>
+        <button id="last" title="Last step (End)">▶|</button>
+        <button id="play">Play</button>
+        <select id="speed" title="Speed"><option value="1600">slow</option><option value="900" selected>normal</option><option value="450">fast</option></select>
+        <span class="count" id="count"></span>
+        <button id="restart" title="Start again">Restart</button>
+        <button class="theme" id="theme" title="Light / dark (D)">Dark mode</button>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="cols">
+      <section class="panel">
+        <h2>Call stack</h2>
+        <div class="obj" id="obj"></div>
+        <div class="stackhint">Top: the call that is running. Below: calls waiting for an answer. <b>?</b> = no value yet.</div>
+        <div id="stack"></div>
+      </section>
+      <section class="panel tree">
+        <h2>Tree in memory</h2>
+        <div class="treebox"><svg id="tree"></svg></div>
+        <details class="legend">
+          <summary>How to read the tree</summary>
+          A node stores only <b>info</b>, <b>left</b> and <b>right</b>: its height is not stored anywhere.
+          The <b style="color:var(--c-ok)">h = …</b> under a node is the value that <code>height(n)</code> returned for it;
+          <b>h = ?</b> means that call has not returned yet.
+          Blue fill: the node of the running call · blue ring: nodes of waiting calls.
+          The label <b style="color:var(--c-accent)">n</b> shows where the variable of the running call points.
+          A dashed <b>nullptr</b> box is an empty subtree: a call with <code>n = nullptr</code>, which returns −1.
+        </details>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+// ------------------------------------------------------------------ the code (one statement per line so each step points at one line)
+const CODE = [
+  'int height() const { return height(root); }   // public',
+  'int height(Node* n) const {         // private',
+  '    if (n == nullptr) return -1;    // empty subtree',
+  '    int hl = height(n->left);',
+  '    int hr = height(n->right);',
+  '    return 1 + std::max(hl, hr);',
+  '}',
+];
+
+function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function colorize(line) {
+  let out = '', rest = line;
+  const ci = rest.indexOf('//');
+  let comment = '';
+  if (ci >= 0) { comment = rest.slice(ci); rest = rest.slice(0, ci); }
+  const tokens = rest.split(/(\b[A-Za-z_]\w*\b|-?\b\d+\b)/);
+  for (const tk of tokens) {
+    if (/^(int|void|return|if|else|new|nullptr|const)$/.test(tk)) out += `<span class="k">${tk}</span>`;
+    else if (tk === 'Node') out += `<span class="t">${tk}</span>`;
+    else if (/^(height|max)$/.test(tk)) out += `<span class="f">${tk}</span>`;
+    else if (/^-?\d+$/.test(tk)) out += `<span class="n">${tk}</span>`;
+    else out += esc(tk);
+  }
+  if (comment) out += `<span style="color:#8b949e">${esc(comment)}</span>`;
+  return out;
+}
+
+// ------------------------------------------------------------------ the tree in memory (no height stored)
+let nextId = 1;
+const mk = (info) => ({ id: nextId++, info, left: null, right: null });
+let root = null;
+let got = {};          // id -> value returned by height(n) for that node, once the call returned
+
+// ------------------------------------------------------------------ the tracer: runs the C++ logic and records every step
+let steps = [];
+let frames = [];
+const P = (v) => (v === null ? 'nullptr' : '→ ' + v.info);
+const neg = (v) => (v < 0 ? '−' + (-v) : String(v));
+
+function snap(line, msg) {
+  if (frames.length) frames[frames.length - 1].line = line;
+  const nodes = {};
+  const visit = (n) => { if (!n) return; nodes[n.id] = { id: n.id, info: n.info, left: n.left && n.left.id, right: n.right && n.right.id };
+    visit(n.left); visit(n.right); };
+  visit(root);
+  steps.push({
+    line, msg, root: root && root.id, nodes, got: Object.assign({}, got),
+    frames: frames.map((f) => ({
+      sig: f.sig, name: f.name, line: f.line, back: f.back, side: f.side, parent: f.parent, call: label(f, false),
+      vars: f.vars.map((v) => ({ name: v.name, ptr: v.ptr,
+        show: v.ptr ? P(v.val) : (v.val === undefined ? '?' : neg(v.val)), id: v.ptr && v.val ? v.val.id : null })),
+      ret: f.ret === null ? null : neg(f.ret),
+    })),
+  });
+}
+function push(f) { frames.push(Object.assign({ line: 0, ret: null }, f)); }
+function pop() { frames.pop(); }
+function setv(name, val) { frames[frames.length - 1].vars.find((v) => v.name === name).val = val; }
+function label(f, sp) {    // height(n → 132)
+  if (!f.vars.length || !f.vars[0].ptr) return `${f.name}()`;
+  const n = f.vars[0].val;
+  return `${f.name}(n${n ? (sp ? ' → ' : '→') + n.info : (sp ? ' = ' : '=') + 'nullptr'})`;
+}
+const caller = () => frames[frames.length - 1];
+const where = (n, side) => (!n ? 'the tree is empty' : side === 'left' ? `the empty left subtree of ${n.info}` : `the empty right subtree of ${n.info}`);
+
+function heightRec(n, back, side, parent) {
+  push({ name: 'height', sig: 'int height(Node* n) const', back, side, parent: parent ? parent.id : null,
+         vars: n === null ? [{ name: 'n', ptr: true, val: n }]      // returns at line 3: hl and hr are never created
+                          : [{ name: 'n', ptr: true, val: n }, { name: 'hl', ptr: false, val: undefined }, { name: 'hr', ptr: false, val: undefined }] });
+  if (n === null) {
+    snap(2, `New frame: <code>height</code> with <code>n = nullptr</code>: ${where(parent, side)}.`);
+    caller().ret = -1;
+    snap(3, `<code>n == nullptr</code>: the base case. Return −1 to ${back.text}, with no more calls.`);
+    pop(); return -1;
+  }
+  snap(2, `New frame: <code>height</code> with <code>n → ${n.info}</code>. Its locals <code>hl</code> and <code>hr</code> have no value yet.`);
+  snap(3, `<code>n == nullptr</code>? No: ${n.info} is a real node, so the answer depends on its two subtrees.`);
+  snap(4, `Ask the left subtree first: call <code>height(n->left)</code>${n.left ? ` (${n.left.info})` : ' (nullptr)'}. ` +
+          `This call waits at line 4 for the answer.`);
+  const hl = heightRec(n.left, { text: `${label(caller(), true)} at line 4, stored in <code>hl</code>` }, 'left', n);
+  setv('hl', hl);
+  snap(4, `Back in <code>${label(caller(), true)}</code>: <code>hl = ${neg(hl)}</code>, the height of the left subtree.`);
+  snap(5, `Now the right subtree: call <code>height(n->right)</code>${n.right ? ` (${n.right.info})` : ' (nullptr)'}. ` +
+          `This call waits at line 5.`);
+  const hr = heightRec(n.right, { text: `${label(caller(), true)} at line 5, stored in <code>hr</code>` }, 'right', n);
+  setv('hr', hr);
+  snap(5, `Back in <code>${label(caller(), true)}</code>: <code>hr = ${neg(hr)}</code>, the height of the right subtree.`);
+  const h = 1 + Math.max(hl, hr);
+  caller().ret = h; got[n.id] = h;
+  snap(6, `Both answers are in: <code>1 + max(${neg(hl)}, ${neg(hr)}) = ${h}</code>. ` +
+          `Return ${h} to ${back.text}.`);
+  pop(); return h;
+}
+
+function trace() {
+  steps = []; frames = []; got = {};
+  push({ name: 'height', sig: 'int height() const', back: { text: 'your program' }, vars: [] });
+  snap(1, `Your program calls <code>height()</code>. The public method calls the private one with the root. ` +
+          `No node stores its height: the code has to compute it.`);
+  const h = heightRec(root, { text: `<code>height()</code> at line 1, which returns it` }, null, null);
+  caller().ret = h;
+  snap(1, `Back in the public <code>height()</code>: it returns ${neg(h)} to your program.`);
+  pop();
+  snap(0, `Done. The height of the tree is ${neg(h)}. Every answer was built on the way back up, ` +
+          `and each node was visited once: ${count(root)} nodes and ${count(root) + 1} calls with nullptr, so O(n).`);
+  return h;
+}
+const count = (n) => (n ? 1 + count(n.left) + count(n.right) : 0);
+
+function bstInsert(n, x) {
+  if (n === null) return mk(x);
+  if (x < n.info) n.left = bstInsert(n.left, x); else if (x > n.info) n.right = bstInsert(n.right, x);
+  return n;
+}
+function build(keys) { nextId = 1; root = null; for (const x of keys) root = bstInsert(root, x); }
+
+// ------------------------------------------------------------------ drawing
+const $ = (id) => document.getElementById(id);
+let cur = 0;
+
+function drawCode(s) {
+  const top = s.frames.length ? s.frames.length - 1 : -1;
+  const waits = {};
+  s.frames.forEach((f, i) => { if (i < top) (waits[f.line] = waits[f.line] || []).push(f); });
+  let html = '';
+  CODE.forEach((text, i) => {
+    const no = i + 1;
+    let cls = 'ln', chips = '';
+    if (top >= 0 && s.frames[top].line === no) { cls += ' cur'; chips += `<span class="chip c">${s.frames[top].call} · running</span>`; }
+    else if (waits[no]) cls += ' wait';
+    if (waits[no]) {
+      const w = waits[no];
+      // many calls can wait on the same line: show the nearest ones and a count
+      const shown = w.slice(-3).reverse().map((f) => `<span class="chip w">${f.call}</span>`).join('');
+      chips += shown + (w.length > 3 ? `<span class="chip w">+${w.length - 3}</span>` : '');
+    }
+    html += `<div class="${cls}"><span class="no">${no}</span><span class="tx">${colorize(text)}</span>` +
+            (chips ? `<span class="chips">${chips}</span>` : '') + '</div>';
+  });
+  $('code').innerHTML = html;
+}
+
+function drawStack(s, prev) {
+  $('obj').innerHTML = `BST object · <b>root</b> <b>${s.root ? '→ ' + s.nodes[s.root].info : '= nullptr'}</b>`;
+  if (!s.frames.length) { $('stack').innerHTML = '<div class="empty">The stack is empty.</div>'; return; }
+  let html = '';
+  for (let i = s.frames.length - 1; i >= 0; i--) {
+    const f = s.frames[i], top = i === s.frames.length - 1;
+    const pf = prev && prev.frames[i] && prev.frames[i].call === f.call ? prev.frames[i] : null;
+    const vars = f.vars.map((v) => {
+      const changed = pf && pf.vars.find((w) => w.name === v.name && w.show !== v.show);
+      return `<span class="nm">${v.name}</span><span class="val${changed ? ' chg' : ''}">${v.show}</span>`;
+    }).join('');
+    html += `<div class="frame${top ? ' top' : ''}">
+      <div class="sig"><span>${esc(f.sig)}</span><span class="pill ${top ? 'run' : 'wait'}">${top ? 'running' : 'waiting'}</span></div>
+      ${vars ? `<div class="vars">${vars}</div>` : ''}
+      <div class="meta">${top ? 'Running' : 'Waiting at'} <b>line ${f.line}</b>: <code>${esc(CODE[f.line - 1].split('//')[0].trim())}</code><br>
+      Returns to: ${f.back.text}${f.ret !== null ? `<br><span class="ret">Returns ${f.ret}</span>` : ''}</div></div>`;
+  }
+  $('stack').innerHTML = html;
+}
+
+function drawTree(s) {
+  const svg = $('tree');
+  const pos = {};
+  let col = 0;
+  const DX = 66, DY = 92, X0 = 80, Y0 = 46;
+  const lay = (id, d) => { if (id == null) return; const n = s.nodes[id];
+    lay(n.left, d + 1); pos[id] = { x: X0 + col * DX, y: Y0 + d * DY }; col++; lay(n.right, d + 1); };
+  lay(s.root, 0);
+  // a call with n == nullptr: draw the empty subtree it stands for
+  let slot = null;
+  const top = s.frames[s.frames.length - 1];
+  if (top && top.vars.length && top.vars[0].show === 'nullptr' && top.parent && pos[top.parent]) {
+    const p = pos[top.parent];
+    slot = { x: p.x + (top.side === 'left' ? -DX * 0.6 : DX * 0.6), y: p.y + DY * 0.85, pid: top.parent, ret: top.ret };
+  }
+  const curIds = new Set(), waitIds = new Set(), tags = {};
+  s.frames.forEach((f, i) => { const id = f.vars.length ? f.vars[0].id : null; if (!id) return;
+    if (i === s.frames.length - 1) { curIds.add(id); (tags[id] = tags[id] || []).push('n'); } else waitIds.add(id); });
+  if (s.root) (tags[s.root] = tags[s.root] || []).unshift('root');
+  const W = (v) => (String(v).length <= 2 ? 46 : 58);
+  let maxX = 0, maxY = 0;
+  for (const id in pos) { maxX = Math.max(maxX, pos[id].x); maxY = Math.max(maxY, pos[id].y); }
+  if (slot) { maxX = Math.max(maxX, slot.x); maxY = Math.max(maxY, slot.y); }
+  const width = Math.max(420, maxX + 80), height = maxY + 64;
+  let g = '';
+  for (const id in pos) { const n = s.nodes[id];
+    for (const c of [n.left, n.right]) if (c != null)
+      g += `<line class="edge" x1="${pos[id].x}" y1="${pos[id].y}" x2="${pos[c].x}" y2="${pos[c].y}"/>`; }
+  if (slot) g += `<line class="edge ghost" x1="${pos[slot.pid].x}" y1="${pos[slot.pid].y}" x2="${slot.x}" y2="${slot.y}"/>`;
+  for (const id in pos) {
+    const n = s.nodes[id], p = pos[id], w = W(n.info);
+    const done = s.got[id] !== undefined;
+    let cls = 'nd';
+    if (curIds.has(+id)) cls += ' cur'; else if (waitIds.has(+id)) cls += ' wait';
+    g += `<g class="${cls}"><rect x="${p.x - w / 2}" y="${p.y - 17}" width="${w}" height="34" rx="17"/>` +
+         `<text class="v" x="${p.x}" y="${p.y + 6}" text-anchor="middle">${n.info}</text></g>`;
+    g += `<text class="lb${done ? ' done' : ''}" x="${p.x}" y="${p.y + 34}" text-anchor="middle">h = ${done ? s.got[id] : '?'}</text>`;
+    if (tags[id]) g += `<text class="tag" x="${p.x}" y="${p.y - 24}" text-anchor="middle">${tags[id].join(', ')}</text>`;
+  }
+  if (slot) g += `<g class="slot"><rect x="${slot.x - 30}" y="${slot.y - 14}" width="60" height="28" rx="14"/>` +
+                 `<text x="${slot.x}" y="${slot.y + 4}" text-anchor="middle">nullptr</text></g>` +
+                 `<text class="tag" x="${slot.x}" y="${slot.y - 21}" text-anchor="middle">n</text>` +
+                 (slot.ret !== null ? `<text class="lb done" x="${slot.x}" y="${slot.y + 31}" text-anchor="middle">returns −1</text>` : '');
+  if (!s.root) g += `<text class="cap" x="20" y="40">empty tree: root = nullptr</text>`;
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.innerHTML = g;
+}
+
+function show(i) {
+  if (!steps.length) return;
+  cur = Math.max(0, Math.min(i, steps.length - 1));
+  const s = steps[cur];
+  $('msg').innerHTML = s.msg;
+  drawCode(s); drawStack(s, cur > 0 ? steps[cur - 1] : null); drawTree(s);
+  $('count').textContent = `Step ${cur + 1} of ${steps.length}`;
+  $('back').disabled = $('first').disabled = cur === 0;
+  $('next').disabled = $('last').disabled = cur === steps.length - 1;
+}
+
+// ------------------------------------------------------------------ controls
+let timer = null;
+function stop() { if (timer) { clearInterval(timer); timer = null; $('play').textContent = 'Play'; } }
+$('restart').onclick = () => { stop(); show(0); };
+$('next').onclick = () => { stop(); show(cur + 1); };
+$('back').onclick = () => { stop(); show(cur - 1); };
+$('first').onclick = () => { stop(); show(0); };
+$('last').onclick = () => { stop(); show(steps.length - 1); };
+$('play').onclick = () => {
+  if (timer) return stop();
+  if (cur >= steps.length - 1) show(0);
+  $('play').textContent = 'Pause';
+  timer = setInterval(() => { if (cur >= steps.length - 1) stop(); else show(cur + 1); }, +$('speed').value);
+};
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); $('next').click(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); $('back').click(); }
+  else if (e.key === 'Home') $('first').click();
+  else if (e.key === 'End') $('last').click();
+  else if (e.key === 'd' || e.key === 'D') $('theme').click();
+});
+function setTheme(t) {
+  if (t === 'dark') document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem('shstyle-theme', t); } catch (e) {}
+  $('theme').textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
+}
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+$('theme').textContent = document.documentElement.dataset.theme === 'dark' ? 'Light mode' : 'Dark mode';
+
+// for automated checks: trace height() on a BST built from keys
+window.bstTest = {
+  height(keys) { build(keys); const h = trace(); const r = { h, steps: steps.length, got: got, maxDepth: Math.max(...steps.map((s) => s.frames.length)) };
+                 build([132, 89, 256, 52, 167, 402, 190]); trace(); show(0); return r; },
+};
+
+build([132, 89, 256, 52, 167, 402, 190]);
+trace();
+show(0);
+</script>
+</body>
+</html>

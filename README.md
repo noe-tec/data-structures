@@ -7,5 +7,6 @@ Class materials: interactive pages, slides and example code.
 | Folder | Topic |
 |---|---|
 | `01-fundamentals` | Algorithm analysis, search and sorting |
+| `03-trees` | Trees, binary search trees and AVL trees |
 
 Inside each block, `pages` holds the web material. Example code may also be included in `src`, `include`, `examples` and `tests` directories.
