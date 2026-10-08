@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P13 — AVL Trees</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+  <script>try{if(localStorage.getItem("shstyle-theme")==="dark"&&!/print-pdf/i.test(location.search))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+  <link rel="stylesheet" href="../css/shstyle.css">
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <section class="cover">
+      <span class="kicker">Data Structures and Algorithms</span>
+      <h1>AVL Trees</h1>
+      <div class="cover-meta">
+        P13 · Week 9<br>
+        Noe Samano
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">Before we start</span>
+      <h2>Motivation reading</h2>
+      <div class="cols">
+        <div><svg class="qr" viewBox="0 0 45 45" style="width:300px; height:300px;" role="img" aria-label="QR code: https://noe-tec.github.io/data-structures/readings/reading-p13/" shape-rendering="crispEdges"><rect width="45" height="45" fill="white"/><path fill="black" d="M4,4h7v1h-7zM12,4h1v1h-1zM14,4h2v1h-2zM17,4h4v1h-4zM29,4h1v1h-1zM34,4h7v1h-7zM4,5h1v1h-1zM10,5h1v1h-1zM12,5h3v1h-3zM16,5h2v1h-2zM19,5h1v1h-1zM25,5h2v1h-2zM29,5h1v1h-1zM32,5h1v1h-1zM34,5h1v1h-1zM40,5h1v1h-1zM4,6h1v1h-1zM6,6h3v1h-3zM10,6h1v1h-1zM13,6h1v1h-1zM15,6h2v1h-2zM23,6h1v1h-1zM27,6h3v1h-3zM31,6h1v1h-1zM34,6h1v1h-1zM36,6h3v1h-3zM40,6h1v1h-1zM4,7h1v1h-1zM6,7h3v1h-3zM10,7h1v1h-1zM12,7h3v1h-3zM18,7h2v1h-2zM21,7h1v1h-1zM24,7h1v1h-1zM27,7h5v1h-5zM34,7h1v1h-1zM36,7h3v1h-3zM40,7h1v1h-1zM4,8h1v1h-1zM6,8h3v1h-3zM10,8h1v1h-1zM14,8h3v1h-3zM19,8h1v1h-1zM22,8h2v1h-2zM28,8h4v1h-4zM34,8h1v1h-1zM36,8h3v1h-3zM40,8h1v1h-1zM4,9h1v1h-1zM10,9h1v1h-1zM13,9h4v1h-4zM21,9h3v1h-3zM26,9h1v1h-1zM28,9h3v1h-3zM34,9h1v1h-1zM40,9h1v1h-1zM4,10h7v1h-7zM12,10h1v1h-1zM14,10h1v1h-1zM16,10h1v1h-1zM18,10h1v1h-1zM20,10h1v1h-1zM22,10h1v1h-1zM24,10h1v1h-1zM26,10h1v1h-1zM28,10h1v1h-1zM30,10h1v1h-1zM32,10h1v1h-1zM34,10h7v1h-7zM12,11h2v1h-2zM15,11h1v1h-1zM17,11h2v1h-2zM20,11h1v1h-1zM26,11h2v1h-2zM31,11h1v1h-1zM4,12h1v1h-1zM6,12h2v1h-2zM9,12h3v1h-3zM14,12h1v1h-1zM16,12h1v1h-1zM22,12h2v1h-2zM26,12h3v1h-3zM30,12h1v1h-1zM32,12h1v1h-1zM34,12h1v1h-1zM37,12h1v1h-1zM39,12h2v1h-2zM4,13h2v1h-2zM7,13h1v1h-1zM9,13h1v1h-1zM12,13h3v1h-3zM16,13h1v1h-1zM19,13h1v1h-1zM22,13h1v1h-1zM24,13h1v1h-1zM26,13h1v1h-1zM28,13h1v1h-1zM30,13h1v1h-1zM32,13h2v1h-2zM35,13h1v1h-1zM37,13h1v1h-1zM39,13h1v1h-1zM8,14h8v1h-8zM20,14h10v1h-10zM34,14h2v1h-2zM37,14h1v1h-1zM4,15h5v1h-5zM11,15h1v1h-1zM14,15h2v1h-2zM20,15h1v1h-1zM22,15h1v1h-1zM24,15h1v1h-1zM29,15h3v1h-3zM34,15h1v1h-1zM36,15h3v1h-3zM5,16h2v1h-2zM10,16h1v1h-1zM12,16h2v1h-2zM15,16h1v1h-1zM17,16h3v1h-3zM21,16h1v1h-1zM23,16h2v1h-2zM26,16h1v1h-1zM28,16h3v1h-3zM33,16h2v1h-2zM36,16h5v1h-5zM4,17h4v1h-4zM12,17h3v1h-3zM16,17h4v1h-4zM21,17h1v1h-1zM23,17h1v1h-1zM25,17h1v1h-1zM28,17h1v1h-1zM30,17h8v1h-8zM39,17h2v1h-2zM6,18h1v1h-1zM8,18h1v1h-1zM10,18h3v1h-3zM14,18h1v1h-1zM16,18h1v1h-1zM23,18h3v1h-3zM29,18h1v1h-1zM36,18h1v1h-1zM38,18h2v1h-2zM4,19h2v1h-2zM7,19h1v1h-1zM11,19h1v1h-1zM15,19h1v1h-1zM18,19h1v1h-1zM23,19h1v1h-1zM27,19h1v1h-1zM31,19h2v1h-2zM35,19h2v1h-2zM39,19h2v1h-2zM10,20h3v1h-3zM14,20h2v1h-2zM21,20h1v1h-1zM26,20h1v1h-1zM29,20h2v1h-2zM37,20h2v1h-2zM4,21h6v1h-6zM12,21h2v1h-2zM15,21h2v1h-2zM18,21h1v1h-1zM22,21h2v1h-2zM26,21h1v1h-1zM28,21h1v1h-1zM30,21h2v1h-2zM34,21h2v1h-2zM37,21h4v1h-4zM4,22h1v1h-1zM6,22h8v1h-8zM16,22h2v1h-2zM21,22h2v1h-2zM24,22h5v1h-5zM31,22h3v1h-3zM35,22h3v1h-3zM39,22h2v1h-2zM5,23h2v1h-2zM8,23h2v1h-2zM11,23h1v1h-1zM15,23h1v1h-1zM17,23h1v1h-1zM19,23h4v1h-4zM24,23h1v1h-1zM28,23h1v1h-1zM34,23h1v1h-1zM36,23h2v1h-2zM39,23h1v1h-1zM4,24h3v1h-3zM10,24h1v1h-1zM14,24h3v1h-3zM19,24h1v1h-1zM21,24h5v1h-5zM27,24h1v1h-1zM30,24h4v1h-4zM35,24h2v1h-2zM40,24h1v1h-1zM6,25h2v1h-2zM11,25h2v1h-2zM15,25h1v1h-1zM18,25h1v1h-1zM20,25h2v1h-2zM23,25h3v1h-3zM27,25h2v1h-2zM30,25h1v1h-1zM32,25h1v1h-1zM37,25h1v1h-1zM5,26h1v1h-1zM7,26h1v1h-1zM9,26h9v1h-9zM20,26h1v1h-1zM22,26h1v1h-1zM27,26h1v1h-1zM30,26h1v1h-1zM35,26h1v1h-1zM4,27h4v1h-4zM9,27h1v1h-1zM16,27h2v1h-2zM21,27h1v1h-1zM23,27h2v1h-2zM27,27h1v1h-1zM29,27h2v1h-2zM33,27h1v1h-1zM36,27h3v1h-3zM40,27h1v1h-1zM4,28h1v1h-1zM7,28h2v1h-2zM10,28h4v1h-4zM16,28h1v1h-1zM18,28h3v1h-3zM23,28h1v1h-1zM25,28h1v1h-1zM28,28h2v1h-2zM31,28h1v1h-1zM33,28h4v1h-4zM38,28h1v1h-1zM40,28h1v1h-1zM5,29h1v1h-1zM7,29h1v1h-1zM9,29h1v1h-1zM11,29h1v1h-1zM13,29h2v1h-2zM17,29h1v1h-1zM21,29h1v1h-1zM26,29h2v1h-2zM31,29h6v1h-6zM38,29h3v1h-3zM5,30h1v1h-1zM10,30h1v1h-1zM14,30h4v1h-4zM22,30h1v1h-1zM26,30h1v1h-1zM29,30h2v1h-2zM32,30h2v1h-2zM36,30h4v1h-4zM4,31h1v1h-1zM6,31h2v1h-2zM9,31h1v1h-1zM12,31h1v1h-1zM15,31h1v1h-1zM17,31h3v1h-3zM22,31h5v1h-5zM28,31h1v1h-1zM31,31h5v1h-5zM39,31h1v1h-1zM6,32h1v1h-1zM8,32h5v1h-5zM14,32h4v1h-4zM22,32h6v1h-6zM29,32h1v1h-1zM32,32h5v1h-5zM38,32h1v1h-1zM40,32h1v1h-1zM12,33h2v1h-2zM15,33h1v1h-1zM18,33h2v1h-2zM22,33h1v1h-1zM25,33h1v1h-1zM27,33h3v1h-3zM31,33h2v1h-2zM36,33h1v1h-1zM38,33h3v1h-3zM4,34h7v1h-7zM12,34h3v1h-3zM19,34h1v1h-1zM22,34h1v1h-1zM24,34h1v1h-1zM26,34h1v1h-1zM29,34h1v1h-1zM32,34h1v1h-1zM34,34h1v1h-1zM36,34h1v1h-1zM38,34h3v1h-3zM4,35h1v1h-1zM10,35h1v1h-1zM12,35h1v1h-1zM14,35h2v1h-2zM18,35h2v1h-2zM21,35h2v1h-2zM24,35h2v1h-2zM27,35h2v1h-2zM31,35h2v1h-2zM36,35h1v1h-1zM40,35h1v1h-1zM4,36h1v1h-1zM6,36h3v1h-3zM10,36h1v1h-1zM13,36h1v1h-1zM15,36h3v1h-3zM20,36h1v1h-1zM23,36h2v1h-2zM32,36h6v1h-6zM39,36h2v1h-2zM4,37h1v1h-1zM6,37h3v1h-3zM10,37h1v1h-1zM12,37h1v1h-1zM14,37h2v1h-2zM18,37h3v1h-3zM25,37h1v1h-1zM28,37h2v1h-2zM34,37h1v1h-1zM36,37h1v1h-1zM38,37h2v1h-2zM4,38h1v1h-1zM6,38h3v1h-3zM10,38h1v1h-1zM12,38h1v1h-1zM16,38h1v1h-1zM18,38h2v1h-2zM21,38h2v1h-2zM26,38h3v1h-3zM30,38h5v1h-5zM36,38h1v1h-1zM38,38h2v1h-2zM4,39h1v1h-1zM10,39h1v1h-1zM13,39h2v1h-2zM16,39h1v1h-1zM19,39h1v1h-1zM22,39h2v1h-2zM26,39h4v1h-4zM35,39h4v1h-4zM4,40h7v1h-7zM12,40h2v1h-2zM15,40h2v1h-2zM20,40h2v1h-2zM26,40h2v1h-2zM29,40h2v1h-2zM33,40h2v1h-2zM36,40h5v1h-5z"/></svg></div>
+        <div>
+          <p><strong>Short trees, fast answers.</strong> Why a search tree must stay balanced, and who keeps it that way.</p>
+          <p class="muted">A three-minute read. Scan the code or open:<br>
+            <a href="https://noe-tec.github.io/data-structures/readings/reading-p13/">noe-tec.github.io/data-structures/readings/reading-p13/</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">Today's goal</span>
+      <h2>By the end of this session you will be able to…</h2>
+      <ul>
+        <li class="fragment">Compute the <span class="term" data-term="height">height</span> and the <span class="term" data-term="balance-factor">balance factor</span> of every node, and tell whether a tree is an <span class="term" data-term="avl">AVL tree</span>.</li>
+        <li class="fragment">Perform a single and a double <span class="term" data-term="rotation">rotation</span> by hand, and explain why the result is still a BST.</li>
+        <li class="fragment">Choose the rotation that repairs a node from two balance factors.</li>
+        <li class="fragment">Code AVL insertion and explain why it costs O(log n).</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">The problem</span>
+      <h2>A BST is only as fast as it is short</h2>
+      <svg viewBox="0 0 1100 320" style="width:100%; max-height:245px;">
+<g><line class="svg-edge" x1="270" y1="44" x2="150" y2="124"/><line class="svg-edge" x1="270" y1="44" x2="390" y2="124"/><line class="svg-edge" x1="150" y1="124" x2="90" y2="204"/><line class="svg-edge" x1="150" y1="124" x2="210" y2="204"/><line class="svg-edge" x1="390" y1="124" x2="330" y2="204"/><line class="svg-edge" x1="390" y1="124" x2="450" y2="204"/><rect class="svg-node" x="247" y="24" width="46" height="40" rx="20"/><text class="svg-label" x="270" y="51.92" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node" x="127" y="104" width="46" height="40" rx="20"/><text class="svg-label" x="150" y="131.92" text-anchor="middle" style="font-size:22px;">3</text><rect class="svg-node" x="367" y="104" width="46" height="40" rx="20"/><text class="svg-label" x="390" y="131.92" text-anchor="middle" style="font-size:22px;">8</text><rect class="svg-node" x="67" y="184" width="46" height="40" rx="20"/><text class="svg-label" x="90" y="211.92" text-anchor="middle" style="font-size:22px;">1</text><rect class="svg-node" x="187" y="184" width="46" height="40" rx="20"/><text class="svg-label" x="210" y="211.92" text-anchor="middle" style="font-size:22px;">5</text><rect class="svg-node" x="307" y="184" width="46" height="40" rx="20"/><text class="svg-label" x="330" y="211.92" text-anchor="middle" style="font-size:22px;">7</text><rect class="svg-node" x="427" y="184" width="46" height="40" rx="20"/><text class="svg-label" x="450" y="211.92" text-anchor="middle" style="font-size:22px;">9</text><text class="svg-label" x="270" y="266" text-anchor="middle" style="font-size:22px;">insert 6, 3, 8, 1, 5, 7, 9</text><text class="f-accent" x="270" y="298" text-anchor="middle" style="font-size:22px; font-weight:700;">height 2</text><line class="svg-edge" x1="640" y1="30" x2="694" y2="74"/><line class="svg-edge" x1="694" y1="74" x2="748" y2="118"/><line class="svg-edge" x1="748" y1="118" x2="802" y2="162"/><line class="svg-edge" x1="802" y1="162" x2="856" y2="206"/><line class="svg-edge" x1="856" y1="206" x2="910" y2="250"/><line class="svg-edge" x1="910" y1="250" x2="964" y2="294"/><rect class="svg-node" x="617" y="10" width="46" height="40" rx="20"/><text class="svg-label" x="640" y="37.92" text-anchor="middle" style="font-size:22px;">1</text><rect class="svg-node" x="671" y="54" width="46" height="40" rx="20"/><text class="svg-label" x="694" y="81.92" text-anchor="middle" style="font-size:22px;">3</text><rect class="svg-node" x="725" y="98" width="46" height="40" rx="20"/><text class="svg-label" x="748" y="125.92" text-anchor="middle" style="font-size:22px;">5</text><rect class="svg-node" x="779" y="142" width="46" height="40" rx="20"/><text class="svg-label" x="802" y="169.92" text-anchor="middle" style="font-size:22px;">6</text><rect class="svg-node" x="833" y="186" width="46" height="40" rx="20"/><text class="svg-label" x="856" y="213.92" text-anchor="middle" style="font-size:22px;">7</text><rect class="svg-node" x="887" y="230" width="46" height="40" rx="20"/><text class="svg-label" x="910" y="257.92" text-anchor="middle" style="font-size:22px;">8</text><rect class="svg-node" x="941" y="274" width="46" height="40" rx="20"/><text class="svg-label" x="964" y="301.92" text-anchor="middle" style="font-size:22px;">9</text><text class="svg-label" x="760" y="38" style="font-size:22px;">insert 1, 3, 5, 6, 7, 8, 9</text><text class="f-err" x="760" y="70" style="font-size:22px; font-weight:700;">height 6</text></g>
+</svg>
+      <ul>
+        <li class="fragment">Search, insert and remove follow one path from the root, so they cost O(height). The insertion order decides the height.</li>
+        <li class="fragment">Sorted input is the worst case: height n − 1, a linked list. The goal for today is a height of O(log n) for <em>every</em> insertion order.</li>
+      </ul>
+      <p class="muted">Trees from de la Cueva et al. (2020), Fig. 9.9–9.10.</p>
+    </section>
+
+    <section class="divider">
+      <h2>13.1 Balance</h2>
+    </section>
+
+    <section>
+      <span class="kicker">13.1 · Balance</span>
+      <h2>AVL: at every node, heights differ by at most 1</h2>
+      <ul>
+        <li class="fragment">An <span class="term" data-term="avl">AVL tree</span> is a BST where, at every node, the heights of the left and right subtrees differ by at most 1. An empty subtree has height −1.</li>
+        <li class="fragment">The <span class="term" data-term="balance-factor">balance factor</span> of a node is <code>BF = height(right) − height(left)</code>. A tree is AVL when every BF is −1, 0 or +1.</li>
+        <li class="fragment">An insertion can push one node to +2 or −2. The tree repairs itself with a <span class="term" data-term="rotation">rotation</span> before the insertion returns.</li>
+      </ul>
+      <div class="box-key fragment">Positive BF: the right side is taller. Negative BF: the left side is taller.</div>
+      <p class="fragment muted">Some books compute left − right. The signs flip; the idea does not.</p>
+    </section>
+
+    <section>
+      <span class="kicker">13.1 · Balance</span>
+      <h2>Heights first, then balance factors</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="550" y1="36" x2="290" y2="104"/><line class="svg-edge" x1="550" y1="36" x2="810" y2="104"/><line class="svg-edge" x1="290" y1="104" x2="170" y2="172"/><line class="svg-edge" x1="810" y1="104" x2="690" y2="172"/><line class="svg-edge" x1="810" y1="104" x2="930" y2="172"/><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><rect class="svg-node" x="516" y="16" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="43.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node" x="265" y="84" width="50" height="40" rx="20"/><text class="svg-label" x="290" y="111.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="776" y="84" width="68" height="40" rx="20"/><text class="svg-label" x="810" y="111.92" text-anchor="middle" style="font-size:22px;">256</text><rect class="svg-node" x="145" y="152" width="50" height="40" rx="20"/><text class="svg-label" x="170" y="179.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="896" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="930" y="179.92" text-anchor="middle" style="font-size:22px;">402</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = 3</text><text class="f-ink-soft" x="323" y="111" style="font-size:19px; font-weight:700;">h = 1</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = 2</text><text class="f-ink-soft" x="203" y="179" style="font-size:19px; font-weight:700;">h = 0</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = 1</text><text class="f-ink-soft" x="972" y="179" style="font-size:19px; font-weight:700;">h = 0</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">Heights, from the bottom up: a leaf has height 0 and an empty subtree has height −1</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">height(node) = 1 + the larger of its two subtree heights</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ink-soft" x="323" y="111" style="font-size:19px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = 2 · BF = −1</text><text class="f-ink-soft" x="203" y="179" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="972" y="179" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">BF = height(right) − height(left) · at 89: (−1) − 0 = −1</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">every BF is −1, 0 or +1, so this tree is an AVL tree</text></g>
+<g class="anim-step" data-step="3"><line class="svg-edge" x1="760" y1="240" x2="830" y2="308"/><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node-hl" x="796" y="288" width="68" height="40" rx="20"/><text class="svg-label" x="830" y="315.92" text-anchor="middle" style="font-size:22px;">200</text><rect class="svg-node" x="516" y="16" width="68" height="40" rx="20"/><rect x="516" y="16" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="550" y="43.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node" x="776" y="84" width="68" height="40" rx="20"/><rect x="776" y="84" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="810" y="111.92" text-anchor="middle" style="font-size:22px;">256</text><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><rect x="656" y="152" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><text class="f-err" x="592" y="43" style="font-size:19px; font-weight:700;">h = 4 · BF = +2</text><text class="f-ink-soft" x="323" y="111" style="font-size:19px; font-weight:700;">h = 1 · BF = −1</text><text class="f-err" x="852" y="111" style="font-size:19px; font-weight:700;">h = 3 · BF = −2</text><text class="f-ink-soft" x="203" y="179" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-err" x="732" y="179" style="font-size:19px; font-weight:700;">h = 2 · BF = +2</text><text class="f-ink-soft" x="972" y="179" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="872" y="315" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-err" x="40" y="364" style="font-size:24px; font-weight:600;">insert(200): three nodes on its path now have BF = +2 or −2</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">repair the deepest one, 167, and the other two recover · we repair this tree in section 13.3</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <p class="muted">Tree adapted from de la Cueva et al. (2020), Fig. 9.11.</p>
+    </section>
+
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="b">
+        <p class="quiz-question">A node has a left subtree of height 2 and an <em>empty</em> right subtree. With the definitions of this course, what is its balance factor?</p>
+        <button class="quiz-option" data-opt="a">−2: the empty right side has height 0.</button>
+        <button class="quiz-option" data-opt="b">−3: the empty right side has height −1.</button>
+        <button class="quiz-option" data-opt="c">+3: the left side is taller by 3.</button>
+        <div class="quiz-explain">
+          <strong>B.</strong> BF = height(right) − height(left) = (−1) − 2 = −3.
+          A gives the empty subtree height 0, but that is the height of a single leaf.
+          C has the right size and the wrong sign: with right minus left, a taller left side gives a negative BF.
+        </div>
+      </div>
+    </section>
+
+    <section class="divider">
+      <h2>13.2 Rotations</h2>
+    </section>
+
+    <section>
+      <span class="kicker">13.2 · Rotations</span>
+      <h2>A left rotation: the right child rises</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g class="anim-step" data-step="0" data-step-off="1"><line class="svg-edge" x1="400" y1="44" x2="290" y2="124"/><line class="svg-edge" x1="400" y1="44" x2="540" y2="124"/><line class="svg-edge" x1="540" y1="124" x2="460" y2="204"/><line class="svg-edge" x1="540" y1="124" x2="640" y2="204"/><polygon class="svg-node" points="290,124 245,194 335,194"/><text class="svg-label" x="290" y="178" text-anchor="middle" style="font-size:20px;">T1</text><polygon class="svg-node" points="460,204 415,274 505,274"/><text class="svg-label" x="460" y="258" text-anchor="middle" style="font-size:20px;">T2</text><polygon class="svg-node" points="640,204 595,314 685,314"/><text class="svg-label" x="640" y="298" text-anchor="middle" style="font-size:20px;">T3</text><rect class="svg-node" x="371" y="19" width="58" height="50" rx="25"/><rect x="371" y="19" width="58" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="400" y="53.72" text-anchor="middle" style="font-size:27px;">a</text><rect class="svg-node" x="511" y="99" width="58" height="50" rx="25"/><text class="svg-label" x="540" y="133.72" text-anchor="middle" style="font-size:27px;">b</text><text class="f-err" x="442" y="52" style="font-size:23px; font-weight:700;">BF = +2</text><text class="f-ink-soft" x="582" y="132" style="font-size:23px; font-weight:700;">BF = +1</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">a is right-heavy (BF = +2) and its right child b leans the same way</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">T1, T2 and T3 are whole subtrees · T3 is taller than the other two by 1</text></g>
+<g class="anim-step" data-step="1"><line class="svg-edge" x1="480" y1="44" x2="340" y2="124"/><line class="svg-edge" x1="480" y1="44" x2="620" y2="124"/><line class="svg-edge" x1="340" y1="124" x2="260" y2="204"/><line class="svg-edge" x1="340" y1="124" x2="420" y2="204"/><polygon class="svg-node" points="260,204 215,274 305,274"/><text class="svg-label" x="260" y="258" text-anchor="middle" style="font-size:20px;">T1</text><polygon class="svg-node-hl" points="420,204 375,274 465,274"/><text class="svg-label" x="420" y="258" text-anchor="middle" style="font-size:20px;">T2</text><polygon class="svg-node" points="620,124 575,234 665,234"/><text class="svg-label" x="620" y="218" text-anchor="middle" style="font-size:20px;">T3</text><rect class="svg-node" x="311" y="99" width="58" height="50" rx="25"/><text class="svg-label" x="340" y="133.72" text-anchor="middle" style="font-size:27px;">a</text><rect class="svg-node-hl" x="451" y="19" width="58" height="50" rx="25"/><text class="svg-label" x="480" y="53.72" text-anchor="middle" style="font-size:27px;">b</text><text class="f-ink-soft" x="522" y="52" style="font-size:23px; font-weight:700;">BF = 0</text><text class="f-ink-soft" x="298" y="132" text-anchor="end" style="font-size:23px; font-weight:700;">BF = 0</text></g>
+<g class="anim-step" data-step="1"><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">rotateLeft(a): b rises and a goes down to the left</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">T2 changes parent: from the left of b to the right of a · both BF are now 0</text></g>
+<g class="anim-step" data-step="2"><text class="f-ink-soft" x="760" y="96" style="font-size:20px; font-weight:600;">inorder before:</text><text class="svg-label" x="760" y="128" style="font-size:22px; font-family: var(--font-mono);">T1  a  T2  b  T3</text><text class="f-ink-soft" x="760" y="176" style="font-size:20px; font-weight:600;">inorder after:</text><text class="svg-label" x="760" y="208" style="font-size:22px; font-family: var(--font-mono);">T1  a  T2  b  T3</text><text class="f-accent" x="760" y="256" style="font-size:20px; font-weight:700;">same order → still a BST</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">13.2 · Rotations</span>
+      <h2>A right rotation: the left child rises</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g class="anim-step" data-step="0" data-step-off="1"><line class="svg-edge" x1="500" y1="44" x2="360" y2="124"/><line class="svg-edge" x1="500" y1="44" x2="610" y2="124"/><line class="svg-edge" x1="360" y1="124" x2="260" y2="204"/><line class="svg-edge" x1="360" y1="124" x2="440" y2="204"/><polygon class="svg-node" points="260,204 215,314 305,314"/><text class="svg-label" x="260" y="298" text-anchor="middle" style="font-size:20px;">T1</text><polygon class="svg-node" points="440,204 395,274 485,274"/><text class="svg-label" x="440" y="258" text-anchor="middle" style="font-size:20px;">T2</text><polygon class="svg-node" points="610,124 565,194 655,194"/><text class="svg-label" x="610" y="178" text-anchor="middle" style="font-size:20px;">T3</text><rect class="svg-node" x="471" y="19" width="58" height="50" rx="25"/><rect x="471" y="19" width="58" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="500" y="53.72" text-anchor="middle" style="font-size:27px;">a</text><rect class="svg-node" x="331" y="99" width="58" height="50" rx="25"/><text class="svg-label" x="360" y="133.72" text-anchor="middle" style="font-size:27px;">b</text><text class="f-err" x="542" y="52" style="font-size:23px; font-weight:700;">BF = −2</text><text class="f-ink-soft" x="318" y="132" text-anchor="end" style="font-size:23px; font-weight:700;">BF = −1</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">a is left-heavy (BF = −2) and its left child b leans the same way</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">T1, T2 and T3 are whole subtrees · T1 is taller than the other two by 1</text></g>
+<g class="anim-step" data-step="1"><line class="svg-edge" x1="420" y1="44" x2="280" y2="124"/><line class="svg-edge" x1="420" y1="44" x2="560" y2="124"/><line class="svg-edge" x1="560" y1="124" x2="480" y2="204"/><line class="svg-edge" x1="560" y1="124" x2="640" y2="204"/><polygon class="svg-node" points="280,124 235,234 325,234"/><text class="svg-label" x="280" y="218" text-anchor="middle" style="font-size:20px;">T1</text><polygon class="svg-node-hl" points="480,204 435,274 525,274"/><text class="svg-label" x="480" y="258" text-anchor="middle" style="font-size:20px;">T2</text><polygon class="svg-node" points="640,204 595,274 685,274"/><text class="svg-label" x="640" y="258" text-anchor="middle" style="font-size:20px;">T3</text><rect class="svg-node" x="531" y="99" width="58" height="50" rx="25"/><text class="svg-label" x="560" y="133.72" text-anchor="middle" style="font-size:27px;">a</text><rect class="svg-node-hl" x="391" y="19" width="58" height="50" rx="25"/><text class="svg-label" x="420" y="53.72" text-anchor="middle" style="font-size:27px;">b</text><text class="f-ink-soft" x="462" y="52" style="font-size:23px; font-weight:700;">BF = 0</text><text class="f-ink-soft" x="602" y="132" style="font-size:23px; font-weight:700;">BF = 0</text></g>
+<g class="anim-step" data-step="1"><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">rotateRight(a): b rises and a goes down to the right</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">T2 changes parent: from the right of b to the left of a · both BF are now 0</text></g>
+<g class="anim-step" data-step="2"><text class="f-ink-soft" x="770" y="96" style="font-size:20px; font-weight:600;">inorder before:</text><text class="svg-label" x="770" y="128" style="font-size:22px; font-family: var(--font-mono);">T1  b  T2  a  T3</text><text class="f-ink-soft" x="770" y="176" style="font-size:20px; font-weight:600;">inorder after:</text><text class="svg-label" x="770" y="208" style="font-size:22px; font-family: var(--font-mono);">T1  b  T2  a  T3</text><text class="f-accent" x="770" y="256" style="font-size:20px; font-weight:700;">same order → still a BST</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">13.2 · Rotations</span>
+      <h2>A rotation is three pointer changes</h2>
+      <pre data-title="avl.hpp"><code class="language-cpp" data-trim data-line-numbers="1-15|3-7|9-11|12-13|14">
+// struct AVLNode { int info; int height; AVLNode* left; AVLNode* right; };
+// class AVL: member AVLNode* root = nullptr; and these private methods
+int height(AVLNode* n) { return n == nullptr ? -1 : n-&gt;height; }
+int bf(AVLNode* n) { return height(n-&gt;right) - height(n-&gt;left); }
+void update(AVLNode* n) {
+    n-&gt;height = 1 + std::max(height(n-&gt;left), height(n-&gt;right));
+}
+AVLNode* rotateLeft(AVLNode* a) {     // a is right-heavy
+    AVLNode* b = a-&gt;right;            // b rises
+    a-&gt;right = b-&gt;left;               // T2 changes parent
+    b-&gt;left = a;                      // a goes down to the left
+    update(a);                        // a first: it is now below b
+    update(b);
+    return b;                         // new root of this subtree
+}
+      </code></pre>
+      <ul>
+        <li class="fragment">Stored heights make a rotation O(1). <code>rotateRight</code> is its mirror image.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">13.2 · Rotations</span>
+      <h2>A single rotation does not fix a zig-zag</h2>
+      <svg viewBox="0 0 1100 410" style="width:100%; max-height:410px;">
+<g><line class="svg-edge" x1="240" y1="60" x2="360" y2="150"/><line class="svg-edge" x1="360" y1="150" x2="270" y2="240"/><rect class="svg-node" x="209" y="35" width="62" height="50" rx="25"/><rect x="209" y="35" width="62" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="240" y="69.72" text-anchor="middle" style="font-size:27px;">32</text><text class="f-err" x="282" y="68" style="font-size:23px; font-weight:700;">BF = +2</text><rect class="svg-node" x="329" y="125" width="62" height="50" rx="25"/><text class="svg-label" x="360" y="159.72" text-anchor="middle" style="font-size:27px;">56</text><text class="f-ink-soft" x="402" y="158" style="font-size:23px; font-weight:700;">BF = −1</text><rect class="svg-node" x="239" y="215" width="62" height="50" rx="25"/><text class="svg-label" x="270" y="249.72" text-anchor="middle" style="font-size:27px;">43</text><text class="f-ink-soft" x="312" y="248" style="font-size:23px; font-weight:700;">BF = 0</text><text class="f-ink-soft" x="300" y="312" text-anchor="middle" style="font-size:21px; font-weight:600;">zig-zag</text></g>
+<g class="anim-step" data-step="0" data-step-off="1"><text class="f-accent" x="40" y="356" style="font-size:24px; font-weight:700;">insert 32, 56, 43 · BF(32) = +2, but its right child leans left: BF(56) = −1</text><text class="f-ink-soft" x="40" y="392" style="font-size:20px; font-weight:600;">opposite signs: the path from 32 to the new node bends</text></g>
+<g class="anim-step" data-step="1"><text class="f-ink-soft" x="520" y="164" style="font-size:44px;">→</text><line class="svg-edge" x1="800" y1="60" x2="690" y2="150"/><line class="svg-edge" x1="690" y1="150" x2="780" y2="240"/><rect class="svg-node" x="769" y="35" width="62" height="50" rx="25"/><rect x="769" y="35" width="62" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="800" y="69.72" text-anchor="middle" style="font-size:27px;">56</text><rect class="svg-node" x="659" y="125" width="62" height="50" rx="25"/><text class="svg-label" x="690" y="159.72" text-anchor="middle" style="font-size:27px;">32</text><rect class="svg-node" x="749" y="215" width="62" height="50" rx="25"/><text class="svg-label" x="780" y="249.72" text-anchor="middle" style="font-size:27px;">43</text><text class="f-err" x="842" y="68" style="font-size:23px; font-weight:700;">BF = −2</text><text class="f-ink-soft" x="732" y="158" style="font-size:23px; font-weight:700;">BF = +1</text><text class="f-ink-soft" x="822" y="248" style="font-size:23px; font-weight:700;">BF = 0</text><text class="f-err" x="760" y="312" text-anchor="middle" style="font-size:21px; font-weight:700;">after rotateLeft(32): still unbalanced</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><text class="f-accent" x="40" y="356" style="font-size:24px; font-weight:700;">One left rotation at 32: 56 rises and 43 becomes the right child of 32</text><text class="f-ink-soft" x="40" y="392" style="font-size:20px; font-weight:600;">BF(56) = −2 · the problem only changed sides</text></g>
+<g class="anim-step" data-step="2"><rect class="svg-node-hl" x="239" y="215" width="62" height="50" rx="25"/><text class="svg-label" x="270" y="249.72" text-anchor="middle" style="font-size:27px;">43</text><rect class="svg-node-hl" x="749" y="215" width="62" height="50" rx="25"/><text class="svg-label" x="780" y="249.72" text-anchor="middle" style="font-size:27px;">43</text><text class="f-accent" x="226" y="248" text-anchor="end" style="font-size:21px; font-weight:700;">depth 2</text><text class="f-accent" x="736" y="248" text-anchor="end" style="font-size:21px; font-weight:700;">depth 2</text><text class="f-accent" x="40" y="356" style="font-size:24px; font-weight:700;">A single rotation never lifts the middle subtree</text><text class="f-ink-soft" x="40" y="392" style="font-size:20px; font-weight:600;">43 changed parent, but it was at depth 2 and it is still at depth 2</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <p class="muted">Example from de la Cueva et al. (2020), § 9.3.1.</p>
+    </section>
+
+    <section>
+      <span class="kicker">13.2 · Rotations</span>
+      <h2>The fix: rotate the child first</h2>
+      <svg viewBox="0 0 1100 400" style="width:100%; max-height:400px;">
+<g><line class="svg-edge" x1="110" y1="50" x2="200" y2="135"/><line class="svg-edge" x1="200" y1="135" x2="130" y2="220"/><rect class="svg-node" x="79" y="25" width="62" height="50" rx="25"/><rect x="79" y="25" width="62" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="110" y="59.72" text-anchor="middle" style="font-size:27px;">32</text><text class="f-err" x="152" y="58" style="font-size:23px; font-weight:700;">BF = +2</text><rect class="svg-node" x="169" y="110" width="62" height="50" rx="25"/><text class="svg-label" x="200" y="144.72" text-anchor="middle" style="font-size:27px;">56</text><text class="f-ink-soft" x="242" y="143" style="font-size:23px; font-weight:700;">BF = −1</text><rect class="svg-node" x="99" y="195" width="62" height="50" rx="25"/><text class="svg-label" x="130" y="229.72" text-anchor="middle" style="font-size:27px;">43</text><text class="f-ink-soft" x="172" y="228" style="font-size:23px; font-weight:700;">BF = 0</text><text class="f-ink-soft" x="160" y="292" text-anchor="middle" style="font-size:21px; font-weight:600;">zig-zag</text></g>
+<g class="anim-step" data-step="0" data-step-off="1"><text class="f-accent" x="40" y="346" style="font-size:24px; font-weight:700;">The same zig-zag: BF(32) = +2 and BF(56) = −1</text><text class="f-ink-soft" x="40" y="382" style="font-size:20px; font-weight:600;">the heavy part, 43, is in the middle</text></g>
+<g class="anim-step" data-step="1"><text class="f-ink-soft" x="345" y="148" style="font-size:44px;">→</text><line class="svg-edge" x1="440" y1="50" x2="520" y2="135"/><line class="svg-edge" x1="520" y1="135" x2="600" y2="220"/><rect class="svg-node" x="409" y="25" width="62" height="50" rx="25"/><rect x="409" y="25" width="62" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="440" y="59.72" text-anchor="middle" style="font-size:27px;">32</text><text class="f-err" x="482" y="58" style="font-size:23px; font-weight:700;">BF = +2</text><rect class="svg-node-hl" x="489" y="110" width="62" height="50" rx="25"/><text class="svg-label" x="520" y="144.72" text-anchor="middle" style="font-size:27px;">43</text><text class="f-ink-soft" x="562" y="143" style="font-size:23px; font-weight:700;">BF = +1</text><rect class="svg-node" x="569" y="195" width="62" height="50" rx="25"/><text class="svg-label" x="600" y="229.72" text-anchor="middle" style="font-size:27px;">56</text><text class="f-ink-soft" x="642" y="228" style="font-size:23px; font-weight:700;">BF = 0</text><text class="svg-label" x="520" y="292" text-anchor="middle" style="font-size:21px; font-weight:700;">1. rotateRight(56)</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><text class="f-accent" x="40" y="346" style="font-size:24px; font-weight:700;">First rotate right at the child, 56: 43 rises above it</text><text class="f-ink-soft" x="40" y="382" style="font-size:20px; font-weight:600;">the zig-zag becomes a straight line · now the heavy part is on the outside</text></g>
+<g class="anim-step" data-step="2"><text class="f-ink-soft" x="745" y="148" style="font-size:44px;">→</text><line class="svg-edge" x1="930" y1="90" x2="850" y2="175"/><line class="svg-edge" x1="930" y1="90" x2="1010" y2="175"/><rect class="svg-node-hl" x="899" y="65" width="62" height="50" rx="25"/><text class="svg-label" x="930" y="99.72" text-anchor="middle" style="font-size:27px;">43</text><rect class="svg-node" x="819" y="150" width="62" height="50" rx="25"/><text class="svg-label" x="850" y="184.72" text-anchor="middle" style="font-size:27px;">32</text><rect class="svg-node" x="979" y="150" width="62" height="50" rx="25"/><text class="svg-label" x="1010" y="184.72" text-anchor="middle" style="font-size:27px;">56</text><text class="f-ink-soft" x="972" y="98" style="font-size:23px; font-weight:700;">BF = 0</text><text class="f-ink-soft" x="850" y="229" text-anchor="middle" style="font-size:23px; font-weight:700;">BF = 0</text><text class="f-ink-soft" x="1010" y="229" text-anchor="middle" style="font-size:23px; font-weight:700;">BF = 0</text><text class="svg-label" x="930" y="292" text-anchor="middle" style="font-size:21px; font-weight:700;">2. rotateLeft(32)</text></g>
+<g class="anim-step" data-step="2"><text class="f-accent" x="40" y="346" style="font-size:24px; font-weight:700;">Then rotate left at 32: 43 is the new root and every BF is 0</text><text class="f-ink-soft" x="40" y="382" style="font-size:20px; font-weight:600;">a double rotation is two single rotations</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">13.2 · Rotations</span>
+      <h2>Two balance factors choose the rotation</h2>
+      <table>
+        <thead><tr><th>BF(node)</th><th>BF(taller child)</th><th>Case</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr class="fragment"><td>+2</td><td>+1</td><td>right-right</td><td>rotate left at the node</td></tr>
+          <tr class="fragment"><td>+2</td><td>−1</td><td>right-left</td><td>rotate right at the child, then left at the node</td></tr>
+          <tr class="fragment"><td>−2</td><td>−1</td><td>left-left</td><td>rotate right at the node</td></tr>
+          <tr class="fragment"><td>−2</td><td>+1</td><td>left-right</td><td>rotate left at the child, then right at the node</td></tr>
+        </tbody>
+      </table>
+      <div class="box-key fragment">Same sign: one rotation. Opposite signs: two rotations, the first one at the child.</div>
+    </section>
+
+    <section>
+      <span class="kicker">13.2 · Rotations</span>
+      <h2>The four cases, side by side</h2>
+      <svg viewBox="0 0 1100 456" style="width:100%; max-height:456px;">
+<g><line class="s-line" stroke-width="2" x1="824" y1="14" x2="824" y2="336"/></g>
+<g><line class="s-line" stroke-width="2" x1="549" y1="14" x2="549" y2="336"/></g>
+<g><line class="s-line" stroke-width="2" x1="274" y1="14" x2="274" y2="336"/></g>
+<g class="anim-step" data-step="1"><text class="svg-label" x="137" y="30" text-anchor="middle" style="font-size:27px; font-weight:700;">right-right</text><text class="f-accent" x="137" y="58" text-anchor="middle" style="font-size:21px; font-weight:700;">one rotation</text><line class="svg-edge" x1="52" y1="96" x2="112" y2="166"/><line class="svg-edge" x1="112" y1="166" x2="172" y2="236"/><rect class="svg-node" x="27" y="76" width="50" height="40" rx="20"/><rect x="27" y="76" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="52" y="103.92" text-anchor="middle" style="font-size:22px;">10</text><rect class="svg-node" x="87" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="112" y="173.92" text-anchor="middle" style="font-size:22px;">20</text><rect class="svg-node-hl" x="147" y="216" width="50" height="40" rx="20"/><text class="svg-label" x="172" y="243.92" text-anchor="middle" style="font-size:22px;">30</text><text class="f-err" x="86" y="103" style="font-size:20px; font-weight:700;">BF = +2</text><text class="f-ink-soft" x="146" y="173" style="font-size:20px; font-weight:700;">BF = +1</text><text class="svg-label" x="137" y="298" text-anchor="middle" style="font-size:22px; font-weight:600;">rotate left at 10</text><text class="svg-label" x="137" y="326" text-anchor="middle" style="font-size:22px; font-weight:600;"></text></g>
+<g class="anim-step" data-step="2"><text class="svg-label" x="412" y="30" text-anchor="middle" style="font-size:27px; font-weight:700;">right-left</text><text class="f-accent" x="412" y="58" text-anchor="middle" style="font-size:21px; font-weight:700;">two rotations</text><line class="svg-edge" x1="342" y1="96" x2="432" y2="166"/><line class="svg-edge" x1="432" y1="166" x2="372" y2="236"/><rect class="svg-node" x="317" y="76" width="50" height="40" rx="20"/><rect x="317" y="76" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="342" y="103.92" text-anchor="middle" style="font-size:22px;">10</text><rect class="svg-node" x="407" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="432" y="173.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node-hl" x="347" y="216" width="50" height="40" rx="20"/><text class="svg-label" x="372" y="243.92" text-anchor="middle" style="font-size:22px;">20</text><text class="f-err" x="376" y="103" style="font-size:20px; font-weight:700;">BF = +2</text><text class="f-ink-soft" x="466" y="173" style="font-size:20px; font-weight:700;">BF = −1</text><text class="svg-label" x="412" y="298" text-anchor="middle" style="font-size:22px; font-weight:600;">1. rotate right at 30</text><text class="svg-label" x="412" y="326" text-anchor="middle" style="font-size:22px; font-weight:600;">2. rotate left at 10</text></g>
+<g class="anim-step" data-step="3"><text class="svg-label" x="687" y="30" text-anchor="middle" style="font-size:27px; font-weight:700;">left-left</text><text class="f-accent" x="687" y="58" text-anchor="middle" style="font-size:21px; font-weight:700;">one rotation</text><line class="svg-edge" x1="712" y1="96" x2="652" y2="166"/><line class="svg-edge" x1="652" y1="166" x2="592" y2="236"/><rect class="svg-node" x="687" y="76" width="50" height="40" rx="20"/><rect x="687" y="76" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="712" y="103.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node" x="627" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="652" y="173.92" text-anchor="middle" style="font-size:22px;">20</text><rect class="svg-node-hl" x="567" y="216" width="50" height="40" rx="20"/><text class="svg-label" x="592" y="243.92" text-anchor="middle" style="font-size:22px;">10</text><text class="f-err" x="746" y="103" style="font-size:20px; font-weight:700;">BF = −2</text><text class="f-ink-soft" x="686" y="173" style="font-size:20px; font-weight:700;">BF = −1</text><text class="svg-label" x="687" y="298" text-anchor="middle" style="font-size:22px; font-weight:600;">rotate right at 30</text><text class="svg-label" x="687" y="326" text-anchor="middle" style="font-size:22px; font-weight:600;"></text></g>
+<g class="anim-step" data-step="4"><text class="svg-label" x="962" y="30" text-anchor="middle" style="font-size:27px; font-weight:700;">left-right</text><text class="f-accent" x="962" y="58" text-anchor="middle" style="font-size:21px; font-weight:700;">two rotations</text><line class="svg-edge" x1="982" y1="96" x2="892" y2="166"/><line class="svg-edge" x1="892" y1="166" x2="952" y2="236"/><rect class="svg-node" x="957" y="76" width="50" height="40" rx="20"/><rect x="957" y="76" width="50" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="982" y="103.92" text-anchor="middle" style="font-size:22px;">30</text><rect class="svg-node" x="867" y="146" width="50" height="40" rx="20"/><text class="svg-label" x="892" y="173.92" text-anchor="middle" style="font-size:22px;">10</text><rect class="svg-node-hl" x="927" y="216" width="50" height="40" rx="20"/><text class="svg-label" x="952" y="243.92" text-anchor="middle" style="font-size:22px;">20</text><text class="f-err" x="1016" y="103" style="font-size:20px; font-weight:700;">BF = −2</text><text class="f-ink-soft" x="926" y="173" style="font-size:20px; font-weight:700;">BF = +1</text><text class="svg-label" x="962" y="298" text-anchor="middle" style="font-size:22px; font-weight:600;">1. rotate left at 10</text><text class="svg-label" x="962" y="326" text-anchor="middle" style="font-size:22px; font-weight:600;">2. rotate right at 30</text></g>
+<g class="anim-step" data-step="5"><line class="svg-edge" x1="550" y1="372" x2="480" y2="430"/><line class="svg-edge" x1="550" y1="372" x2="620" y2="430"/><rect class="f-ok-bg s-ok" stroke-width="4" x="525" y="352" width="50" height="40" rx="20"/><text class="svg-label" x="550" y="379.92" text-anchor="middle" style="font-size:22px;">20</text><rect class="svg-node" x="455" y="410" width="50" height="40" rx="20"/><text class="svg-label" x="480" y="437.92" text-anchor="middle" style="font-size:22px;">10</text><rect class="svg-node" x="595" y="410" width="50" height="40" rx="20"/><text class="svg-label" x="620" y="437.92" text-anchor="middle" style="font-size:22px;">30</text><text class="f-accent" x="440" y="408" text-anchor="end" style="font-size:22px; font-weight:700;">All four end here:</text><text class="f-ink-soft" x="662" y="408" style="font-size:20px; font-weight:600;">the middle value on top, every BF is 0</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="c">
+        <p class="quiz-question">An empty AVL tree receives 10 and then 20. Now you insert <em>15</em>. What does the tree do?</p>
+        <button class="quiz-option" data-opt="a">One left rotation at 10, and 20 becomes the root.</button>
+        <button class="quiz-option" data-opt="b">Nothing: the tree has only three nodes, so it is still balanced.</button>
+        <button class="quiz-option" data-opt="c">A right rotation at 20, then a left rotation at 10, and 15 becomes the root.</button>
+        <div class="quiz-explain">
+          <strong>C.</strong> BF(10) = +2 and BF(20) = −1: opposite signs, the right-left case, so 15 rises twice and ends with 10 and 20 as its children.
+          A is the right-right fix: here it would leave 20 on top with BF = −2.
+          B forgets that the three nodes form a single path: the left subtree of 10 is empty (height −1) and the right one has height 1, a difference of 2.
+        </div>
+      </div>
+    </section>
+
+    <section class="divider">
+      <h2>13.3 Insertion</h2>
+    </section>
+
+    <section>
+      <span class="kicker">13.3 · Insertion</span>
+      <h2>Insert, climb back, repair</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="550" y1="36" x2="290" y2="104"/><line class="svg-edge" x1="550" y1="36" x2="810" y2="104"/><line class="svg-edge" x1="290" y1="104" x2="170" y2="172"/><line class="svg-edge" x1="810" y1="104" x2="930" y2="172"/><line class="svg-edge" x1="810" y1="104" x2="690" y2="172"/><rect class="svg-node" x="516" y="16" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="43.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node" x="265" y="84" width="50" height="40" rx="20"/><text class="svg-label" x="290" y="111.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="776" y="84" width="68" height="40" rx="20"/><text class="svg-label" x="810" y="111.92" text-anchor="middle" style="font-size:22px;">256</text><rect class="svg-node" x="145" y="152" width="50" height="40" rx="20"/><text class="svg-label" x="170" y="179.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="896" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="930" y="179.92" text-anchor="middle" style="font-size:22px;">402</text><text class="f-ink-soft" x="323" y="111" style="font-size:19px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="203" y="179" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="972" y="179" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text></g>
+<g class="anim-step" data-step="0" data-step-off="1"><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = 2 · BF = −1</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">An AVL tree: every balance factor is −1, 0 or +1</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">h is the height of the node · BF = height(right) − height(left) · now insert 200</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><line class="svg-edge" x1="760" y1="240" x2="830" y2="308"/><rect class="svg-node-hl" x="516" y="16" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="43.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="776" y="84" width="68" height="40" rx="20"/><text class="svg-label" x="810" y="111.92" text-anchor="middle" style="font-size:22px;">256</text><rect class="svg-node-hl" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node-hl" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node-hl" x="796" y="288" width="68" height="40" rx="20"/><text class="svg-label" x="830" y="315.92" text-anchor="middle" style="font-size:22px;">200</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">1. Insert as in a BST: 200 goes down through 132, 256, 167 and 190</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">only the nodes on this path can have a new height and a new balance factor</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><line class="svg-edge" x1="760" y1="240" x2="830" y2="308"/><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><rect x="726" y="220" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="796" y="288" width="68" height="40" rx="20"/><text class="svg-label" x="830" y="315.92" text-anchor="middle" style="font-size:22px;">200</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ok" x="802" y="247" style="font-size:19px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="872" y="315" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">2. Climb back along the same path and check each node</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">190: BF = h(200) − h(empty) = 0 − (−1) = +1 → fine, keep going up</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><line class="svg-edge" x1="760" y1="240" x2="830" y2="308"/><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><rect x="656" y="152" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="796" y="288" width="68" height="40" rx="20"/><text class="svg-label" x="830" y="315.92" text-anchor="middle" style="font-size:22px;">200</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-err" x="732" y="179" style="font-size:19px; font-weight:700;">h = 2 · BF = +2</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="872" y="315" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">167: BF = h(190) − h(empty) = 1 − (−1) = +2 → the first unbalanced node</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">its right child has BF = +1: same sign, so it is a right-right case</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><line class="svg-edge" x1="690" y1="172" x2="620" y2="240"/><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><rect class="svg-node-hl" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="586" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="620" y="247.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">200</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = 1 · BF = 0</text><text class="f-ink-soft" x="578" y="247" text-anchor="end" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">3. Repair it: rotateLeft(167)</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">190 takes its place, with 167 and 200 as its children</text></g>
+<g class="anim-step" data-step="5"><line class="svg-edge" x1="690" y1="172" x2="620" y2="240"/><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="586" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="620" y="247.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">200</text><rect class="svg-node" x="776" y="84" width="68" height="40" rx="20"/><rect x="776" y="84" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="810" y="111.92" text-anchor="middle" style="font-size:22px;">256</text><rect class="svg-node" x="516" y="16" width="68" height="40" rx="20"/><rect x="516" y="16" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="550" y="43.92" text-anchor="middle" style="font-size:22px;">132</text><text class="f-ok" x="592" y="43" style="font-size:19px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ok" x="852" y="111" style="font-size:19px; font-weight:700;">h = 2 · BF = −1</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = 1 · BF = 0</text><text class="f-ink-soft" x="578" y="247" text-anchor="end" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">Keep climbing: 256 and 132 are balanced again, with no extra work</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">every balance factor is −1, 0 or +1 again · one repair was enough</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <p class="muted">Tree adapted from de la Cueva et al. (2020), Fig. 9.11.</p>
+    </section>
+
+    <section>
+      <span class="kicker">13.3 · Insertion</span>
+      <h2>The same climb with a zig-zag: two rotations</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g><line class="svg-edge" x1="550" y1="36" x2="290" y2="104"/><line class="svg-edge" x1="550" y1="36" x2="810" y2="104"/><line class="svg-edge" x1="290" y1="104" x2="170" y2="172"/><line class="svg-edge" x1="810" y1="104" x2="930" y2="172"/><line class="svg-edge" x1="810" y1="104" x2="690" y2="172"/><rect class="svg-node" x="516" y="16" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="43.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node" x="265" y="84" width="50" height="40" rx="20"/><text class="svg-label" x="290" y="111.92" text-anchor="middle" style="font-size:22px;">89</text><rect class="svg-node" x="776" y="84" width="68" height="40" rx="20"/><text class="svg-label" x="810" y="111.92" text-anchor="middle" style="font-size:22px;">256</text><rect class="svg-node" x="145" y="152" width="50" height="40" rx="20"/><text class="svg-label" x="170" y="179.92" text-anchor="middle" style="font-size:22px;">52</text><rect class="svg-node" x="896" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="930" y="179.92" text-anchor="middle" style="font-size:22px;">402</text><text class="f-ink-soft" x="323" y="111" style="font-size:19px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="203" y="179" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="972" y="179" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text></g>
+<g class="anim-step" data-step="0" data-step-off="1"><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = 2 · BF = −1</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">The same AVL tree · this time insert 180</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">180 is smaller than 190, so it will go to its left</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><line class="svg-edge" x1="760" y1="240" x2="700" y2="308"/><rect class="svg-node-hl" x="516" y="16" width="68" height="40" rx="20"/><text class="svg-label" x="550" y="43.92" text-anchor="middle" style="font-size:22px;">132</text><rect class="svg-node-hl" x="776" y="84" width="68" height="40" rx="20"/><text class="svg-label" x="810" y="111.92" text-anchor="middle" style="font-size:22px;">256</text><rect class="svg-node-hl" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node-hl" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node-hl" x="666" y="288" width="68" height="40" rx="20"/><text class="svg-label" x="700" y="315.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">1. Insert as in a BST: 180 goes down through 132, 256, 167 and 190</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">it goes right at 167 and then left at 190: the path bends</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><line class="svg-edge" x1="760" y1="240" x2="700" y2="308"/><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><rect x="726" y="220" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="666" y="288" width="68" height="40" rx="20"/><text class="svg-label" x="700" y="315.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ok" x="802" y="247" style="font-size:19px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="742" y="315" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">2. Climb back along the same path and check each node</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">190: BF = h(empty) − h(180) = (−1) − 0 = −1 → fine, keep going up</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><line class="svg-edge" x1="760" y1="240" x2="700" y2="308"/><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><rect x="656" y="152" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="666" y="288" width="68" height="40" rx="20"/><text class="svg-label" x="700" y="315.92" text-anchor="middle" style="font-size:22px;">180</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-err" x="732" y="179" style="font-size:19px; font-weight:700;">h = 2 · BF = +2</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 1 · BF = −1</text><text class="f-ink-soft" x="742" y="315" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">167: BF = h(190) − h(empty) = 1 − (−1) = +2 → the first unbalanced node</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">its right child has BF = −1: opposite signs, so it is a right-left case, a zig-zag</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><line class="svg-edge" x1="760" y1="240" x2="830" y2="308"/><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><rect x="656" y="152" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node-hl" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">180</text><rect class="svg-node" x="796" y="288" width="68" height="40" rx="20"/><text class="svg-label" x="830" y="315.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-err" x="732" y="179" style="font-size:19px; font-weight:700;">h = 2 · BF = +2</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 1 · BF = +1</text><text class="f-ink-soft" x="872" y="315" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">3. Repair it, first rotation: rotateRight(190), at the child</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">180 rises above 190 · the zig-zag is now a straight line, and 167 still has BF = +2</text></g>
+<g class="anim-step" data-step="5" data-step-off="6"><line class="svg-edge" x1="690" y1="172" x2="620" y2="240"/><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><rect class="svg-node-hl" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">180</text><rect class="svg-node" x="586" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="620" y="247.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><text class="f-ink-soft" x="592" y="43" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="852" y="111" style="font-size:19px; font-weight:700;">h = ? · BF = ?</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = 1 · BF = 0</text><text class="f-ink-soft" x="578" y="247" text-anchor="end" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">Second rotation: rotateLeft(167)</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">180 takes the place of 167, with 167 and 190 as its children</text></g>
+<g class="anim-step" data-step="6"><line class="svg-edge" x1="690" y1="172" x2="620" y2="240"/><line class="svg-edge" x1="690" y1="172" x2="760" y2="240"/><rect class="svg-node" x="656" y="152" width="68" height="40" rx="20"/><text class="svg-label" x="690" y="179.92" text-anchor="middle" style="font-size:22px;">180</text><rect class="svg-node" x="586" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="620" y="247.92" text-anchor="middle" style="font-size:22px;">167</text><rect class="svg-node" x="726" y="220" width="68" height="40" rx="20"/><text class="svg-label" x="760" y="247.92" text-anchor="middle" style="font-size:22px;">190</text><rect class="svg-node" x="776" y="84" width="68" height="40" rx="20"/><rect x="776" y="84" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="810" y="111.92" text-anchor="middle" style="font-size:22px;">256</text><rect class="svg-node" x="516" y="16" width="68" height="40" rx="20"/><rect x="516" y="16" width="68" height="40" rx="20" fill="none" stroke-width="5" class="s-ok"/><text class="svg-label" x="550" y="43.92" text-anchor="middle" style="font-size:22px;">132</text><text class="f-ok" x="592" y="43" style="font-size:19px; font-weight:700;">h = 3 · BF = +1</text><text class="f-ok" x="852" y="111" style="font-size:19px; font-weight:700;">h = 2 · BF = −1</text><text class="f-ink-soft" x="732" y="179" style="font-size:19px; font-weight:700;">h = 1 · BF = 0</text><text class="f-ink-soft" x="578" y="247" text-anchor="end" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-ink-soft" x="802" y="247" style="font-size:19px; font-weight:700;">h = 0 · BF = 0</text><text class="f-accent" x="40" y="364" style="font-size:24px; font-weight:700;">Keep climbing: 256 and 132 are balanced again, with no extra work</text><text class="f-ink-soft" x="40" y="400" style="font-size:20px; font-weight:600;">one double rotation was enough · the new key, 180, ended on top of the repaired subtree</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <p class="muted">Tree adapted from de la Cueva et al. (2020), Fig. 9.11.</p>
+    </section>
+
+    <section>
+      <span class="kicker">13.3 · Insertion</span>
+      <h2>Rebalance: the table, written as code</h2>
+      <pre data-title="avl.hpp"><code class="language-cpp" data-trim data-line-numbers="1-14|2|3-7|8-12|13">
+AVLNode* rebalance(AVLNode* n) {               // private method of AVL
+    update(n);
+    if (bf(n) == 2) {                          // right-heavy
+        if (bf(n-&gt;right) &lt; 0)                  // right-left: zig-zag
+            n-&gt;right = rotateRight(n-&gt;right);
+        return rotateLeft(n);
+    }
+    if (bf(n) == -2) {                         // left-heavy
+        if (bf(n-&gt;left) &gt; 0)                   // left-right: zig-zag
+            n-&gt;left = rotateLeft(n-&gt;left);
+        return rotateRight(n);
+    }
+    return n;                                  // already balanced
+}
+      </code></pre>
+      <ul>
+        <li class="fragment">A rotation returns the new subtree root, and the caller stores it.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">13.3 · Insertion</span>
+      <h2>AVL insert = BST insert + rebalance on the way up</h2>
+      <pre data-title="avl.hpp"><code class="language-cpp" data-trim data-line-numbers="1-8|2|3-4|6|8">
+AVLNode* insert(AVLNode* n, int x) {      // private, recursive
+    if (n == nullptr) return new AVLNode{x, 0, nullptr, nullptr};
+    if (x &lt; n-&gt;info) n-&gt;left = insert(n-&gt;left, x);
+    else if (x &gt; n-&gt;info) n-&gt;right = insert(n-&gt;right, x);
+    else return n;                        // repeated value: no change
+    return rebalance(n);                  // on the way back up
+}
+void insert(int x) { root = insert(root, x); }   // public
+      </code></pre>
+      <ul>
+        <li class="fragment">The recursion goes down to insert the leaf, and checks every node of that path while it returns.</li>
+        <li class="fragment">After an insertion, at most one node needs a fix: one single or one double rotation.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">13.3 · Insertion</span>
+      <h2>Sorted input, balanced tree</h2>
+      <svg viewBox="0 0 1100 420" style="width:100%; max-height:420px;">
+<g class="anim-step" data-step="0" data-step-off="1"><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><rect class="svg-node" x="521" y="20" width="58" height="50" rx="25"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">1</text><rect class="svg-node-hl" x="731" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">3</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">insert 1, then 3</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">BF(1) = +1: allowed</text></g>
+<g class="anim-step" data-step="1" data-step-off="2"><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><line class="svg-edge" x1="760" y1="123" x2="865" y2="201"/><rect class="svg-node" x="521" y="20" width="58" height="50" rx="25"/><rect x="521" y="20" width="58" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">1</text><text class="f-err" x="592" y="53" style="font-size:23px; font-weight:700;">BF = +2</text><rect class="svg-node" x="731" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">3</text><text class="f-ink-soft" x="802" y="131" style="font-size:23px; font-weight:700;">BF = +1</text><rect class="svg-node-hl" x="836" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="865" y="210.72" text-anchor="middle" style="font-size:27px;">5</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">insert 5 → BF(1) = +2 and BF(3) = +1</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">same sign: right-right → one left rotation at 1</text></g>
+<g class="anim-step" data-step="2" data-step-off="3"><line class="svg-edge" x1="550" y1="45" x2="340" y2="123"/><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><rect class="svg-node-hl" x="521" y="20" width="58" height="50" rx="25"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">3</text><rect class="svg-node" x="311" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="340" y="132.72" text-anchor="middle" style="font-size:27px;">1</text><rect class="svg-node" x="731" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">5</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">rotateLeft(1) · 3 is the new root</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">every BF is 0</text></g>
+<g class="anim-step" data-step="3" data-step-off="4"><line class="svg-edge" x1="550" y1="45" x2="340" y2="123"/><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><line class="svg-edge" x1="760" y1="123" x2="865" y2="201"/><line class="svg-edge" x1="865" y1="201" x2="917" y2="279"/><rect class="svg-node" x="521" y="20" width="58" height="50" rx="25"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">3</text><rect class="svg-node" x="311" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="340" y="132.72" text-anchor="middle" style="font-size:27px;">1</text><rect class="svg-node" x="731" y="98" width="58" height="50" rx="25"/><rect x="731" y="98" width="58" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">5</text><text class="f-err" x="802" y="131" style="font-size:23px; font-weight:700;">BF = +2</text><rect class="svg-node" x="836" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="865" y="210.72" text-anchor="middle" style="font-size:27px;">6</text><text class="f-ink-soft" x="907" y="209" style="font-size:23px; font-weight:700;">BF = +1</text><rect class="svg-node-hl" x="888" y="254" width="58" height="50" rx="25"/><text class="svg-label" x="917" y="288.72" text-anchor="middle" style="font-size:27px;">7</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">insert 6, then 7 → BF(5) = +2 and BF(6) = +1</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">right-right at 5 · the root is still fine: the fix is local</text></g>
+<g class="anim-step" data-step="4" data-step-off="5"><line class="svg-edge" x1="550" y1="45" x2="340" y2="123"/><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><line class="svg-edge" x1="760" y1="123" x2="655" y2="201"/><line class="svg-edge" x1="760" y1="123" x2="865" y2="201"/><rect class="svg-node" x="521" y="20" width="58" height="50" rx="25"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">3</text><rect class="svg-node" x="311" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="340" y="132.72" text-anchor="middle" style="font-size:27px;">1</text><rect class="svg-node-hl" x="731" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">6</text><rect class="svg-node" x="626" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="655" y="210.72" text-anchor="middle" style="font-size:27px;">5</text><rect class="svg-node" x="836" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="865" y="210.72" text-anchor="middle" style="font-size:27px;">7</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">rotateLeft(5) · 6 takes the place of 5</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">only three links changed</text></g>
+<g class="anim-step" data-step="5" data-step-off="6"><line class="svg-edge" x1="550" y1="45" x2="340" y2="123"/><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><line class="svg-edge" x1="760" y1="123" x2="655" y2="201"/><line class="svg-edge" x1="760" y1="123" x2="865" y2="201"/><line class="svg-edge" x1="865" y1="201" x2="917" y2="279"/><rect class="svg-node" x="521" y="20" width="58" height="50" rx="25"/><rect x="521" y="20" width="58" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">3</text><text class="f-err" x="592" y="53" style="font-size:23px; font-weight:700;">BF = +2</text><rect class="svg-node" x="311" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="340" y="132.72" text-anchor="middle" style="font-size:27px;">1</text><rect class="svg-node" x="731" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">6</text><text class="f-ink-soft" x="802" y="131" style="font-size:23px; font-weight:700;">BF = +1</text><rect class="svg-node" x="626" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="655" y="210.72" text-anchor="middle" style="font-size:27px;">5</text><rect class="svg-node" x="836" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="865" y="210.72" text-anchor="middle" style="font-size:27px;">7</text><rect class="svg-node-hl" x="888" y="254" width="58" height="50" rx="25"/><text class="svg-label" x="917" y="288.72" text-anchor="middle" style="font-size:27px;">8</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">insert 8 → the root has BF(3) = +2, and BF(6) = +1</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">right-right at the root</text></g>
+<g class="anim-step" data-step="6" data-step-off="7"><line class="svg-edge" x1="550" y1="45" x2="340" y2="123"/><line class="svg-edge" x1="340" y1="123" x2="235" y2="201"/><line class="svg-edge" x1="340" y1="123" x2="445" y2="201"/><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><line class="svg-edge" x1="760" y1="123" x2="865" y2="201"/><rect class="svg-node-hl" x="521" y="20" width="58" height="50" rx="25"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">6</text><rect class="svg-node" x="311" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="340" y="132.72" text-anchor="middle" style="font-size:27px;">3</text><rect class="svg-node" x="206" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="235" y="210.72" text-anchor="middle" style="font-size:27px;">1</text><rect class="svg-node-hl" x="416" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="445" y="210.72" text-anchor="middle" style="font-size:27px;">5</text><rect class="svg-node" x="731" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">7</text><rect class="svg-node" x="836" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="865" y="210.72" text-anchor="middle" style="font-size:27px;">8</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">rotateLeft(3) · 6 is the new root</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">5 changed parent: it was the left child of 6, now it is the right child of 3</text></g>
+<g class="anim-step" data-step="7" data-step-off="8"><line class="svg-edge" x1="550" y1="45" x2="340" y2="123"/><line class="svg-edge" x1="340" y1="123" x2="235" y2="201"/><line class="svg-edge" x1="340" y1="123" x2="445" y2="201"/><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><line class="svg-edge" x1="760" y1="123" x2="865" y2="201"/><line class="svg-edge" x1="865" y1="201" x2="917" y2="279"/><rect class="svg-node" x="521" y="20" width="58" height="50" rx="25"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">6</text><rect class="svg-node" x="311" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="340" y="132.72" text-anchor="middle" style="font-size:27px;">3</text><rect class="svg-node" x="206" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="235" y="210.72" text-anchor="middle" style="font-size:27px;">1</text><rect class="svg-node" x="416" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="445" y="210.72" text-anchor="middle" style="font-size:27px;">5</text><rect class="svg-node" x="731" y="98" width="58" height="50" rx="25"/><rect x="731" y="98" width="58" height="50" rx="25" fill="none" stroke-width="5" class="s-err"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">7</text><text class="f-err" x="802" y="131" style="font-size:23px; font-weight:700;">BF = +2</text><rect class="svg-node" x="836" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="865" y="210.72" text-anchor="middle" style="font-size:27px;">8</text><text class="f-ink-soft" x="907" y="209" style="font-size:23px; font-weight:700;">BF = +1</text><rect class="svg-node-hl" x="888" y="254" width="58" height="50" rx="25"/><text class="svg-label" x="917" y="288.72" text-anchor="middle" style="font-size:27px;">9</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">insert 9 → BF(7) = +2 and BF(8) = +1</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">right-right at 7</text></g>
+<g class="anim-step" data-step="8"><line class="svg-edge" x1="550" y1="45" x2="340" y2="123"/><line class="svg-edge" x1="340" y1="123" x2="235" y2="201"/><line class="svg-edge" x1="340" y1="123" x2="445" y2="201"/><line class="svg-edge" x1="550" y1="45" x2="760" y2="123"/><line class="svg-edge" x1="760" y1="123" x2="655" y2="201"/><line class="svg-edge" x1="760" y1="123" x2="865" y2="201"/><rect class="svg-node" x="521" y="20" width="58" height="50" rx="25"/><text class="svg-label" x="550" y="54.72" text-anchor="middle" style="font-size:27px;">6</text><rect class="svg-node" x="311" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="340" y="132.72" text-anchor="middle" style="font-size:27px;">3</text><rect class="svg-node" x="206" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="235" y="210.72" text-anchor="middle" style="font-size:27px;">1</text><rect class="svg-node" x="416" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="445" y="210.72" text-anchor="middle" style="font-size:27px;">5</text><rect class="svg-node-hl" x="731" y="98" width="58" height="50" rx="25"/><text class="svg-label" x="760" y="132.72" text-anchor="middle" style="font-size:27px;">8</text><rect class="svg-node" x="626" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="655" y="210.72" text-anchor="middle" style="font-size:27px;">7</text><rect class="svg-node" x="836" y="176" width="58" height="50" rx="25"/><text class="svg-label" x="865" y="210.72" text-anchor="middle" style="font-size:27px;">9</text><text class="f-accent" x="40" y="372" style="font-size:24px; font-weight:700;">rotateLeft(7) · height 2 and every BF is 0</text><text class="f-ink-soft" x="40" y="405" style="font-size:20px; font-weight:600;">the worst insertion order, the best possible shape: 4 rotations in total</text></g>
+</svg>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+      <span class="fragment"></span>
+    </section>
+
+    <section>
+      <span class="kicker">13.3 · Insertion</span>
+      <h2>AVL guarantees O(log n); a plain BST only hopes</h2>
+      <table>
+        <thead><tr><th></th><th>BST, random insertions</th><th>BST, worst case</th><th>AVL, always</th></tr></thead>
+        <tbody>
+          <tr class="fragment"><td>search</td><td>O(log n) on average</td><td>O(n)</td><td>O(log n)</td></tr>
+          <tr class="fragment"><td>insert</td><td>O(log n) on average</td><td>O(n)</td><td>O(log n)</td></tr>
+          <tr class="fragment"><td>remove</td><td>O(log n) on average</td><td>O(n)</td><td>O(log n)</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li class="fragment">Insert 1, 2, 3, …, 1,000,000 in that order: the plain BST has height 999,999 and the AVL tree has height 19.</li>
+        <li class="fragment">The price: one extra <code>int</code> per node, and a few O(1) rotations.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">Checkpoint</span>
+      <div class="quiz" data-correct="a">
+        <p class="quiz-question">You insert one value into an AVL tree that holds a million values. <em>At most</em> how many nodes need a rotation to restore the balance?</p>
+        <button class="quiz-option" data-opt="a">One: a single or a double rotation at the deepest unbalanced node.</button>
+        <button class="quiz-option" data-opt="b">All of them on the path: every node from the new leaf up to the root.</button>
+        <button class="quiz-option" data-opt="c">None: a new leaf never changes a balance factor by more than 1.</button>
+        <div class="quiz-explain">
+          <strong>A.</strong> The rotation gives that subtree the height it had before the insertion, so every node above it is balanced again.
+          B is what the code <em>checks</em>, not what it rotates: <code>rebalance</code> runs at each node of the path, but at most one of them needs a fix.
+          C is true node by node, and that is exactly the problem: a node that was at +1 moves to +2.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">In-class exercise</span>
+      <h2>Build your own AVL insert</h2>
+      <ul>
+        <li class="fragment"><strong>Implement</strong> AVL insertion with the same names as in this session: an <code>AVLNode</code> with a <code>height</code> field, and <code>height</code>, <code>update</code>, <code>bf</code>, <code>rotateLeft</code>, <code>rotateRight</code>, <code>rebalance</code> and <code>insert</code>.</li>
+        <li class="fragment"><strong>Test 1:</strong> insert 1, 3, 5, 6, 7, 8, 9 into an empty tree → the root must be 6 and the height of the tree must be 2.</li>
+        <li class="fragment"><strong>Test 2:</strong> insert 32, 56, 43 into an empty tree → the root must be 43, after a double rotation. Inserting 43 again must change nothing.</li>
+      </ul>
+      <p class="fragment muted">Work on your own. Watch the two <code>update</code> calls in a rotation: the node that went down goes first.</p>
+    </section>
+
+    <section class="divider">
+      <h2>Next session:<br>Red-Black Trees and Splay Trees</h2>
+    </section>
+
+    <section class="divider">
+      <h2>Extra material · self-study</h2>
+      <p class="muted">Not covered in class: why depth is the price inside AI systems, the STL version of a balanced tree, and the take-home challenge.</p>
+    </section>
+
+    <section>
+      <span class="kicker kicker-ai">Why it matters today</span>
+      <h2>Depth is the price, inside AI systems</h2>
+      <div class="box-ai" data-label="Why it matters today">
+        <ul>
+          <li class="fragment"><strong>Decision trees:</strong> a prediction follows one path, so it costs the depth of the tree. In an approximately balanced tree trained on n samples, that depth is O(log n).</li>
+          <li class="fragment"><strong>Nearest neighbors:</strong> once a k-d tree is built, a query in few dimensions needs about log N distance computations instead of N.</li>
+          <li class="fragment"><strong>Data behind the models:</strong> training data often lives in a database, and the default index in PostgreSQL is a B-tree: a search tree with many keys per node that always stays balanced.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <span class="kicker">STL</span>
+      <h2>std::map: a balanced tree with a value on each key</h2>
+      <pre><code class="language-cpp" data-trim data-line-numbers="1-5|2-3|4-5">
+std::map&lt;std::string, int&gt; count;
+for (std::string w : {"tree", "avl", "tree", "bst"})
+    ++count[w];                                  // O(log n) each
+for (const auto&amp; [word, n] : count)              // keys in ascending order
+    std::cout &lt;&lt; word &lt;&lt; ": " &lt;&lt; n &lt;&lt; "\n";      // avl: 1  bst: 1  tree: 2
+      </code></pre>
+      <ul>
+        <li class="fragment"><code>count[w]</code> searches for the key and inserts it with the value 0 if it is missing: O(log n) either way.</li>
+        <li class="fragment">It is usually implemented as a red-black tree, another self-balancing BST: the topic of the next session.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">Challenge · at home</span>
+      <h2>Take it home: check the balance, then restore it</h2>
+      <div class="cols">
+        <div>
+          <h3><a href="https://leetcode.com/problems/balanced-binary-tree/" target="_blank" rel="noopener">LC 110</a> — Balanced Binary Tree <span class="muted">[Easy] · required</span></h3>
+          <p>Decide whether, at every node, the heights of the two subtrees differ by at most 1. Target: O(n), computing the height and the answer in the same recursion.</p>
+        </div>
+        <div>
+          <h3><a href="https://leetcode.com/problems/balance-a-binary-search-tree/" target="_blank" rel="noopener">LC 1382</a> — Balance a Binary Search Tree <span class="muted">[Medium] · optional</span></h3>
+          <p>Rebuild an unbalanced BST so that it passes the test of LC 110. Hint: an inorder traversal gives a sorted array; its middle element is a good root.</p>
+        </div>
+      </div>
+      <ul>
+        <li class="fragment">LeetCode's <code>TreeNode</code> has no <code>height</code> field, so you compute heights by recursion. For LC 1382 you may use <code>std::vector</code>; no rotations are needed.</li>
+      </ul>
+    </section>
+
+    <section>
+      <span class="kicker">P13</span>
+      <h2>References and further reading</h2>
+      <div class="refs cols">
+        <div>
+          <h3>References</h3>
+          <ul>
+            <li><span class="ref-type">Book</span> Weiss, M. A. <em>Data Structures and Algorithm Analysis in C++</em>, 4th ed., Pearson, 2014. § 4.4 and 4.7.</li>
+            <li><span class="ref-type">Book</span> de la Cueva Hernández, V. M., González Guerra, L. H. and Salinas Gurrión, E. G. <em>Estructuras de datos y algoritmos fundamentales</em>, Editorial Digital del Tecnológico de Monterrey, Monterrey, Mexico, 2020. § 9.3.</li>
+            <li><span class="ref-type">Web</span> <a href="https://en.cppreference.com/w/cpp/container/map">cppreference — std::map</a></li>
+            <li><span class="ref-type">Web</span> <a href="https://scikit-learn.org/stable/modules/tree.html">scikit-learn — Decision Trees</a> and <a href="https://scikit-learn.org/stable/modules/neighbors.html">Nearest Neighbors</a></li>
+            <li><span class="ref-type">Web</span> <a href="https://www.postgresql.org/docs/current/indexes-types.html">PostgreSQL — Index Types</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Further reading</h3>
+          <ul>
+            <li><span class="ref-type">Book</span> Cormen, T. H., Leiserson, C. E., Rivest, R. L. and Stein, C. <em>Introduction to Algorithms</em>, 3rd ed., MIT Press, 2009. <span class="ref-nota">— Ch. 13, red-black trees, the topic of the next session.</span></li>
+            <li><span class="ref-type">Web</span> <a href="https://visualgo.net/en/bst">VisuAlgo — Binary search tree and AVL tree</a> <span class="ref-nota">— animate insertions and the four rotation cases at your own pace.</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="refs-ia">Note: these slides were generated with the help of artificial intelligence, specifically Claude (Anthropic).</p>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script src="../js/shstyle.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    margin: 0.06,
+    hash: true,
+    progress: true,
+    slideNumber: 'c/t',
+    controls: true,
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    plugins: [ RevealHighlight, RevealNotes ]
+  }).then(() => {
+    SHStyle.init({
+      height: {
+        titulo: "Height",
+        def: "The length of the longest path from a node down to a leaf, counted in edges: a leaf has height 0, and an empty tree has height −1. The height of a tree is the height of its root."
+      },
+      "balance-factor": {
+        titulo: "Balance factor (BF)",
+        def: "For a node, <code>height(right subtree) − height(left subtree)</code>. Zero means both sides have the same height, a positive value means the right side is taller, and a negative value means the left side is taller."
+      },
+      avl: {
+        titulo: "AVL tree",
+        def: "A binary search tree where, at every node, the heights of the left and right subtrees differ by at most 1: every balance factor is −1, 0 or +1. It restores that condition with rotations after each insertion or removal, so its height stays O(log n). Named after its inventors, Adelson-Velskii and Landis."
+      },
+      rotation: {
+        titulo: "Rotation",
+        def: "A local change of three links that makes a child the root of a subtree and its former parent one of its children. It changes heights but not the inorder order, so the tree is still a BST. It costs O(1)."
+      }
+    });
+  });
+</script>
+</body>
+</html>
