@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Splay tree, step by step</title>
+<script>try{if(localStorage.getItem('shstyle-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  /* Same colors as the class slides (shstyle) */
+  :root {
+    --c-bg: #ffffff; --c-ink: #16181d; --c-ink-soft: #4b5260; --c-ink-faint: #aab0bb;
+    --c-accent: #0b57d0; --c-accent-bg: #e8f0fe; --c-accent-soft: #9dc0f0;
+    --c-ok: #146c2e; --c-ok-bg: #e6f4ea; --c-err: #b3261e; --c-err-bg: #fce8e6;
+    --c-line: #d7dbe2; --c-surface-1: #f0f1f4; --c-surface-2: #eceff3;
+    --c-code-panel: #14161d; --c-code-head: #1f232d; --c-code-head-ink: #8b93a5; --c-code-ink: #e8eaf0;
+    --c-code-cur: rgba(56, 139, 253, 0.30); --c-code-wait: rgba(255, 255, 255, 0.07);
+    --c-shadow: rgba(20, 22, 29, 0.14);
+    --font-sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --c-bg: #15171c; --c-ink: #e6e8ee; --c-ink-soft: #a7adba; --c-ink-faint: #6b7280;
+    --c-accent: #8ab4f8; --c-accent-bg: #1d2a44; --c-accent-soft: #3b5b8f;
+    --c-ok: #6dd58c; --c-ok-bg: #16301f; --c-err: #f2b8b5; --c-err-bg: #3b1d1b;
+    --c-line: #3a3f4b; --c-surface-1: #20232b; --c-surface-2: #252932;
+    --c-code-panel: #0e1014; --c-code-head: #1a1d25;
+    --c-shadow: rgba(0, 0, 0, 0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: var(--c-bg); color: var(--c-ink); padding: 12px 18px 30px; }
+  .app { display: grid; grid-template-columns: minmax(560px, 610px) 1fr; gap: 18px; align-items: start; }
+  .codecol { position: sticky; top: 12px; height: calc(100vh - 24px); }
+  .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; margin-bottom: 10px; }
+  h1 { font-size: 24px; letter-spacing: -0.02em; }
+  .sub { color: var(--c-ink-soft); margin-top: 2px; font-size: 14px; }
+  .cols { display: grid; grid-template-columns: minmax(340px, 0.85fr) minmax(420px, 1.15fr); gap: 16px; align-items: start; }
+  @media (max-width: 1500px) { .cols { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } .codecol { position: static; height: auto; } }
+  button, input, select { font-family: inherit; font-size: 15px; }
+  button { border: 2px solid var(--c-accent); background: var(--c-bg); color: var(--c-accent); border-radius: 8px;
+           padding: 6px 12px; font-weight: 600; cursor: pointer; }
+  button.primary { background: var(--c-accent); color: var(--c-bg); }
+  button:disabled { opacity: .4; cursor: default; }
+  input[type=number] { width: 90px; padding: 6px 8px; border: 2px solid var(--c-line); border-radius: 8px;
+                       background: var(--c-bg); color: var(--c-ink); }
+  select { padding: 6px; border: 2px solid var(--c-line); border-radius: 8px; background: var(--c-bg); color: var(--c-ink); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .bar .sep { width: 1px; height: 28px; background: var(--c-line); margin: 0 6px; }
+  .bar .count { color: var(--c-ink-soft); font-weight: 600; min-width: 120px; }
+  .theme { border-color: var(--c-line); color: var(--c-ink-soft); }
+  .msg { border-left: 6px solid var(--c-accent); background: var(--c-accent-bg); border-radius: 8px;
+         padding: 10px 16px; font-size: 18px; line-height: 1.45; min-height: 56px; margin-bottom: 14px; }
+  .msg code { font-family: var(--font-mono); font-size: 16px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--c-accent); margin-bottom: 6px; }
+
+  /* code */
+  .code { background: var(--c-code-panel); border-radius: 12px; box-shadow: 0 6px 20px var(--c-shadow); overflow: hidden;
+          height: 100%; display: flex; flex-direction: column; }
+  .code .head { background: var(--c-code-head); color: var(--c-code-head-ink); font-family: var(--font-mono); font-size: 13px;
+                padding: 8px 14px; }
+  .code pre { font-family: var(--font-mono); font-size: 14px; line-height: 1.5; color: var(--c-code-ink); padding: 8px 0;
+              flex: 1; overflow: auto; position: relative; }
+  .ln { display: flex; flex-wrap: wrap; align-items: center; padding: 0 10px 0 0; border-left: 4px solid transparent; min-height: 21.7px; }
+  .ln .chips { margin-left: auto; display: flex; gap: 4px; padding-left: 8px; }
+  .ln .no { width: 36px; text-align: right; color: #5c6370; padding-right: 12px; flex: none; user-select: none; }
+  .ln .tx { white-space: pre; flex: 1; }
+  .ln.cur { background: var(--c-code-cur); border-left-color: #58a6ff; }
+  .ln.cur .no { color: #e8eaf0; font-weight: 700; }
+  .ln.wait { background: var(--c-code-wait); border-left-color: #6e7681; }
+  .chip { font-family: var(--font-sans); font-size: 11px; font-weight: 700; border-radius: 6px; padding: 1px 6px;
+          white-space: nowrap; }
+  .chip.c { background: #58a6ff; color: #0e1014; }
+  .chip.w { background: #30363d; color: #c9d1d9; }
+  .k { color: #ff7b72; } .t { color: #ffa657; } .f { color: #d2a8ff; } .n { color: #79c0ff; }
+
+  /* stack */
+  .obj { border: 2px dashed var(--c-line); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; font-size: 15px; }
+  .obj b { font-family: var(--font-mono); }
+  .stackhint { font-size: 13px; color: var(--c-ink-soft); margin: 2px 0 6px; }
+  .frame { border: 2px solid var(--c-line); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; background: var(--c-bg); }
+  .frame.top { border-color: var(--c-accent); background: var(--c-accent-bg); }
+  .frame .sig { font-family: var(--font-mono); font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; gap: 8px; }
+  .pill { font-family: var(--font-sans); font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 8px; white-space: nowrap; }
+  .pill.run { background: var(--c-accent); color: var(--c-bg); }
+  .pill.wait { background: var(--c-surface-2); color: var(--c-ink-soft); }
+  .vars { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 6px 0 4px; font-family: var(--font-mono); font-size: 14px; }
+  .vars .nm { color: var(--c-ink-soft); }
+  .vars .val.chg { color: var(--c-accent); font-weight: 700; }
+  .meta { font-size: 13px; color: var(--c-ink-soft); line-height: 1.5; }
+  .meta b { color: var(--c-ink); }
+  .meta .ret { color: var(--c-ok); font-weight: 700; }
+  .empty { color: var(--c-ink-soft); font-style: italic; padding: 10px 2px; }
+
+  /* tree */
+  .treebox { border: 2px solid var(--c-line); border-radius: 12px; padding: 8px; overflow-x: auto; }
+  .treebox svg { display: block; margin: 0 auto; }
+  .legend { font-size: 13px; color: var(--c-ink-soft); margin-top: 6px; line-height: 1.5; }
+  .legend summary { cursor: pointer; font-weight: 600; color: var(--c-accent); }
+  svg .edge { stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .edge.ghost { stroke: var(--c-ink-faint); stroke-dasharray: 6 5; }
+  svg .edge.via { stroke: var(--c-accent); stroke-dasharray: 8 5; }
+  svg .nd rect { fill: var(--c-bg); stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .nd.cur rect { fill: var(--c-accent-bg); stroke: var(--c-accent); stroke-width: 4; }
+  svg .nd.wait rect { stroke: var(--c-accent-soft); stroke-width: 4; }
+  svg .nd.loose rect { stroke-dasharray: 6 4; }
+  svg .nd text.v { fill: var(--c-ink); font-weight: 700; font-size: 17px; }
+  svg text.lb, svg text.tag, svg text.cap { paint-order: stroke; stroke: var(--c-bg); stroke-width: 5px; stroke-linejoin: round; }
+  svg text.lb { fill: var(--c-ink-soft); font-size: 12.5px; font-weight: 600; }
+  svg text.tag { fill: var(--c-accent); font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+  svg .slot rect { fill: var(--c-bg); stroke: var(--c-ink-faint); stroke-width: 2; stroke-dasharray: 5 4; }
+  svg .slot text { fill: var(--c-ink-faint); font-family: var(--font-mono); font-size: 12px; }
+  svg text.cap { fill: var(--c-ink-soft); font-size: 12.5px; font-weight: 600; }
+  kbd { font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--c-line); border-radius: 4px; padding: 0 4px; }
+  svg .edge.ref { stroke: var(--c-accent); stroke-width: 5; }
+  svg .edge.refghost { stroke: var(--c-accent); stroke-width: 3; stroke-dasharray: 6 5; }
+  svg text.reflb { fill: var(--c-accent); font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+                   paint-order: stroke; stroke: var(--c-bg); stroke-width: 5px; stroke-linejoin: round; }
+  svg .nd.dead rect { stroke: var(--c-err); stroke-dasharray: 5 4; fill: var(--c-err-bg); }
+  svg .nd.dead text.v { fill: var(--c-err); text-decoration: line-through; }
+  svg text.was { fill: var(--c-err); font-size: 12.5px; font-weight: 700; paint-order: stroke; stroke: var(--c-bg); stroke-width: 5px; }
+  svg text.cap.err { fill: var(--c-err); }
+  /* splay page: a wider code column, the case strip and the parent links */
+  .app { grid-template-columns: minmax(640px, 680px) 1fr; }
+  .code pre { font-size: 13.5px; }
+  .ln { min-height: 20.9px; }
+  .deep { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--c-ink-soft); font-weight: 600; cursor: pointer; }
+  .deep input { width: 16px; height: 16px; accent-color: var(--c-accent); }
+  .frame .case { margin-top: 4px; font-size: 13px; color: var(--c-ink); }
+  .frame .case b { color: var(--c-accent); }
+  .casebox { border: 2px solid var(--c-line); border-radius: 10px; padding: 6px 12px; margin-bottom: 8px; font-size: 15px;
+             display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; min-height: 40px; }
+  .casebox .k2 { font-family: var(--font-mono); font-weight: 700; }
+  .casebox .nm { font-size: 22px; font-weight: 700; color: var(--c-accent); }
+  .casebox .path { color: var(--c-ink-soft); }
+  .casebox.none { color: var(--c-ink-soft); font-style: italic; }
+  svg .parr { stroke: var(--c-err); stroke-width: 2; stroke-dasharray: 5 4; fill: none; }
+  svg text.ptxt { fill: var(--c-err); font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+                  paint-order: stroke; stroke: var(--c-bg); stroke-width: 5px; stroke-linejoin: round; }
+  svg text.tag.root { fill: var(--c-ink-soft); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="codecol">
+    <div class="code">
+      <div class="head">struct Node { int info; Node* left; Node* right; Node* parent; };<br>class SplayTree · private: Node* root; · the operations and their helpers</div>
+      <pre id="code"></pre>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>Splay tree, step by step</h1>
+        <p class="sub" id="sub"></p>
+      </div>
+      <div class="bar">
+        <select id="scen" title="Which operation">
+          <option value="c52" selected>contains(52): zig-zig</option>
+          <option value="c402">contains(402): zag-zag</option>
+          <option value="c190">contains(190): zig-zag, then zag</option>
+          <option value="i60">insert(60): zig-zag, then zig</option>
+          <option value="i180">insert(180): zag-zig twice</option>
+          <option value="c100">contains(100): not in the tree</option>
+          <option value="r167">remove(167): two splays</option>
+        </select>
+        <label class="deep" title="Show every line of rotateRight, rotateLeft and replaceInParent"><input type="checkbox" id="deep" checked> Inside rotations</label>
+        <button id="first" title="First step (Home)">|◀</button>
+        <button id="back" title="Back (←)">◀ Back</button>
+        <button class="primary" id="next" title="Next (→ or space)">Next ▶</button>
+        <button id="last" title="Last step (End)">▶|</button>
+        <button id="play">Play</button>
+        <select id="speed" title="Speed"><option value="1600">slow</option><option value="900" selected>normal</option><option value="450">fast</option></select>
+        <span class="count" id="count"></span>
+        <button id="restart" title="Start again with the class tree">Restart</button>
+        <button class="theme" id="theme" title="Light / dark (D)">Dark mode</button>
+      </div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="cols">
+      <section class="panel">
+        <h2>Call stack</h2>
+        <div class="obj" id="obj"></div>
+        <div class="stackhint">Top: the call that is running. Below: calls waiting for an answer.</div>
+        <div id="stack"></div>
+      </section>
+      <section class="panel tree">
+        <h2>The splay step</h2>
+        <div class="casebox" id="casebox"></div>
+        <h2>Tree in memory</h2>
+        <div class="treebox"><svg id="tree"></svg></div>
+        <details class="legend">
+          <summary>How to read the tree</summary>
+          Every key keeps its column, its place in sorted order, so a rotation shows as nodes moving up and down.
+          Blue labels above a node, like <b style="color:var(--c-accent)">x</b>, <b style="color:var(--c-accent)">p</b>,
+          <b style="color:var(--c-accent)">g</b> or <b style="color:var(--c-accent)">a</b>, <b style="color:var(--c-accent)">b</b>,
+          are the pointer variables of the running call. Blue fill: the node of the running call.
+          The thick blue link is the one the last line wrote.
+          Every node also stores <code>parent</code>; it is drawn only while it does not match the child links yet:
+          a <b style="color:var(--c-err)">red dashed arrow</b> to the node it points to, or
+          <b style="color:var(--c-err)">parent = nullptr</b>.
+          Dashed outline: a node that no path from <code>root</code> reaches, only a variable.
+          Red: deleted. Inside a rotation the nodes keep their places until it returns.
+        </details>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+'use strict';
+// ------------------------------------------------------------------ the code (same as the P14 slides)
+const CODE = [
+  "Node* lastOnPath(int x) const {         // root is not null",
+  "    Node* n = root;",
+  "    while (x != n->info) {",
+  "        Node* next = (x < n->info) ? n->left : n->right;",
+  "        if (next == nullptr) break;     // x is not in the tree",
+  "        n = next;",
+  "    }",
+  "    return n;                           // x, or the last node of its path",
+  "}",
+  "bool contains(int x) {                  // not const: it changes the tree",
+  "    if (root == nullptr) return false;",
+  "    splay(lastOnPath(x));               // that node becomes the root",
+  "    return root->info == x;",
+  "}",
+  "bool insert(int x) {",
+  "    if (root == nullptr) {",
+  "        root = new Node{x, nullptr, nullptr, nullptr};",
+  "        return true;",
+  "    }",
+  "    Node* p = lastOnPath(x);            // x, or where x would hang",
+  "    if (p->info == x) {                 // repeated value: no new node,",
+  "        splay(p);                       // but it was accessed",
+  "        return false;",
+  "    }",
+  "    Node* n = new Node{x, nullptr, nullptr, p};",
+  "    if (x < p->info) p->left = n;       // the link where the search stopped",
+  "    else p->right = n;",
+  "    splay(n);                           // the new node rises to the root",
+  "    return true;",
+  "}",
+  "bool remove(int x) {",
+  "    if (!contains(x)) return false;     // if found, x is now the root",
+  "    Node* tl = root->left;",
+  "    Node* tr = root->right;",
+  "    delete root;",
+  "    if (tr != nullptr) tr->parent = nullptr;",
+  "    if (tl == nullptr) {                // no TL: TR is the whole tree",
+  "        root = tr;",
+  "        return true;",
+  "    }",
+  "    tl->parent = nullptr;",
+  "    root = tl;                          // TL alone, for now",
+  "    splay(lastOnPath(x));               // x > all of TL: its maximum rises",
+  "    root->right = tr;                   // the maximum has no right child",
+  "    if (tr != nullptr) tr->parent = root;",
+  "    return true;",
+  "}",
+  "void splay(Node* x) {                   // x rises to the root",
+  "    while (x->parent != nullptr) {",
+  "        Node* p = x->parent;",
+  "        Node* g = p->parent;",
+  "        if (g == nullptr) {             // p is the root: one step",
+  "            if (x == p->left) rotateRight(p);                     // zig",
+  "            else rotateLeft(p);                                   // zag",
+  "        } else if (p == g->left) {      // first step to the left",
+  "            if (x == p->left) { rotateRight(g); rotateRight(p); } // zig-zig",
+  "            else { rotateLeft(p); rotateRight(g); }               // zig-zag",
+  "        } else {                        // first step to the right",
+  "            if (x == p->right) { rotateLeft(g); rotateLeft(p); }  // zag-zag",
+  "            else { rotateRight(p); rotateLeft(g); }               // zag-zig",
+  "        }",
+  "    }",
+  "}",
+  "void rotateRight(Node* a) {       // the left child of a rises",
+  "    Node* b = a->left;",
+  "    a->left = b->right;           // the middle subtree changes parent",
+  "    if (b->right != nullptr) b->right->parent = a;",
+  "    replaceInParent(a, b);        // b goes up to the place of a",
+  "    b->right = a;                 // a goes down to the right",
+  "    a->parent = b;",
+  "}",
+  "void rotateLeft(Node* a) {        // mirror image: the right child rises",
+  "    Node* b = a->right;",
+  "    a->right = b->left;",
+  "    if (b->left != nullptr) b->left->parent = a;",
+  "    replaceInParent(a, b);",
+  "    b->left = a;",
+  "    a->parent = b;",
+  "}",
+  "void replaceInParent(Node* a, Node* b) {   // b takes the place of a",
+  "    b->parent = a->parent;",
+  "    if (a->parent == nullptr) root = b;               // a was the root",
+  "    else if (a == a->parent->left) a->parent->left = b;",
+  "    else a->parent->right = b;",
+  "}",
+];
+
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function colorize(line) {
+  let out = '', rest = line;
+  const ci = rest.indexOf('//');
+  let comment = '';
+  if (ci >= 0) { comment = rest.slice(ci); rest = rest.slice(0, ci); }
+  const tokens = rest.split(/(\b[A-Za-z_]\w*\b|-?\b\d+\b)/);
+  for (const tk of tokens) {
+    if (/^(int|bool|void|return|if|else|while|break|new|delete|nullptr|const|true|false)$/.test(tk)) out += `<span class="k">${tk}</span>`;
+    else if (tk === 'Node') out += `<span class="t">${tk}</span>`;
+    else if (/^(lastOnPath|contains|insert|remove|splay|rotateRight|rotateLeft|replaceInParent)$/.test(tk)) out += `<span class="f">${tk}</span>`;
+    else if (/^-?\d+$/.test(tk)) out += `<span class="n">${tk}</span>`;
+    else out += esc(tk);
+  }
+  if (comment) out += `<span style="color:#8b949e">${esc(comment)}</span>`;
+  return out;
+}
+// line numbers, found in the code itself: the first line of a function, and a line inside it
+const FN = {};
+CODE.forEach((t, i) => { const m = t.match(/^\w[\w*]* (\w+)\(/); if (m) FN[m[1]] = i + 1; });
+function at(fn, s) {
+  for (let i = FN[fn] - 1; i < CODE.length; i++) { if (CODE[i].includes(s)) return i + 1; if (i >= FN[fn] && CODE[i] === '}') break; }
+  throw new Error(`line not found: ${fn} / ${s}`);
+}
+function lastAt(fn, s) { let r = 0; for (let i = FN[fn] - 1; i < endOf(fn); i++) if (CODE[i].includes(s)) r = i + 1; if (!r) throw new Error(fn + ': ' + s); return r; }
+function endOf(fn) { for (let i = FN[fn]; i < CODE.length; i++) if (CODE[i] === '}') return i + 1; throw new Error(fn); }
+
+// ------------------------------------------------------------------ the tree in memory
+let nextId = 1;
+const mk = (info, parent) => ({ id: nextId++, info, left: null, right: null, parent: parent || null, dead: false });
+let root = null;
+let deep = true;            // trace the lines inside rotateRight, rotateLeft and replaceInParent
+let steps = [], frames = [], freeze = [], lastDepth = {};
+let changed = null, slot = null;
+
+const nm = (n) => (n === null ? 'nullptr' : n.dead ? 'dangling' : '→ ' + n.info);
+const k = (n) => (n === null ? 'nullptr' : n.info);
+function showVar(v) {
+  if (v.kind === 'ptr') return v.val === undefined ? '?' : v.val === null ? 'nullptr' : v.val.dead ? 'dangling: that node was deleted' : '→ ' + v.val.info;
+  return v.val === undefined ? '?' : String(v.val);
+}
+function label(f, sp) {
+  const eq = sp ? ' = ' : '=', ar = sp ? ' → ' : '→';
+  const parts = f.vars.slice(0, f.nargs).map((v) => (v.kind === 'int' ? v.name + eq + v.val : v.val ? v.name + ar + v.val.info : v.name + eq + 'nullptr'));
+  return `${f.name}(${parts.join(', ')})`;
+}
+const SIDE = { zig: 'left', zag: 'right' };
+function caseText(name) {
+  if (!name) return '';
+  const w = name.split('-');
+  return w.length === 1 ? `from p to x: ${SIDE[w[0]]}` : `from g to p: ${SIDE[w[0]]}, then from p to x: ${SIDE[w[1]]}`;
+}
+
+function depths() {
+  const d = {};
+  const walk = (n, dd) => { if (!n || n.dead || d[n.id] !== undefined) return; d[n.id] = dd; walk(n.left, dd + 1); walk(n.right, dd + 1); };
+  if (root && !root.dead) walk(root, 0);
+  const tops = [];
+  if (root && root.dead) tops.push(root);
+  for (const f of frames) for (const v of f.vars) if (v.kind === 'ptr' && v.val) tops.push(v.val);
+  for (const u of tops) {
+    if (d[u.id] !== undefined) continue;
+    const base = u.parent && d[u.parent.id] !== undefined ? d[u.parent.id] + 1 : (lastDepth[u.id] !== undefined ? lastDepth[u.id] : 1);
+    if (u.dead) d[u.id] = base; else walk(u, base);
+  }
+  if (freeze.length) Object.assign(d, freeze[freeze.length - 1]);
+  Object.assign(lastDepth, d);
+  return d;
+}
+
+function snap(line, msg) {
+  if (frames.length) frames[frames.length - 1].line = line;
+  const d = depths();
+  const nodes = {}, reach = new Set();
+  const add = (n, r) => { if (!n) return; if (nodes[n.id]) { if (r && !reach.has(n.id) && !n.dead) { reach.add(n.id); add(n.left, true); add(n.right, true); } return; }
+    nodes[n.id] = { id: n.id, info: n.info, left: n.left && n.left.id, right: n.right && n.right.id, parent: n.parent && n.parent.id, dead: n.dead };
+    if (r && !n.dead) reach.add(n.id);
+    if (!n.dead) { add(n.left, r); add(n.right, r); } };
+  add(root, root && !root.dead);
+  for (const f of frames) for (const v of f.vars) if (v.kind === 'ptr' && v.val) add(v.val, false);
+  for (const id in nodes) if (d[id] === undefined) d[id] = 1;
+  let cs = null;
+  for (let i = frames.length - 1; i >= 0; i--) if (frames[i].name === 'splay') { const f = frames[i];
+    cs = { x: f.vars[0].val && f.vars[0].val.info, p: f.vars[1].val ? f.vars[1].val.info : f.vars[1].val, g: f.vars[2].val ? f.vars[2].val.info : f.vars[2].val, name: f.caseName }; break; }
+  steps.push({
+    line, msg, root: root && root.id, nodes, reach: [...reach], depth: d, changed, slot, cs,
+    frozen: freeze.length > 0,
+    frames: frames.map((f) => ({
+      sig: f.sig, name: f.name, line: f.line, back: f.back, call: label(f, false), caseName: f.caseName,
+      vars: f.vars.map((v) => ({ name: v.name, kind: v.kind, show: showVar(v), id: v.kind === 'ptr' && v.val ? v.val.id : null })),
+      ret: f.ret,
+    })),
+  });
+  changed = null; slot = null;
+}
+function push(f) { frames.push(Object.assign({ line: 0, ret: null, caseName: null }, f)); }
+function pop() { frames.pop(); }
+const running = () => frames[frames.length - 1];
+const lab = () => label(running(), true);
+const setv = (name, val) => { running().vars.find((v) => v.name === name).val = val; };
+
+// ------------------------------------------------------------------ the tracer: the C++ logic, one step per line
+function lastOnPath(x, back) {
+  const F = 'lastOnPath';
+  push({ name: F, sig: 'Node* lastOnPath(int x) const', back, nargs: 1,
+         vars: [{ name: 'x', kind: 'int', val: x }, { name: 'n', kind: 'ptr' }, { name: 'next', kind: 'ptr' }] });
+  snap(FN[F], `New frame: <code>lastOnPath(${x})</code> walks down from the root, like a BST search, and returns the node where it stops.`);
+  let n = root; setv('n', n);
+  snap(at(F, 'Node* n = root;'), `<code>n = root</code>: start at ${n.info}.`);
+  for (;;) {
+    if (x === n.info) { snap(at(F, 'while ('), `${x} != ${n.info}? No: <code>n</code> holds ${x}. The loop ends.`); break; }
+    snap(at(F, 'while ('), `${x} != ${n.info}? Yes: keep going.`);
+    const next = x < n.info ? n.left : n.right;
+    setv('next', next);
+    snap(at(F, 'Node* next'), `${x} ${x < n.info ? '&lt;' : '&gt;'} ${n.info}: <code>next = n->${x < n.info ? 'left' : 'right'}</code>, which is ${next ? next.info : 'nullptr'}.`);
+    if (next === null) {
+      slot = { owner: n.id, side: x < n.info ? 'left' : 'right' };
+      snap(at(F, 'if (next == nullptr)'), `<code>next == nullptr</code>: ${x} would hang right here, as the ${x < n.info ? 'left' : 'right'} child of ${n.info}. ` +
+                                          `So ${x} is not in this tree: <code>break</code>.`);
+      break;
+    }
+    snap(at(F, 'if (next == nullptr)'), `<code>next == nullptr</code>? No.`);
+    n = next; setv('n', n);
+    snap(at(F, 'n = next;'), `<code>n = next</code>: move down to ${n.info}.`);
+  }
+  running().ret = '→ ' + n.info;
+  snap(at(F, 'return n;'), `<code>return n</code>: ${n.info}${n.info === x ? `, the node with ${x}` : `, the last node on the path of ${x}`}. It goes back to ${back.text}.`);
+  pop(); return n;
+}
+
+function replaceInParent(a, b, back) {
+  const F = 'replaceInParent';
+  push({ name: F, sig: 'void replaceInParent(Node* a, Node* b)', back, nargs: 2,
+         vars: [{ name: 'a', kind: 'ptr', val: a }, { name: 'b', kind: 'ptr', val: b }] });
+  if (deep) snap(FN[F], `New frame: <code>replaceInParent</code> puts ${b.info} where ${a.info} was: under the parent of ${a.info}${a.parent ? `, ${a.parent.info}` : ''}, or as the root.`);
+  const g = a.parent;
+  b.parent = g;
+  if (deep) snap(at(F, 'b->parent = a->parent;'), `<code>b->parent = a->parent</code>: the parent of ${b.info} is now ${k(g)}. ` +
+                 (g ? `But ${g.info} still points to ${a.info}: the red arrow shows the two links do not match yet.` : `${b.info} is about to be the root.`));
+  if (g === null) {
+    root = b; changed = { owner: null };
+    if (deep) snap(at(F, 'root = b;'), `<code>a->parent == nullptr</code>: ${a.info} was the root. <code>root = b</code>: now the tree starts at ${b.info}.`);
+  } else {
+    if (deep) snap(at(F, 'if (a->parent == nullptr)'), `<code>a->parent == nullptr</code>? No: ${a.info} hangs from ${g.info}.`);
+    if (g.left === a) {
+      g.left = b; changed = { owner: g.id, side: 'left' };
+      if (deep) snap(at(F, 'else if (a == a->parent->left)'), `${a.info} is the left child of ${g.info}: <code>a->parent->left = b</code>. ${g.info} now points to ${b.info}.`);
+    } else {
+      if (deep) snap(at(F, 'else if (a == a->parent->left)'), `${a.info} is the left child of ${g.info}? No.`);
+      g.right = b; changed = { owner: g.id, side: 'right' };
+      if (deep) snap(at(F, 'else a->parent->right = b;'), `<code>a->parent->right = b</code>: ${g.info} now points to ${b.info}.`);
+    }
+  }
+  if (deep) snap(endOf(F), `${b.info} is in the place of ${a.info}. ${a.info} is not linked from above any more; the next lines hang it below ${b.info}. Back to ${back.text}.`);
+  pop();
+}
+
+function rotate(dir, a, back) {            // dir: 'Right' (the left child rises) or 'Left'
+  const F = 'rotate' + dir;
+  const up = dir === 'Right' ? 'left' : 'right', down = dir === 'Right' ? 'right' : 'left';
+  push({ name: F, sig: `void ${F}(Node* a)`, back, nargs: 1, vars: [{ name: 'a', kind: 'ptr', val: a }, { name: 'b', kind: 'ptr' }] });
+  freeze.push(depths());
+  if (deep) snap(FN[F], `New frame: <code>${F}(a → ${a.info})</code>: the ${up} child of ${a.info} rises, and ${a.info} goes down to the ${down}.`);
+  const b = a[up]; setv('b', b);
+  if (deep) snap(at(F, `Node* b = a->${up};`), `<code>b = a->${up}</code>: b is ${b.info}, the node that rises.`);
+  const mid = b[down];
+  a[up] = mid; changed = { owner: a.id, side: up };
+  if (deep) snap(at(F, `a->${up} = b->${down};`), `<code>a->${up} = b->${down}</code>: ${mid ? `the subtree of ${mid.info}, between ${Math.min(a.info, b.info)} and ${Math.max(a.info, b.info)} in sorted order, moves to ${a.info}. For now both point to it` : `that link is nullptr, so ${a.info} now has no ${up} child`}.` +
+                 ` Only the variable <code>b</code> still reaches ${b.info}.`);
+  if (mid !== null) {
+    mid.parent = a;
+    if (deep) snap(at(F, `if (b->${down} != nullptr)`), `<code>b->${down}</code> is ${mid.info}: its parent link is now ${a.info}, to match.`);
+  } else if (deep) snap(at(F, `if (b->${down} != nullptr)`), `<code>b->${down}</code> is nullptr: no parent link to fix.`);
+  if (deep) snap(at(F, 'replaceInParent(a, b);'), `Call <code>replaceInParent(a, b)</code>: ${b.info} goes up to the place of ${a.info}. This call waits here.`);
+  replaceInParent(a, b, { text: `<code>${lab()}</code> at line ${at(F, 'replaceInParent(a, b);')}` });
+  if (deep) snap(at(F, 'replaceInParent(a, b);'), `Back in <code>${lab()}</code>: ${b.info} has the place of ${a.info}.`);
+  b[down] = a; changed = { owner: b.id, side: down };
+  if (deep) snap(at(F, `b->${down} = a;`), `<code>b->${down} = a</code>: ${a.info} hangs to the ${down} of ${b.info}. But the parent link of ${a.info} ${a.parent ? `still points to ${a.parent.info}` : 'is still nullptr'}.`);
+  a.parent = b;
+  if (deep) snap(at(F, 'a->parent = b;'), `<code>a->parent = b</code>: every link matches again. ${b.info} rose one level and ${a.info} went down one.`);
+  freeze.pop();
+  if (deep) snap(endOf(F), `<code>${F}</code> returns. The nodes move to their new places: the order from left to right did not change.`);
+  pop();
+}
+
+function splay(x, back) {
+  const F = 'splay';
+  push({ name: F, sig: 'void splay(Node* x)', back, nargs: 1,
+         vars: [{ name: 'x', kind: 'ptr', val: x }, { name: 'p', kind: 'ptr' }, { name: 'g', kind: 'ptr' }] });
+  snap(FN[F], `New frame: <code>splay(x → ${x.info})</code>. ${x.info} will rise to the root, two levels at a time.`);
+  const L = (s) => at(F, s);
+  const call = (dir, a, line, msg) => {
+    snap(line, msg);
+    rotate(dir, a, { text: `<code>${lab()}</code> at line ${line}` });
+  };
+  for (;;) {
+    setv('p', undefined); setv('g', undefined);          // p and g live inside the loop body
+    if (x.parent === null) { running().caseName = null; snap(L('while ('), `<code>x->parent != nullptr</code>? No: ${x.info} has no parent, so it is the root. The loop ends.`); break; }
+    running().caseName = null;
+    snap(L('while ('), `<code>x->parent != nullptr</code>? Yes: ${x.info} is not the root yet.`);
+    const p = x.parent; setv('p', p);
+    snap(L('Node* p = x->parent;'), `<code>p = x->parent</code>: the parent of ${x.info} is ${p.info}.`);
+    const g = p.parent; setv('g', g);
+    snap(L('Node* g = p->parent;'), `<code>g = p->parent</code>: ${g ? `the grandparent is ${g.info}` : `nullptr: ${p.info} is the root, so there is no grandparent`}.`);
+    if (g === null) {
+      snap(L('if (g == nullptr)'), `<code>g == nullptr</code>: one step is left, from p to x.`);
+      if (p.left === x) {
+        running().caseName = 'zig';
+        call('Right', p, L('rotateRight(p);'), `${x.info} is the left child of ${p.info}: a <b>zig</b>. Call <code>rotateRight(p)</code>, a rotation at ${p.info}.`);
+        snap(L('rotateRight(p);'), `Back in <code>splay</code>: the zig is done, ${x.info} rose one level.`);
+      } else {
+        snap(L('rotateRight(p);'), `<code>x == p->left</code>? No.`);
+        running().caseName = 'zag';
+        call('Left', p, L('else rotateLeft(p);'), `${x.info} is the right child of ${p.info}: a <b>zag</b>. Call <code>rotateLeft(p)</code>, a rotation at ${p.info}.`);
+        snap(L('else rotateLeft(p);'), `Back in <code>splay</code>: the zag is done, ${x.info} rose one level.`);
+      }
+      continue;
+    }
+    snap(L('if (g == nullptr)'), `<code>g == nullptr</code>? No: two steps, from g to p and from p to x.`);
+    const pl = g.left === p, xl = p.left === x;
+    snap(L('} else if (p == g->left)'), `<code>p == g->left</code>? ${pl ? `Yes: from ${g.info}, the path goes left to ${p.info}.` : `No: from ${g.info}, the path goes right to ${p.info}.`}`);
+    const name = (pl ? 'zig' : 'zag') + '-' + (xl ? 'zig' : 'zag');
+    const two = (dir1, a1, dir2, a2, line, first) => {
+      running().caseName = name;
+      call(dir1, a1, line, `${first} → a <b>${name}</b>. First call <code>rotate${dir1}(${a1 === g ? 'g' : 'p'})</code>, a rotation at ${a1.info}.`);
+      call(dir2, a2, line, `Back in <code>splay</code>: ${a1 === g ? `${p.info} rose, taking ${x.info} with it` : `${x.info} rose above ${p.info}`}. Now <code>rotate${dir2}(${a2 === g ? 'g' : 'p'})</code>, a rotation at ${a2.info}.`);
+      snap(line, `Back in <code>splay</code>: the ${name} is done. ${x.info} rose two levels.`);
+    };
+    if (pl) {
+      if (xl) two('Right', g, 'Right', p, L('{ rotateRight(g); rotateRight(p); }'), `<code>x == p->left</code>? Yes: from ${p.info}, left again to ${x.info}. Left, then left`);
+      else {
+        snap(L('{ rotateRight(g); rotateRight(p); }'), `<code>x == p->left</code>? No: from ${p.info}, the path goes right to ${x.info}.`);
+        two('Left', p, 'Right', g, L('{ rotateLeft(p); rotateRight(g); }'), `Left, then right`);
+      }
+    } else {
+      snap(L('} else {'), `So the first step is to the right.`);
+      if (!xl) two('Left', g, 'Left', p, L('{ rotateLeft(g); rotateLeft(p); }'), `<code>x == p->right</code>? Yes: from ${p.info}, right again to ${x.info}. Right, then right`);
+      else {
+        snap(L('{ rotateLeft(g); rotateLeft(p); }'), `<code>x == p->right</code>? No: from ${p.info}, the path goes left to ${x.info}.`);
+        two('Right', p, 'Left', g, L('{ rotateRight(p); rotateLeft(g); }'), `Right, then left`);
+      }
+    }
+  }
+  snap(endOf(F), `<code>splay</code> returns: ${x.info} is the root, and <code>root</code> was updated by <code>replaceInParent</code>. Back to ${back.text}.`);
+  pop();
+}
+
+function contains(x, back) {
+  const F = 'contains';
+  push({ name: F, sig: 'bool contains(int x)', back, nargs: 1, vars: [{ name: 'x', kind: 'int', val: x }] });
+  snap(FN[F], `${back.caller ? 'New frame:' : 'Your program calls'} <code>contains(${x})</code>. It searches for ${x} and splays the node where the search ends.`);
+  if (root === null) {
+    running().ret = 'false';
+    snap(at(F, 'if (root == nullptr)'), `<code>root == nullptr</code>: the tree is empty. Return false.`);
+    pop(); return false;
+  }
+  snap(at(F, 'if (root == nullptr)'), `<code>root == nullptr</code>? No.`);
+  const line = at(F, 'splay(lastOnPath(x));');
+  snap(line, `First <code>lastOnPath(${x})</code> runs. This call waits here.`);
+  const n = lastOnPath(x, { text: `<code>${lab()}</code> at line ${line}` });
+  snap(line, `Back in <code>${lab()}</code> with ${n.info}. Now <code>splay</code> it. This call waits here.`);
+  splay(n, { text: `<code>${lab()}</code> at line ${line}` });
+  snap(line, `Back in <code>${lab()}</code>: ${n.info} is the root.`);
+  const r = root.info === x;
+  running().ret = String(r);
+  snap(at(F, 'return root->info == x;'), `<code>root->info == x</code>: ${root.info} == ${x}? ${r ? 'Yes' : 'No'}. Return ${r} to ${back.text}.`);
+  pop(); return r;
+}
+
+function insert(x, back) {
+  const F = 'insert';
+  push({ name: F, sig: 'bool insert(int x)', back, nargs: 1, vars: [{ name: 'x', kind: 'int', val: x }, { name: 'p', kind: 'ptr' }, { name: 'n', kind: 'ptr' }] });
+  snap(FN[F], `Your program calls <code>insert(${x})</code>: a BST insertion, then a splay of the new node.`);
+  if (root === null) {
+    snap(at(F, 'if (root == nullptr)'), `<code>root == nullptr</code>: the tree is empty.`);
+    root = mk(x); changed = { owner: null };
+    snap(at(F, 'root = new Node'), `<code>root = new Node{${x}, nullptr, nullptr, nullptr}</code>: ${x} is the only node.`);
+    running().ret = 'true'; snap(at(F, 'return true;'), `Return true.`); pop(); return true;
+  }
+  snap(at(F, 'if (root == nullptr)'), `<code>root == nullptr</code>? No.`);
+  const l1 = at(F, 'Node* p = lastOnPath(x);');
+  snap(l1, `Call <code>lastOnPath(${x})</code>: it returns ${x} if it is there, or the node where ${x} would hang. This call waits here.`);
+  const p = lastOnPath(x, { text: `<code>${lab()}</code> at line ${l1}, stored in p` });
+  setv('p', p);
+  snap(l1, `Back in <code>${lab()}</code>: <code>p → ${p.info}</code>.`);
+  if (p.info === x) {
+    const l2 = at(F, 'splay(p);');
+    snap(at(F, 'if (p->info == x)'), `<code>p->info == x</code>: ${x} is already in the tree. No new node, but it counts as an access.`);
+    snap(l2, `Call <code>splay(p)</code>. This call waits here.`);
+    splay(p, { text: `<code>${lab()}</code> at line ${l2}` });
+    snap(l2, `Back in <code>${lab()}</code>: ${x} is the root.`);
+    running().ret = 'false'; snap(at(F, 'return false;'), `Return false: nothing was inserted.`); pop(); return false;
+  }
+  snap(at(F, 'if (p->info == x)'), `<code>p->info == x</code>? No: ${p.info} != ${x}. ${x} is new.`);
+  const n = mk(x, p); setv('n', n);
+  snap(at(F, 'Node* n = new Node'), `<code>n = new Node{${x}, nullptr, nullptr, p}</code>: its parent link already points to ${p.info}, but ${p.info} does not point to it yet.`);
+  if (x < p.info) {
+    p.left = n; changed = { owner: p.id, side: 'left' };
+    snap(at(F, 'if (x < p->info) p->left = n;'), `${x} &lt; ${p.info}: <code>p->left = n</code>. ${x} hangs where the search stopped.`);
+  } else {
+    snap(at(F, 'if (x < p->info) p->left = n;'), `${x} &lt; ${p.info}? No.`);
+    p.right = n; changed = { owner: p.id, side: 'right' };
+    snap(at(F, 'else p->right = n;'), `<code>p->right = n</code>: ${x} hangs where the search stopped.`);
+  }
+  const l3 = at(F, 'splay(n);');
+  snap(l3, `The tree is still a BST. Now <code>splay(n)</code>: the new node rises to the root. This call waits here.`);
+  splay(n, { text: `<code>${lab()}</code> at line ${l3}` });
+  snap(l3, `Back in <code>${lab()}</code>: ${x} is the root.`);
+  running().ret = 'true'; snap(lastAt(F, 'return true;'), `Return true to ${back.text}.`);
+  pop(); return true;
+}
+
+function remove(x, back) {
+  const F = 'remove';
+  push({ name: F, sig: 'bool remove(int x)', back, nargs: 1, vars: [{ name: 'x', kind: 'int', val: x }, { name: 'tl', kind: 'ptr' }, { name: 'tr', kind: 'ptr' }] });
+  snap(FN[F], `Your program calls <code>remove(${x})</code>: splay ${x} to the root, delete it, then join its two subtrees.`);
+  const l1 = at(F, 'if (!contains(x))');
+  snap(l1, `Call <code>contains(${x})</code>: if ${x} is there, it ends at the root. This call waits here.`);
+  const found = contains(x, { text: `<code>${lab()}</code> at line ${l1}`, caller: true });
+  if (!found) { running().ret = 'false'; snap(l1, `Back in <code>${lab()}</code>: false, ${x} is not in the tree. Return false.`); pop(); return false; }
+  snap(l1, `Back in <code>${lab()}</code>: true, and ${x} is the root.`);
+  const old = root;
+  const tl = old.left; setv('tl', tl);
+  snap(at(F, 'Node* tl = root->left;'), `<code>tl = root->left</code>: ${tl ? `TL, the subtree of ${tl.info}, has every key smaller than ${x}` : 'nullptr: no key is smaller than ' + x}.`);
+  const tr = old.right; setv('tr', tr);
+  snap(at(F, 'Node* tr = root->right;'), `<code>tr = root->right</code>: ${tr ? `TR, the subtree of ${tr.info}, has every key greater than ${x}` : 'nullptr: no key is greater than ' + x}.`);
+  old.dead = true;
+  snap(at(F, 'delete root;'), `<code>delete root</code>: the memory of ${x} is freed. <code>root</code> still holds that address (dangling) until it gets a new value. TL and TR are reachable only through <code>tl</code> and <code>tr</code>.`);
+  if (tr !== null) { tr.parent = null; snap(at(F, 'if (tr != nullptr) tr->parent = nullptr;'), `<code>tr->parent = nullptr</code>: ${tr.info} is the root of a tree of its own.`); }
+  else snap(at(F, 'if (tr != nullptr) tr->parent = nullptr;'), `<code>tr</code> is nullptr: nothing to fix.`);
+  if (tl === null) {
+    snap(at(F, 'if (tl == nullptr)'), `<code>tl == nullptr</code>: there is no TL, so TR is the whole tree.`);
+    root = tr; changed = { owner: null };
+    snap(at(F, 'root = tr;'), `<code>root = tr</code>.`);
+    running().ret = 'true'; snap(at(F, 'return true;'), `Return true.`); pop(); return true;
+  }
+  snap(at(F, 'if (tl == nullptr)'), `<code>tl == nullptr</code>? No.`);
+  tl.parent = null;
+  snap(at(F, 'tl->parent = nullptr;'), `<code>tl->parent = nullptr</code>: ${tl.info} is the root of a tree of its own.`);
+  root = tl; changed = { owner: null };
+  snap(at(F, 'root = tl;'), `<code>root = tl</code>: for now the tree is only TL. TR waits in <code>tr</code>.`);
+  const l2 = at(F, 'splay(lastOnPath(x));');
+  snap(l2, `<code>lastOnPath(${x})</code> inside TL: ${x} is greater than every key of TL, so the search goes right to the end, to the maximum.`);
+  const m = lastOnPath(x, { text: `<code>${lab()}</code> at line ${l2}` });
+  snap(l2, `Back in <code>${lab()}</code> with ${m.info}, the maximum of TL. Now <code>splay</code> it.`);
+  splay(m, { text: `<code>${lab()}</code> at line ${l2}` });
+  snap(l2, `Back in <code>${lab()}</code>: ${m.info} is the root, and as the maximum it has no right child.`);
+  root.right = tr; changed = { owner: root.id, side: 'right' };
+  snap(at(F, 'root->right = tr;'), `<code>root->right = tr</code>: TR hangs to the right of ${root.info}. Every key of TR is greater, so it is still a BST.`);
+  if (tr !== null) { tr.parent = root; snap(at(F, 'if (tr != nullptr) tr->parent = root;'), `<code>tr->parent = root</code>: the parent link of ${tr.info} matches.`); }
+  else snap(at(F, 'if (tr != nullptr) tr->parent = root;'), `<code>tr</code> is nullptr: nothing to fix.`);
+  running().ret = 'true'; snap(lastAt(F, 'return true;'), `Return true to ${back.text}.`);
+  pop(); return true;
+}
+
+const inorder = (n) => (n ? [...inorder(n.left), n.info, ...inorder(n.right)] : []);
+function plainInsert(x) {               // to build the start tree: a plain BST insertion, no splay
+  if (root === null) { root = mk(x); return; }
+  let n = root;
+  for (;;) {
+    if (x === n.info) return;
+    const s = x < n.info ? 'left' : 'right';
+    if (n[s] === null) { n[s] = mk(x, n); return; }
+    n = n[s];
+  }
+}
+function build(keys) { nextId = 1; root = null; for (const x of keys) plainInsert(x); }
+const CLASS = [132, 89, 256, 52, 167, 402, 190];
+
+function trace(op, x) {
+  steps = []; frames = []; freeze = []; lastDepth = {};
+  const back = { text: 'your program' };
+  const r = op === 'c' ? contains(x, back) : op === 'i' ? insert(x, back) : remove(x, back);
+  const what = op === 'c' ? (r ? `${x} was found and is the root` : `${x} is not there; ${root ? root.info : 'nothing'}, the last node of its path, is the root`)
+             : op === 'i' ? (r ? `${x} was inserted and is the root` : `${x} was already there and is the root`)
+             : (r ? `${x} is gone` : `${x} was not there`);
+  snap(0, `Done: ${what}. Inorder the tree still reads ${inorder(root).join(' ')}.`);
+  return r;
+}
+
+// ------------------------------------------------------------------ drawing
+const $ = (id) => document.getElementById(id);
+let cur = 0, RANK = {};
+
+function drawCode(s) {
+  const t = s.frames.length - 1;
+  const waits = {};
+  s.frames.forEach((f, i) => { if (i < t) (waits[f.line] = waits[f.line] || []).push(f); });
+  let html = '';
+  CODE.forEach((text, i) => {
+    const no = i + 1;
+    let cls = 'ln', chips = '';
+    if (t >= 0 && s.frames[t].line === no) { cls += ' cur'; chips += `<span class="chip c">${esc(s.frames[t].call)} · running</span>`; }
+    else if (waits[no]) cls += ' wait';
+    if (waits[no]) chips += waits[no].map((f) => `<span class="chip w">${esc(f.call)}</span>`).join('');
+    html += `<div class="${cls}"><span class="no">${no}</span><span class="tx">${colorize(text)}</span>` +
+            (chips ? `<span class="chips">${chips}</span>` : '') + '</div>';
+  });
+  const pre = $('code');
+  pre.innerHTML = html;
+  const curEl = pre.querySelector('.ln.cur');
+  if (curEl && (curEl.offsetTop < pre.scrollTop || curEl.offsetTop + curEl.offsetHeight > pre.scrollTop + pre.clientHeight))
+    pre.scrollTop = Math.max(0, curEl.offsetTop - pre.clientHeight / 3);
+}
+
+function drawStack(s, prev) {
+  const r = s.root ? s.nodes[s.root] : null;
+  $('obj').innerHTML = `SplayTree object · <b>root</b> <b>${r ? (r.dead ? '= dangling (deleted)' : '→ ' + r.info) : '= nullptr'}</b>`;
+  if (!s.frames.length) { $('stack').innerHTML = '<div class="empty">The stack is empty.</div>'; return; }
+  let html = '';
+  for (let i = s.frames.length - 1; i >= 0; i--) {
+    const f = s.frames[i], isTop = i === s.frames.length - 1;
+    const pf = prev && prev.frames[i] && prev.frames[i].sig === f.sig ? prev.frames[i] : null;
+    const vars = f.vars.map((v) => {
+      const pv = pf && pf.vars.find((w) => w.name === v.name);
+      const chg = pf && (!pv || pv.show !== v.show);
+      return `<span class="nm">${v.name}</span><span class="val${chg ? ' chg' : ''}">${esc(v.show)}</span>`;
+    }).join('');
+    const cs = f.name === 'splay' ? `<div class="case">Case: ${f.caseName ? `<b>${f.caseName}</b>` : '?'}</div>` : '';
+    html += `<div class="frame${isTop ? ' top' : ''}">
+      <div class="sig"><span>${esc(f.sig)}</span><span class="pill ${isTop ? 'run' : 'wait'}">${isTop ? 'running' : 'waiting'}</span></div>
+      <div class="vars">${vars}</div>${cs}
+      <div class="meta">${isTop ? 'Running' : 'Waiting at'} <b>line ${f.line}</b>: <code>${esc(CODE[f.line - 1].split('//')[0].trim())}</code><br>
+      Returns to: ${f.back.text}${f.ret !== null ? `<br><span class="ret">Returns ${esc(f.ret)}</span>` : ''}</div></div>`;
+  }
+  $('stack').innerHTML = html;
+}
+
+function drawCase(s) {
+  const c = s.cs, box = $('casebox');
+  if (!c) { box.className = 'casebox none'; box.innerHTML = 'No splay is running.'; return; }
+  box.className = 'casebox';
+  const v = (n, val) => `<span class="k2">${n} ${val === undefined ? '= ?' : val === null ? '= nullptr' : '→ ' + val}</span>`;
+  box.innerHTML = `${v('x', c.x)} ${v('p', c.p)} ${v('g', c.g)}` +
+    (c.name ? `<span class="nm">${c.name}</span><span class="path">${caseText(c.name)}</span>` : '<span class="path">case: not chosen yet</span>');
+}
+
+function drawTree(s) {
+  const svg = $('tree');
+  const DX = 64, DY = 80, X0 = 50, Y0 = 52;
+  const reach = new Set(s.reach);
+  const pos = {};
+  for (const id in s.nodes) pos[id] = { x: X0 + RANK[s.nodes[id].info] * DX, y: Y0 + s.depth[id] * DY };
+  const t = s.frames[s.frames.length - 1];
+  const tags = {};
+  const addTag = (id, txt) => { (tags[id] = tags[id] || []).push(txt); };
+  if (t) t.vars.forEach((v) => { if (v.kind === 'ptr' && v.id && pos[v.id]) addTag(v.id, v.name); });
+  const MAIN = { lastOnPath: 'n', splay: 'x', rotateRight: 'b', rotateLeft: 'b', replaceInParent: 'b', insert: 'n' };
+  const mv = t && t.vars.find((v) => v.name === MAIN[t.name]);
+  const mainId = mv && mv.id;
+  let maxX = X0, maxY = Y0;
+  for (const id in pos) { maxX = Math.max(maxX, pos[id].x); maxY = Math.max(maxY, pos[id].y); }
+  let slotP = null;
+  if (s.slot && pos[s.slot.owner]) { const o = pos[s.slot.owner]; slotP = { x: o.x + (s.slot.side === 'left' ? -DX * 0.55 : DX * 0.55), y: o.y + DY * 0.8 };
+    maxY = Math.max(maxY, slotP.y); }
+  const W = (v) => (String(v).length <= 2 ? 44 : 54);
+  const width = Math.max(560, X0 + (Object.keys(RANK).length - 1) * DX + 60), height = maxY + 60;
+  let g = `<defs><marker id="parr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">` +
+          `<path d="M0,0 L10,5 L0,10 z" style="fill: var(--c-err)"/></marker></defs>`;
+  const owners = {};
+  for (const id in s.nodes) { const n = s.nodes[id]; if (n.dead) continue;
+    for (const side of ['left', 'right']) { const c = n[side]; if (c != null && pos[c]) {
+      (owners[c] = owners[c] || []).push(+id);
+      const ch = s.changed && s.changed.owner === +id && s.changed.side === side;
+      g += `<line class="edge${ch ? ' ref' : ''}" x1="${pos[id].x}" y1="${pos[id].y}" x2="${pos[c].x}" y2="${pos[c].y}"/>`;
+    } } }
+  if (slotP) { const o = pos[s.slot.owner];
+    g += `<line class="edge ghost" x1="${o.x}" y1="${o.y}" x2="${slotP.x}" y2="${slotP.y}"/>`; }
+  // parent links that do not match the child links yet
+  for (const id in s.nodes) { const n = s.nodes[id]; if (n.dead) continue;
+    const own = owners[id] || [];
+    if (n.parent != null && !own.includes(n.parent) && pos[n.parent]) {
+      const a = pos[id], b = pos[n.parent];
+      const dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
+      const x1 = a.x + dx / L * 20, y1 = a.y + dy / L * 18, x2 = b.x - dx / L * 26, y2 = b.y - dy / L * 20;
+      const bend = 26, mx = (x1 + x2) / 2 - dy / L * bend, my = (y1 + y2) / 2 + dx / L * bend;
+      g += `<path class="parr" d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" marker-end="url(#parr)"/>`;
+      g += `<text class="ptxt" x="${mx}" y="${my + 4}" text-anchor="middle">parent</text>`;
+    } else if (n.parent == null && own.length) {
+      g += `<text class="ptxt" x="${pos[id].x + W(n.info) / 2 + 5}" y="${pos[id].y - 12}" text-anchor="start">parent = nullptr</text>`;
+    }
+  }
+  for (const id in pos) {
+    const n = s.nodes[id], p = pos[id], w = W(n.info);
+    let cls = 'nd';
+    if (n.dead) cls += ' dead';
+    else if (mainId === +id) cls += ' cur';
+    if (!n.dead && !reach.has(+id)) cls += ' loose';
+    g += `<g class="${cls}"><rect x="${p.x - w / 2}" y="${p.y - 17}" width="${w}" height="34" rx="17"/>` +
+         `<text class="v" x="${p.x}" y="${p.y + 6}" text-anchor="middle">${n.info}</text></g>`;
+    if (n.dead) g += `<text class="cap err" x="${p.x}" y="${p.y + 36}" text-anchor="middle">deleted</text>`;
+    const isRoot = s.root === +id, rootChg = isRoot && s.changed && s.changed.owner === null;
+    if (isRoot || tags[id]) {
+      const txt = [isRoot ? 'root' : null, ...(tags[id] || [])].filter(Boolean).join(', ');
+      const cls = isRoot && !tags[id] && !rootChg ? 'tag root' : 'tag';
+      g += `<text class="${cls}" x="${p.x}" y="${p.y - 25}" text-anchor="middle">${txt}</text>`;
+    }
+  }
+  if (slotP) g += `<g class="slot"><rect x="${slotP.x - 30}" y="${slotP.y - 14}" width="60" height="28" rx="14"/>` +
+                  `<text x="${slotP.x}" y="${slotP.y + 4}" text-anchor="middle">nullptr</text></g>`;
+  if (!s.root && !Object.keys(pos).length) g += `<text class="cap" x="20" y="40">empty tree: root = nullptr</text>`;
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.style.maxWidth = '100%'; svg.style.height = 'auto';
+  svg.innerHTML = g;
+}
+
+function show(i) {
+  if (!steps.length) return;
+  cur = Math.max(0, Math.min(i, steps.length - 1));
+  const s = steps[cur];
+  $('msg').innerHTML = s.msg;
+  drawCode(s); drawStack(s, cur > 0 ? steps[cur - 1] : null); drawCase(s); drawTree(s);
+  $('count').textContent = `Step ${cur + 1} of ${steps.length}`;
+  $('back').disabled = $('first').disabled = cur === 0;
+  $('next').disabled = $('last').disabled = cur === steps.length - 1;
+}
+
+// ------------------------------------------------------------------ controls
+let timer = null;
+function stop() { if (timer) { clearInterval(timer); timer = null; $('play').textContent = 'Play'; } }
+const SCEN = {
+  c52: ['c', 52, [], 'contains(52): from 132 the path goes left, then left: one zig-zig.'],
+  c402: ['c', 402, [], 'contains(402): from 132 the path goes right, then right: one zag-zag.'],
+  c190: ['c', 190, [], 'contains(190): a zig-zag at 256 and 167, then a zag at the root.'],
+  i60: ['i', 60, [], 'insert(60): 60 hangs below 52, then a zig-zag and a zig lift it.'],
+  i180: ['i', 180, [], 'insert(180): 180 hangs below 190, then two zag-zigs lift it.'],
+  c100: ['c', 100, [], 'contains(100): 100 is not there, so the last node of its path, 89, rises with a zig.'],
+  r167: ['r', 167, [60], 'remove(167) on the tree after insert(60): splay 167, delete it, splay the maximum of TL, attach TR.'],
+};
+function run() {
+  stop();
+  deep = $('deep').checked;
+  const [op, x, before, sub] = SCEN[$('scen').value];
+  build(CLASS);
+  if (before.length) { const d = deep; deep = false; for (const y of before) { trace('i', y); } deep = d; }
+  trace(op, x);
+  const keys = new Set();
+  for (const s of steps) for (const id in s.nodes) keys.add(s.nodes[id].info);
+  RANK = {}; [...keys].sort((a, b) => a - b).forEach((v, i) => { RANK[v] = i; });
+  $('sub').textContent = (before.length ? '' : 'Start: the class tree. ') + sub;
+  show(0);
+}
+$('scen').onchange = run;
+$('deep').onchange = run;
+$('restart').onclick = run;
+$('next').onclick = () => { stop(); show(cur + 1); };
+$('back').onclick = () => { stop(); show(cur - 1); };
+$('first').onclick = () => { stop(); show(0); };
+$('last').onclick = () => { stop(); show(steps.length - 1); };
+$('play').onclick = () => {
+  if (timer) return stop();
+  if (cur >= steps.length - 1) show(0);
+  $('play').textContent = 'Pause';
+  timer = setInterval(() => { if (cur >= steps.length - 1) stop(); else show(cur + 1); }, +$('speed').value);
+};
+document.addEventListener('keydown', (e) => {
+  if (e.target && (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT')) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); $('next').click(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); $('back').click(); }
+  else if (e.key === 'Home') $('first').click();
+  else if (e.key === 'End') $('last').click();
+  else if (e.key === 'd' || e.key === 'D') $('theme').click();
+});
+function setTheme(t) {
+  if (t === 'dark') document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem('shstyle-theme', t); } catch (e) {}
+  $('theme').textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
+}
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+$('theme').textContent = document.documentElement.dataset.theme === 'dark' ? 'Light mode' : 'Dark mode';
+
+// for automated checks: runs operations ([['i', 5], ['c', 3], ['r', 5], ...]) from an empty tree, every line traced.
+// Returns, after each operation, the answer, the tree ("5(3,-)") and whether every parent link matches.
+const ser = (n) => (!n ? '-' : !n.left && !n.right ? String(n.info) : `${n.info}(${ser(n.left)},${ser(n.right)})`);
+function linksOk(n, p) { return !n || (n.parent === p && linksOk(n.left, n) && linksOk(n.right, n)); }
+window.splayTest = {
+  run(ops, inside = true) {
+    const d = deep; deep = inside; nextId = 1; root = null;
+    const out = []; let maxSteps = 0;
+    for (const [op, x] of ops) { const r = trace(op, x); maxSteps = Math.max(maxSteps, steps.length);
+      out.push(`${r ? 1 : 0} ${ser(root)} ${linksOk(root, null) ? 1 : 0}`); }
+    deep = d; run(); return { out, maxSteps };
+  },
+  scenarios() {
+    const res = {};
+    for (const opt of $('scen').options) { $('scen').value = opt.value; run(); res[opt.value] = steps.length; }
+    $('scen').value = 'c52'; run(); return res;
+  },
+};
+
+run();
+</script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AVL and splay rotations, side by side</title>
+<script>try{if(localStorage.getItem('shstyle-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  /* Same colors as the class slides (shstyle) */
+  :root {
+    --c-bg: #ffffff; --c-ink: #16181d; --c-ink-soft: #4b5260; --c-ink-faint: #aab0bb;
+    --c-accent: #0b57d0; --c-accent-bg: #e8f0fe; --c-accent-soft: #9dc0f0;
+    --c-ok: #146c2e; --c-ok-bg: #e6f4ea; --c-err: #b3261e; --c-err-bg: #fce8e6;
+    --c-line: #d7dbe2; --c-surface-1: #f0f1f4; --c-surface-2: #eceff3;
+    --c-code-panel: #14161d; --c-code-head: #1f232d; --c-code-head-ink: #8b93a5; --c-code-ink: #e8eaf0;
+    --c-code-cur: rgba(56, 139, 253, 0.30);
+    --c-shadow: rgba(20, 22, 29, 0.14);
+    --font-sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --c-bg: #15171c; --c-ink: #e6e8ee; --c-ink-soft: #a7adba; --c-ink-faint: #6b7280;
+    --c-accent: #8ab4f8; --c-accent-bg: #1d2a44; --c-accent-soft: #3b5b8f;
+    --c-ok: #6dd58c; --c-ok-bg: #16301f; --c-err: #f2b8b5; --c-err-bg: #3b1d1b;
+    --c-line: #3a3f4b; --c-surface-1: #20232b; --c-surface-2: #252932;
+    --c-code-panel: #0e1014; --c-code-head: #1a1d25;
+    --c-shadow: rgba(0, 0, 0, 0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: var(--c-bg); color: var(--c-ink); padding: 12px 18px 30px; }
+  .wrap { max-width: 1320px; margin: 0 auto; }
+  .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; margin-bottom: 10px; }
+  h1 { font-size: 24px; letter-spacing: -0.02em; }
+  .sub { color: var(--c-ink-soft); margin-top: 2px; font-size: 14px; }
+  button, select { font-family: inherit; font-size: 15px; }
+  button { border: 2px solid var(--c-accent); background: var(--c-bg); color: var(--c-accent); border-radius: 8px;
+           padding: 6px 12px; font-weight: 600; cursor: pointer; }
+  button.primary { background: var(--c-accent); color: var(--c-bg); }
+  button:disabled { opacity: .4; cursor: default; }
+  select { padding: 6px; border: 2px solid var(--c-line); border-radius: 8px; background: var(--c-bg); color: var(--c-ink); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .bar .count { color: var(--c-ink-soft); font-weight: 600; min-width: 110px; }
+  .theme { border-color: var(--c-line); color: var(--c-ink-soft); }
+  body:not(.show-code) .code { display: none; }
+  .msg { border-left: 6px solid var(--c-accent); background: var(--c-accent-bg); border-radius: 8px;
+         padding: 10px 16px; font-size: 18px; line-height: 1.45; min-height: 50px; margin-bottom: 14px; }
+  .msg.same { border-left-color: var(--c-ok); background: var(--c-ok-bg); }
+  .msg.diff { border-left-color: var(--c-err); background: var(--c-err-bg); }
+  .msg.info { border-left-color: var(--c-ink-faint); background: var(--c-surface-2); }
+  .msg code, td code, .note code { font-family: var(--font-mono); font-size: 0.9em; }
+  .sides { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 1000px) { .sides { grid-template-columns: 1fr; } }
+  .side { border: 2px solid var(--c-line); border-radius: 12px; padding: 10px 12px; }
+  .side h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--c-accent); }
+  .side .case { font-size: 26px; font-weight: 700; margin: 2px 0 2px; }
+  .side .case .long { font-size: 16px; font-weight: 600; color: var(--c-ink-soft); }
+  .side .goal { color: var(--c-ink-soft); font-size: 14px; margin-bottom: 8px; }
+  .calls { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; min-height: 30px; align-items: center; }
+  .call { font-family: var(--font-mono); font-size: 14px; font-weight: 700; border: 2px solid var(--c-line); border-radius: 8px;
+          padding: 3px 8px; color: var(--c-ink-soft); }
+  .call.done { border-color: var(--c-accent-soft); color: var(--c-ink); }
+  .call.now { border-color: var(--c-accent); background: var(--c-accent-bg); color: var(--c-accent); }
+  .call.none { border-style: dashed; font-family: var(--font-sans); font-weight: 600; }
+  .treebox { border-radius: 10px; background: var(--c-surface-1); }
+  .treebox svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  .cap { font-size: 15px; min-height: 44px; margin: 8px 2px 4px; line-height: 1.4; }
+  .code { background: var(--c-code-panel); border-radius: 10px; overflow: hidden; margin-top: 8px; box-shadow: 0 4px 14px var(--c-shadow); }
+  .code .head { background: var(--c-code-head); color: var(--c-code-head-ink); font-family: var(--font-mono); font-size: 12px; padding: 6px 12px; }
+  .code pre { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.55; color: var(--c-code-ink); padding: 6px 0; overflow-x: auto; }
+  .ln { display: block; white-space: pre; padding: 0 12px 0 8px; border-left: 4px solid transparent; }
+  .ln.cur { background: var(--c-code-cur); border-left-color: #58a6ff; }
+  .ln.dim { opacity: 0.45; }
+  .k { color: #ff7b72; } .t { color: #ffa657; } .f { color: #d2a8ff; } .n { color: #79c0ff; } .cm { color: #8b949e; }
+  h3 { font-size: 18px; margin: 22px 0 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--c-line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--c-ink-soft); }
+  tr.now td { background: var(--c-accent-bg); }
+  td.yes { color: var(--c-ok); font-weight: 700; } td.no { color: var(--c-err); font-weight: 700; }
+  .tablewrap { overflow-x: auto; }
+  .note { color: var(--c-ink-soft); font-size: 14px; margin-top: 8px; line-height: 1.5; }
+  svg .edge { stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .nd rect { fill: var(--c-bg); stroke: var(--c-ink); stroke-width: 2.5; }
+  svg .nd.x rect { fill: var(--c-accent-bg); stroke: var(--c-accent); stroke-width: 4; }
+  svg .nd text { fill: var(--c-ink); font-weight: 700; font-size: 18px; }
+  svg .pivot { fill: none; stroke: var(--c-accent); stroke-width: 3; stroke-dasharray: 7 5; }
+  svg .tri polygon { fill: var(--c-surface-2); stroke: var(--c-ink-soft); stroke-width: 2; }
+  svg .tri text { fill: var(--c-ink-soft); font-weight: 700; font-size: 15px; }
+  svg text.lb { fill: var(--c-accent); font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+                paint-order: stroke; stroke: var(--c-surface-1); stroke-width: 5px; stroke-linejoin: round; }
+  svg text.dep { fill: var(--c-ink-soft); font-size: 13px; font-weight: 600; }
+  kbd { font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--c-line); border-radius: 4px; padding: 0 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div>
+      <h1>AVL and splay rotations, side by side</h1>
+      <p class="sub">Same path shape, same two rotation functions. Do they give the same tree?</p>
+    </div>
+    <div class="bar">
+      <select id="scen" title="Which path">
+        <option value="zigzig" selected>left, left: zig-zig / LL</option>
+        <option value="zagzag">right, right: zag-zag / RR</option>
+        <option value="zigzag">left, right: zig-zag / LR</option>
+        <option value="zagzig">right, left: zag-zig / RL</option>
+        <option value="zig">left (one step): zig</option>
+        <option value="zag">right (one step): zag</option>
+      </select>
+      <button id="first" title="First step (Home)">|◀</button>
+      <button id="back" title="Back (←)">◀ Back</button>
+      <button class="primary" id="next" title="Next (→ or space)">Next ▶</button>
+      <button id="last" title="Last step (End)">▶|</button>
+      <span class="count" id="count"></span>
+      <button class="theme" id="theme" title="Light / dark (D)">Dark mode</button>
+    </div>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <div class="sides">
+    <section class="side">
+      <h2>AVL tree (P13) · rebalance</h2>
+      <div class="case" id="avlCase"></div>
+      <div class="goal">Goal: fix the balance at G. X is below the insertion that made G unbalanced.</div>
+      <div class="calls" id="avlCalls"></div>
+      <div class="treebox"><svg id="avlTree"></svg></div>
+      <div class="cap" id="avlCap"></div>
+      <div class="code"><div class="head">AVL (P13): rebalance(n), here n = G · comments shortened</div><pre id="avlCode"></pre></div>
+    </section>
+    <section class="side">
+      <h2>Splay tree (P14) · splay(x)</h2>
+      <div class="case" id="spCase"></div>
+      <div class="goal">Goal: bring X, the node just accessed, to the top.</div>
+      <div class="calls" id="spCalls"></div>
+      <div class="treebox"><svg id="spTree"></svg></div>
+      <div class="cap" id="spCap"></div>
+      <div class="code"><div class="head">Splay (P14): the loop body of splay(x)</div><pre id="spCode"></pre></div>
+    </section>
+  </div>
+
+  <h3>All the cases at a glance</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Path</th><th>Splay (P14)</th><th>AVL (P13)</th><th>AVL rotations</th><th>Splay rotations</th><th>Same tree?</th></tr></thead>
+    <tbody id="table"></tbody>
+  </table>
+  </div>
+  <p class="note">Both trees use the same two rotations; they differ in how many they make, and where.
+    In P13 both bent cases were called a "zig-zag"; now right, then left is a zag-zig. A, B, C and D are whole subtrees.</p>
+</div>
+
+<script>
+'use strict';
+// ------------------------------------------------------------------ the code shown in each panel
+const AVL_CODE = [
+  'if (bf(n) == 2) {                  // right-heavy',
+  '    if (bf(n->right) < 0)          // right-left',
+  '        n->right = rotateRight(n->right);',
+  '    return rotateLeft(n);',
+  '}',
+  'if (bf(n) == -2) {                 // left-heavy',
+  '    if (bf(n->left) > 0)           // left-right',
+  '        n->left = rotateLeft(n->left);',
+  '    return rotateRight(n);',
+  '}',
+];
+const SP_CODE = [
+  'if (g == nullptr) {             // p is the root: one step',
+  '    if (x == p->left) rotateRight(p);                     // zig',
+  '    else rotateLeft(p);                                   // zag',
+  '} else if (p == g->left) {      // first step to the left',
+  '    if (x == p->left) { rotateRight(g); rotateRight(p); } // zig-zig',
+  '    else { rotateLeft(p); rotateRight(g); }               // zig-zag',
+  '} else {                        // first step to the right',
+  '    if (x == p->right) { rotateLeft(g); rotateLeft(p); }  // zag-zag',
+  '    else { rotateRight(p); rotateLeft(g); }               // zag-zig',
+  '}',
+];
+function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function colorize(line) {
+  let out = '', rest = line, comment = '';
+  const ci = rest.indexOf('//');
+  if (ci >= 0) { comment = rest.slice(ci); rest = rest.slice(0, ci); }
+  for (const tk of rest.split(/(\b[A-Za-z_]\w*\b|-?\b\d+\b)/)) {
+    if (/^(if|else|return|nullptr)$/.test(tk)) out += `<span class="k">${tk}</span>`;
+    else if (/^(rotateLeft|rotateRight|bf)$/.test(tk)) out += `<span class="f">${tk}</span>`;
+    else if (/^-?\d+$/.test(tk)) out += `<span class="n">${tk}</span>`;
+    else out += esc(tk);
+  }
+  return out + (comment ? `<span class="cm">${esc(comment)}</span>` : '');
+}
+
+// ------------------------------------------------------------------ trees: {k, l, r}; A to D are whole subtrees
+const T = (k, l = null, r = null) => ({ k, l, r });
+const sub = (k) => T(k);
+const isSub = (k) => 'ABCD'.includes(k);
+function rotAt(t, key, dir) {           // the rotation at node `key`: 'R' lifts its left child, 'L' its right child
+  if (!t) throw new Error('no node ' + key);
+  if (t.k === key) {
+    if (dir === 'R') { const b = t.l; return T(b.k, b.l, T(t.k, b.r, t.r)); }
+    const b = t.r; return T(b.k, T(t.k, t.l, b.l), b.r);
+  }
+  const inL = (n) => n && (n.k === key || inL(n.l) || inL(n.r));
+  return inL(t.l) ? T(t.k, rotAt(t.l, key, dir), t.r) : T(t.k, t.l, rotAt(t.r, key, dir));
+}
+const ser = (t) => (!t ? '-' : !t.l && !t.r ? t.k : `${t.k}(${ser(t.l)},${ser(t.r)})`);
+const inorder = (t) => (t ? [...inorder(t.l), t.k, ...inorder(t.r)] : []);
+const depthOf = (t, k, d = 0) => (!t ? -1 : t.k === k ? d : Math.max(depthOf(t.l, k, d + 1), depthOf(t.r, k, d + 1)));
+
+// AVL lines of AVL_CODE and splay lines of SP_CODE that make each call (0-based)
+const CASES = {
+  zigzig: { path: 'left, left', sp: 'zig-zig', avl: 'LL', avlLong: 'left-left', start: T('G', T('P', T('X', sub('A'), sub('B')), sub('C')), sub('D')),
+            avlCalls: [['G', 'R', 8, 'rotateRight(n)']], spCalls: [['G', 'R', 4, 'rotateRight(g)'], ['P', 'R', 4, 'rotateRight(p)']] },
+  zagzag: { path: 'right, right', sp: 'zag-zag', avl: 'RR', avlLong: 'right-right', start: T('G', sub('A'), T('P', sub('B'), T('X', sub('C'), sub('D')))),
+            avlCalls: [['G', 'L', 3, 'rotateLeft(n)']], spCalls: [['G', 'L', 7, 'rotateLeft(g)'], ['P', 'L', 7, 'rotateLeft(p)']] },
+  zigzag: { path: 'left, right', sp: 'zig-zag', avl: 'LR', avlLong: 'left-right', start: T('G', T('P', sub('A'), T('X', sub('B'), sub('C'))), sub('D')),
+            avlCalls: [['P', 'L', 7, 'rotateLeft(n->left)'], ['G', 'R', 8, 'rotateRight(n)']], spCalls: [['P', 'L', 5, 'rotateLeft(p)'], ['G', 'R', 5, 'rotateRight(g)']] },
+  zagzig: { path: 'right, left', sp: 'zag-zig', avl: 'RL', avlLong: 'right-left', start: T('G', sub('A'), T('P', T('X', sub('B'), sub('C')), sub('D'))),
+            avlCalls: [['P', 'R', 2, 'rotateRight(n->right)'], ['G', 'L', 3, 'rotateLeft(n)']], spCalls: [['P', 'R', 8, 'rotateRight(p)'], ['G', 'L', 8, 'rotateLeft(g)']] },
+  zig: { path: 'left', sp: 'zig', avl: null, start: T('P', T('X', sub('A'), sub('B')), sub('C')),
+         avlCalls: [], spCalls: [['P', 'R', 1, 'rotateRight(p)']] },
+  zag: { path: 'right', sp: 'zag', avl: null, start: T('P', sub('A'), T('X', sub('B'), sub('C'))),
+         avlCalls: [], spCalls: [['P', 'L', 2, 'rotateLeft(p)']] },
+};
+const DIRWORD = { R: 'right', L: 'left' };
+// teacher view: open the page with ?code at the end of the address to show the C++ of each side
+const SHOW_CODE = /[?&]code\b/.test(location.search);
+// a call as shown: with the letters of the drawing, or with the names of the code (n, g, p) in the teacher view
+const L = (call) => (SHOW_CODE ? call[3] : `rotate${call[1] === 'R' ? 'Right' : 'Left'}(${call[0]})`);
+
+// every state of both panels, computed by applying the rotations
+function build(name) {
+  const c = CASES[name];
+  const avl = [c.start], sp = [c.start];
+  for (const [key, dir] of c.avlCalls) avl.push(rotAt(avl[avl.length - 1], key, dir));
+  for (const [key, dir] of c.spCalls) sp.push(rotAt(sp[sp.length - 1], key, dir));
+  const order = inorder(c.start);
+  for (const t of [...avl, ...sp]) if (inorder(t).join() !== order.join()) throw new Error('order changed');
+  const n = Math.max(c.avlCalls.length, c.spCalls.length);
+  const steps = [];
+  const fa = avl[avl.length - 1], fs = sp[sp.length - 1];
+  const same = c.avl && ser(fa) === ser(fs);
+  for (let i = 0; i <= n + 1; i++) {
+    const k = Math.min(i, n);
+    steps.push({ i, final: i === n + 1,
+      avl: avl[Math.min(k, avl.length - 1)], avlDone: Math.min(k, c.avlCalls.length), avlNow: i >= 1 && i <= c.avlCalls.length ? i - 1 : -1,
+      sp: sp[Math.min(k, sp.length - 1)], spDone: Math.min(k, c.spCalls.length), spNow: i >= 1 && i <= c.spCalls.length ? i - 1 : -1 });
+  }
+  return { c, steps, order, same, fa, fs, n };
+}
+
+function message(B, s) {
+  const c = B.c;
+  if (s.i === 0) return c.avl ? `Path from G to X: <b>${c.path}</b>.` : `One step, from P to X: <b>${c.path}</b>. Only the splay tree has this case.`;
+  if (s.final) {
+    if (!c.avl) return { cls: 'info', text: `One rotation: the same function the AVL tree uses.` };
+    return B.same ? { cls: 'same', text: `<b>Same tree</b> on both sides: X on top.` }
+                  : { cls: 'diff', text: `<b>Different trees:</b> the AVL tree puts P on top, the splay tree puts X on top.` };
+  }
+  const a = c.avlCalls[s.i - 1], p = c.spCalls[s.i - 1];
+  if (a && p && a[0] === p[0] && a[1] === p[1]) return `Both: <code>${L(a)}</code>.`;
+  const parts = [];
+  if (a) parts.push(`AVL: <code>${L(a)}</code>.`); else if (c.avl) parts.push('AVL: done.');
+  if (p) parts.push(`Splay: <code>${L(p)}</code>.`);
+  return parts.join(' &nbsp; ');
+}
+
+// ------------------------------------------------------------------ drawing
+const $ = (id) => document.getElementById(id);
+function drawTree(svgId, t, order, pivot, xKey) {
+  const DX = 66, DY = 74, X0 = 40, Y0 = 44;
+  const rank = {}; order.forEach((k, i) => { rank[k] = i; });
+  const pos = {};
+  const walk = (n, d) => { if (!n) return; pos[n.k] = { x: X0 + rank[n.k] * DX, y: Y0 + d * DY }; walk(n.l, d + 1); walk(n.r, d + 1); };
+  walk(t, 0);
+  let g = '';
+  const edges = (n) => { if (!n) return; for (const c of [n.l, n.r]) if (c) {
+      const a = pos[n.k], b = pos[c.k], tip = isSub(c.k) ? b.y - 16 : b.y;
+      g += `<line class="edge" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${tip}"/>`; edges(c); } };
+  edges(t);
+  let maxY = 0;
+  for (const k in pos) {
+    const p = pos[k]; maxY = Math.max(maxY, p.y);
+    if (isSub(k)) g += `<g class="tri"><polygon points="${p.x},${p.y - 16} ${p.x - 22},${p.y + 24} ${p.x + 22},${p.y + 24}"/>` +
+                       `<text x="${p.x}" y="${p.y + 18}" text-anchor="middle">${k}</text></g>`;
+    else {
+      g += `<g class="nd${k === xKey ? ' x' : ''}"><rect x="${p.x - 20}" y="${p.y - 18}" width="40" height="36" rx="18"/>` +
+           `<text x="${p.x}" y="${p.y + 6}" text-anchor="middle">${k}</text></g>`;
+      if (k === pivot) g += `<rect class="pivot" x="${p.x - 27}" y="${p.y - 25}" width="54" height="50" rx="25"/>`;
+    }
+  }
+  const W = X0 * 2 + (order.length - 1) * DX, H = maxY + 44;
+  const xd = depthOf(t, xKey);
+  g += `<text class="dep" x="${W - 8}" y="20" text-anchor="end">X at depth ${xd}</text>`;
+  const svg = $(svgId);
+  svg.setAttribute('viewBox', `0 0 ${W} ${Math.max(H, Y0 + 3 * DY + 44)}`);
+  svg.setAttribute('width', W); svg.setAttribute('height', Math.max(H, Y0 + 3 * DY + 44));
+  svg.innerHTML = g;
+}
+function drawCalls(id, calls, done, now, none) {
+  if (!calls.length) { $(id).innerHTML = `<span class="call none">${none}</span>`; return; }
+  $(id).innerHTML = calls.map((c, i) => `<span class="call${i === now ? ' now' : i < done ? ' done' : ''}">${i + 1}. ${L(c)}</span>`).join('');
+}
+function drawCode(id, lines, cur, dimAll) {
+  $(id).innerHTML = lines.map((l, i) => `<span class="ln${i === cur ? ' cur' : ''}${dimAll ? ' dim' : ''}">${colorize(l)}</span>`).join('');
+}
+
+let B = null, cur = 0;
+function show(i) {
+  cur = Math.max(0, Math.min(i, B.steps.length - 1));
+  const s = B.steps[cur], c = B.c;
+  const m = message(B, s);
+  $('msg').className = 'msg' + (m.cls ? ' ' + m.cls : '');
+  $('msg').innerHTML = m.text || m;
+  $('avlCase').innerHTML = c.avl ? `${c.avl} <span class="long">${c.avlLong}</span>` : 'no such case';
+  $('spCase').textContent = c.sp;
+  drawCalls('avlCalls', c.avlCalls, s.avlDone, s.avlNow, 'no rotation: an AVL case always spans three levels');
+  drawCalls('spCalls', c.spCalls, s.spDone, s.spNow, '');
+  drawTree('avlTree', s.avl, B.order, s.avlNow >= 0 ? c.avlCalls[s.avlNow][0] : null, 'X');
+  drawTree('spTree', s.sp, B.order, s.spNow >= 0 ? c.spCalls[s.spNow][0] : null, 'X');
+  drawCode('avlCode', AVL_CODE, s.avlNow >= 0 ? c.avlCalls[s.avlNow][2] : -1, !c.avl);
+  drawCode('spCode', SP_CODE, s.spNow >= 0 ? c.spCalls[s.spNow][2] : -1, false);
+  const capFor = (calls, now, done, who) => {
+    if (s.i === 0) return 'Start: the same tree on both sides.';
+    if (now >= 0) return `After <code>${L(calls[now])}</code>: ${calls[now][0]} went down to the ${calls[now][1] === 'R' ? 'right' : 'left'} (dashed ring).`;
+    if (!calls.length) return who === 'avl' ? 'Nothing to do here.' : '';
+    return `Done after ${done} rotation${done > 1 ? 's' : ''}: ${(who === 'avl' ? s.avl : s.sp).k} is on top.`;
+  };
+  $('avlCap').innerHTML = c.avl ? capFor(c.avlCalls, s.avlNow, s.avlDone, 'avl') : 'An AVL tree has no case with only two levels. The rotation itself is the same function.';
+  $('spCap').innerHTML = capFor(c.spCalls, s.spNow, s.spDone, 'sp');
+  $('count').textContent = `Step ${cur + 1} of ${B.steps.length}`;
+  $('back').disabled = $('first').disabled = cur === 0;
+  $('next').disabled = $('last').disabled = cur === B.steps.length - 1;
+  document.querySelectorAll('#table tr').forEach((tr) => tr.classList.toggle('now', tr.dataset.k.split(' ').includes($('scen').value)));
+}
+
+function table() {
+  const rows = [
+    ['zig zag', 'one step', 'zig, zag', '—', '—', '1: at P', 'only splay'],
+    ['zigzig zagzag', 'left, left · right, right', 'zig-zig, zag-zag', 'LL, RR', '1: at G', '2: at G, then P', 'no'],
+    ['zigzag zagzig', 'left, right · right, left', 'zig-zag, zag-zig', 'LR, RL', '2: at P, then G', '2: at P, then G', 'yes'],
+  ];
+  $('table').innerHTML = rows.map((r) => `<tr data-k="${r[0]}"><td>${r[1]}</td><td><b>${r[2]}</b></td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td>` +
+    `<td class="${r[6] === 'yes' ? 'yes' : r[6] === 'no' ? 'no' : ''}">${r[6]}</td></tr>`).join('');
+}
+
+function run() { B = build($('scen').value); show(0); }
+$('scen').onchange = run;
+if (SHOW_CODE) document.body.classList.add('show-code');
+$('next').onclick = () => show(cur + 1);
+$('back').onclick = () => show(cur - 1);
+$('first').onclick = () => show(0);
+$('last').onclick = () => show(B.steps.length - 1);
+document.addEventListener('keydown', (e) => {
+  if (e.target && e.target.tagName === 'SELECT') return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); $('next').click(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); $('back').click(); }
+  else if (e.key === 'Home') $('first').click();
+  else if (e.key === 'End') $('last').click();
+  else if (e.key === 'd' || e.key === 'D') $('theme').click();
+});
+function setTheme(t) {
+  if (t === 'dark') document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem('shstyle-theme', t); } catch (e) {}
+  $('theme').textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
+}
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+$('theme').textContent = document.documentElement.dataset.theme === 'dark' ? 'Light mode' : 'Dark mode';
+
+// for automated checks: the final trees of each case
+window.rotTest = () => Object.fromEntries(Object.keys(CASES).map((k) => { const b = build(k);
+  return [k, { avl: CASES[k].avl ? ser(b.fa) : null, splay: ser(b.fs), same: b.same, steps: b.steps.length }]; }));
+
+table();
+run();
+</script>
+</body>
+</html>
