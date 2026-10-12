@@ -14,73 +14,60 @@
 <main class="page">
 
   <header>
-    <span class="kicker">Reading · 3 minutes</span>
-    <h1>The tree that remembers: why what you just used should be the fastest thing to find</h1>
+    <span class="kicker">Reading · 2 minutes</span>
+    <h1>The tree that remembers: what you just used stays on top</h1>
     <div class="meta">Data Structures and Algorithms</div>
   </header>
 
-  <p class="lead">The song you replay. The chat you open twenty times a day. The same three files, all week. Most
-    of what you ask a computer for, you asked for a moment ago.</p>
+  <p class="lead">You replay the same song. You open the same chat twenty times a day. Most of what you ask a
+    computer for, you asked for a moment ago.</p>
 
-  <p>A search tree can ignore that and treat every item alike, or it can bet on it. So the question is:
-    <strong>should a data structure reorganize itself around what you use the most?</strong></p>
+  <p>So here is the question: <strong>should a search tree move what you just used to the top, where it is
+    fastest to find?</strong></p>
 
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Idea</th><th>What it does</th><th>You met it when…</th></tr></thead>
+      <thead><tr><th>Idea</th><th>What it does</th><th>You see it when…</th></tr></thead>
       <tbody>
-        <tr><td>Keep recent results</td><td>remembers the last answers it computed</td><td>something loaded faster the second time</td></tr>
-        <tr><td>Self-adjusting tree</td><td>moves each item you touch to the top</td><td>the same request came again, and again</td></tr>
+        <tr><td>Recent first</td><td>keeps what you just used close</td><td>an app opens faster the second time</td></tr>
+        <tr><td>Splay tree</td><td>moves every item you touch to the root</td><td>the same request comes again and again</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h2>The bet: you will ask again</h2>
+  <h2>What you just used, you will likely use again</h2>
   <ul>
-    <li><strong>Inside Python.</strong> The standard library can remember the most recent calls of a function.
-      Its documentation says when that pays off: when "the most recent calls are the best predictors of upcoming
-      calls", like the most popular articles on a news server.<sup class="cite"><a href="#ref-1">[1]</a></sup></li>
-    <li><strong>Inside BSD systems.</strong> Their tree library includes the splay tree, a search tree that moves
-      every item you look up to the top. The manual gives the reason: requests that repeat find their items
-      near the top, so lookups get faster.<sup class="cite"><a href="#ref-2">[2]</a></sup></li>
+    <li><strong>Inside Windows.</strong> Drivers can keep their data in "generic tables", and by default those
+      tables are splay trees.<sup class="cite"><a href="#ref-1">[1]</a></sup></li>
+    <li><strong>Inside Chrome.</strong> V8, Google's JavaScript engine, used a splay tree in its profiler, the tool
+      that measures where a program spends its time. Google then turned that code into a benchmark for
+      JavaScript engines.<sup class="cite"><a href="#ref-2">[2]</a></sup></li>
   </ul>
-  <div class="box-key">Use a self-adjusting tree when a few items get most of the requests.</div>
+  <div class="box-key">A splay tree is fast when a few items get most of the requests.</div>
 
-  <h2>The price: no promise for a single request</h2>
+  <h2>The cost: one search can be slow</h2>
   <ul>
-    <li><strong>Inside Windows.</strong> Driver code can keep its data in "generic tables", built on splay trees
-      by default. The same page warns that a splay tree can become deep and narrow, even a straight line, and
-      offers a strictly balanced tree as the alternative.<sup class="cite"><a href="#ref-3">[3]</a></sup></li>
-    <li><strong>Reading is writing.</strong> A splay tree rearranges itself on every lookup, so even a search
-      changes memory.<sup class="cite"><a href="#ref-2">[2]</a></sup> What it guarantees is the total: any M operations in a row, starting from an empty
-      tree, take at most about M · log N steps, although one of them may be slow.<sup class="cite"><a href="#ref-4">[4]</a></sup></li>
+    <li><strong>It can become a chain.</strong> The same Windows page warns that a splay tree can become deep and
+      narrow, even a straight line, and it offers a balanced tree as the alternative.<sup class="cite"><a href="#ref-1">[1]</a></sup></li>
+    <li><strong>Searching moves things.</strong> Every search rotates nodes, so even a read changes memory. The V8
+      benchmark exists partly to measure that.<sup class="cite"><a href="#ref-2">[2]</a></sup> What a splay tree promises is the total: M operations in a
+      row take at most about M log N steps.<sup class="cite"><a href="#ref-3">[3]</a></sup></li>
   </ul>
   <div class="box-key">A splay tree is fast over many operations, not on each one.</div>
 
   <div class="box-note">
     <h2>Did you know?</h2>
     <p>Splay trees were introduced in 1985 by Daniel Sleator and Robert Tarjan, in a paper called
-      "Self-adjusting binary search trees". The name says it all: the tree adjusts itself to the way you use it.<sup class="cite"><a href="#ref-5">[5]</a></sup></p>
+      "Self-adjusting binary search trees". The name says it all: the tree adjusts itself to the way you use it.<sup class="cite"><a href="#ref-4">[4]</a></sup></p>
   </div>
-
-  <h2>Think about it</h2>
-  <ol class="questions">
-    <li>Think of the apps on your phone. Do a few of them get most of your taps? Where would you want those to
-      sit in a tree?</li>
-    <li>A splay tree may answer one request slowly and the next thousand quickly. Name one program where that
-      is fine, and one where it is not.</li>
-    <li>If a search also rearranges the tree, what could go wrong when two parts of a program search it at the
-      same moment?</li>
-  </ol>
 
   <section class="refs">
     <h2>References</h2>
     <ol>
-      <li id="ref-1">Python documentation. <a href="https://docs.python.org/3/library/functools.html"><code>functools</code> — <code>lru_cache</code></a>.</li>
-      <li id="ref-2">OpenBSD manual pages. <a href="https://man.openbsd.org/tree"><code>tree(3)</code>: splay trees</a>.</li>
-      <li id="ref-3">Microsoft Learn, Windows drivers. <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-rtlinitializegenerictable"><code>RtlInitializeGenericTable</code> function</a>.</li>
-      <li id="ref-4">Weiss, M. A. <em>Data Structures and Algorithm Analysis in C++</em>, 4th ed., Pearson, 2014. § 4.5 (splay trees).</li>
-      <li id="ref-5">Sleator, D. D. and Tarjan, R. E. <a href="https://www.cs.princeton.edu/courses/archive/spring06/cos423/Handouts/self%20adjusting.pdf">Self-adjusting binary search trees</a>. <em>Journal of the ACM</em> 32(3), 652–686, 1985.</li>
+      <li id="ref-1">Microsoft Learn, Windows drivers. <a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-rtlinitializegenerictable"><code>RtlInitializeGenericTable</code> function</a>.</li>
+      <li id="ref-2">V8 source code. <a href="https://chromium.googlesource.com/v8/v8/+/6.1.77/benchmarks/splay.js"><code>benchmarks/splay.js</code></a>, header comment.</li>
+      <li id="ref-3">Weiss, M. A. <em>Data Structures and Algorithm Analysis in C++</em>, 4th ed., Pearson, 2014. § 4.5 (splay trees).</li>
+      <li id="ref-4">Sleator, D. D. and Tarjan, R. E. <a href="https://www.cs.princeton.edu/courses/archive/spring06/cos423/Handouts/self%20adjusting.pdf">Self-adjusting binary search trees</a>. <em>Journal of the ACM</em> 32(3), 652–686, 1985.</li>
     </ol>
   </section>
 
