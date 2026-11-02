@@ -402,6 +402,9 @@
   margin-top: 0.5em;
 }
 .reveal .quiz.answered .quiz-explain { display: block; animation: rise 0.35s ease; }
+/* Explicación en renglones: un <p> por opción */
+.reveal .quiz-explain p { margin: 0 0 0.4em; line-height: 1.35; }
+.reveal .quiz-explain p:last-child { margin-bottom: 0; }
 
 /* ---------- Solución oculta (auto-estudio) ----------
    <div class="solucion" data-label="Ver solución">…contenido…</div>
