@@ -1,0 +1,13 @@
+{
+  "name": "slides-to-pdf",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Exports every reveal.js deck in slides/ to PDF (slides/pdf/).",
+  "type": "module",
+  "scripts": {
+    "export": "node export.mjs"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.0.0"
+  }
+}

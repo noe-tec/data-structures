@@ -13,3 +13,6 @@ bin/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Node dependencies (tools/)
+node_modules/
